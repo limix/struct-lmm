@@ -1,0 +1,1 @@
+from structlmm import StructLMM

@@ -20,7 +20,7 @@ def P(gp, M):
     return RV
 
 
-class HierGWASjoint():
+class StructuLMMt():
 
     def __init__(self, y, Env, K=None, W =None, rho_list = None):
         self.y = y
