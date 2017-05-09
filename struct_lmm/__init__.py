@@ -1,1 +1,2 @@
-from structlmm import StructLMM
+from fdr import fdr_bh
+
