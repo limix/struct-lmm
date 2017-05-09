@@ -33,7 +33,7 @@ class CompQuadFormDavies():
         from rpy2.robjects.vectors import FloatVector
         from rpy2.robjects.numpy2ri import numpy2ri
         ro.numpy2ri.activate()
-        ro.r.source('./../include/Rcode/davies_final_integration.R')
+        ro.r.source('./R/davies_final_integration.R')
         self.r_davies = ro.globalenv['SKAT_Optimal_PValue_Davies']
 
     def getPv(self, qminrho, MuQ, VarQ, KerQ, lam, VarRemain, Df, tau, rho_list, T):
@@ -51,7 +51,7 @@ class CompQuadFormLiuMod():
         from rpy2.robjects.vectors import Matrix
         from rpy2.robjects.numpy2ri import numpy2ri
         ro.numpy2ri.activate()
-        ro.r.source('./../include/Rcode/liu_mod.R')
+        ro.r.source('./R/liu_mod.R')
         self.r_liu_mod = ro.globalenv['SKAT_liu.MOD']
 
     def getPv(self, Q, lambdas):
@@ -67,7 +67,7 @@ class CompQuadFormDaviesSkat():
         from rpy2.robjects.vectors import Matrix
         from rpy2.robjects.numpy2ri import numpy2ri
         ro.numpy2ri.activate()
-        ro.r.source('./../include/Rcode/davies_skat.R')
+        ro.r.source('./R/davies_skat.R')
         self.r_davies = ro.globalenv['Get_Davies_PVal']
 
     def getPv(self, optimal_Q_rho, LAtAL):
