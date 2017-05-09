@@ -5,10 +5,10 @@
 import scipy as sp
 import scipy.linalg as la
 import scipy.stats as st
-from limix.core.covar import FreeFormCov
-from limix.core.gp import GP2KronSumLR  
+from limix_core.covar import FreeFormCov
+from limix_core.gp import GP2KronSumLR  
 import pdb
-from include.pvmixchi2 import *
+from .pvmixchi2 import *
 
 def P(gp, M):
     RV = gp.covar.solve(M)
@@ -20,7 +20,7 @@ def P(gp, M):
     return RV
 
 
-class StructuLMMt():
+class StructLMM():
 
     def __init__(self, y, Env, K=None, W =None, rho_list = None):
         self.y = y
