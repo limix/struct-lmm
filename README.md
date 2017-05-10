@@ -43,7 +43,7 @@ If you encounter any issue, please [submit it](https://github.com/limix/struct-l
 
 ## Authors
 
-* **Franceso Paolo Casale** - [https://github.com/fpcasale](https://github.com/fpcasale)
+* **Francesco Paolo Casale** - [https://github.com/fpcasale](https://github.com/fpcasale)
 * **Rachel Moore** - [https://github.com/rm18](https://github.com/rm18)
 
 ## License
