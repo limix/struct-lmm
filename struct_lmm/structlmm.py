@@ -21,10 +21,93 @@ def P(gp, M):
 
 
 class StructLMM():
+    r"""
+    Mixed-model with genetic effect heterogeneity.
 
-    def __init__(self, y, Env, K=None, W =None, rho_list = None):
+    The StructLMM model is
+
+    .. math::
+        \mathbf{y}=
+        \underbrace{\mathbf{F}\mathbf{b}}_{\text{covariates}}+
+        \underbrace{\mathbf{x}\odot\boldsymbol{\beta}}_{\text{genetics}}+
+        \underbrace{\mathbf{e}}_{\text{random effect}}+
+        \underbrace{\boldsymbol{\psi}}_{\text{noise}}
+
+    where
+
+    .. math::
+        \boldsymbol{\beta}\sim\mathcal{N}(\mathbf{0},
+        \sigma_g^2(
+        \underbrace{\rho\boldsymbol{EE}^T}_{\text{GxE}}+
+        \underbrace{(1-\rho)\mathbf{1}_{N\times N}}_{\text{persistent}}))
+
+    .. math::
+        \mathbf{e}\sim\mathcal{N}(\mathbf{0}, \sigma_e^2\mathbf{WW}^T)
+
+    .. math::
+        \boldsymbol{\psi}\sim\mathcal{N}(\mathbf{0}, \sigma_n^2\mathbf{I}_N)
+
+    StructLMM can be used to implement
+
+    - joint test (persistent+GxE vs no effect, i.e. :math:`\sigma_g^2>0`)
+    - GxE test (persistent+GxE vs persistent, i.e. :math:`\rho\neq{0}`)
+
+    Parameters
+    ----------
+    y : (`N`, 1) ndarray
+        phenotype vector
+    Env : (`N`, `K`)
+          Environmental matrix (indviduals by number of environments)
+    W : (`N`, `T`)
+        design of random effect in the null model.
+        By default, W is set to ``Env``.
+    rho_list : list
+        list of ``rho`` values.
+        ``rho=0`` correspond to no persistent effect (only GxE);
+        ``rho=1`` corresponds to only persitent effect (no GxE);
+        By default, ``rho=[0, 0.2, 0.4, 0.6, 0.8, 1.]``
+
+    Examples
+    --------
+    This example shows how to run StructLMM. 
+    Let's start with the joint test:
+
+    .. doctest::
+
+        >>> from numpy.random import RandomState
+        >>> import scipy as sp
+        >>> from struct_lmm import StructLMM
+        >>> random = RandomState(1)
+        >>>
+        >>> # generate data
+        >>> n = 20 # number samples
+        >>> k = 4 # number environments
+        >>>
+        >>> y = random.randn(n, 1) # phenotype
+        >>> x = 1. * (random.rand(n, 1) < 0.2) # genotype
+        >>> E = random.randn(n, k) # environemnts
+        >>> covs = sp.ones((n, 1)) # intercept
+        >>> rho = [0., .2, .4, .6, .8, 1.] # list of rhos
+        >>>
+        >>> slmm = StructLMM(y, E, W=E, rho_list=rho)
+        >>> null = slmm.fit_null(F=covs, verbose=False)
+        >>> pv, rho_opt = slmm.score_2_dof(x)
+        >>> print('%.4f' % pv)
+        0.4035
+
+    and now the interaction test
+
+        >>> hGWASjoint = StructLMM(y, E, rho_list=[0])
+        >>> null = hGWASjoint.fit_null(F=sp.hstack([covs, x]), verbose=False)
+        >>> pv, rho_opt = hGWASjoint.score_2_dof(x)
+        >>> print('%.4f' % pv)
+        0.3294
+    """
+
+    def __init__(self, y, Env, K=None, W=None, rho_list=None):
         self.y = y
         self.Env = Env
+        if W is None:   W = Env
         # K is kernel under the null (exclusing noise)
         self.K = K
         # W is low rank verion of kernel
@@ -39,6 +122,17 @@ class StructLMM():
 
 
     def fit_null(self, F = None, verbose=True):
+        """
+        Parameters
+        ----------
+        F : (`N`, L) ndarray
+            fixed effect design for covariates.
+
+        Returns
+        -------
+        RV : dict
+             Dictionary with null model info (TODO add details)
+        """
         # F is a fixed effect covariate matrix with dim = N by D
         # F itself cannot have any cols of 0's and it won't work if it is None
         self.F = F
@@ -80,6 +174,19 @@ class StructLMM():
         return RV
 
     def score_2_dof(self, X, snp_dim='col', debug=False):
+        """
+        Parameters
+        ----------
+        X : (`N`, `1`) ndarray
+            genotype vector (TODO: X should be small) 
+
+        Returns
+        -------
+        pvalue : float 
+            P value
+        optimal_rho : float
+            optimal value of rho (rho with min pv)
+        """
         #1. calculate Qs and pvs
         Q_rho = sp.zeros(len(self.rho_list))
         Py = P(self.gp, self.y)
@@ -176,7 +283,3 @@ class StructLMM():
             else:
                 return pvalue, optimal_rho
 
-
-
-
- 
