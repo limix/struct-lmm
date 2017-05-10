@@ -10,7 +10,6 @@ Describe me
 2. asdsad
 
 3. asdasdas
-
   ```bash
   git clone https://github.com/limix/struct-lmm.git
   cd struct-lmm
