@@ -4,24 +4,38 @@ Describe me
 
 ## Install
 
-1. Create a new environment in conda
+The package depends scipy, numpy, rpy2, limix-core.
 
+- Create a new environment in [conda](https://conda.io/docs/index.html)
+  ```bash
+  conda create -n struct-lmm python=2.7
+  source activate struct-lmm
+  ```
 
-2. asdsad
+- install numpy, scipy, rpy2 and limix-core
+  ```
+  conda install -n struct-lmm numpy scipy
+  conda install -c r -n struct-lmm rpy2
+  pip install limix-core
+  ```
 
-3. asdasdas
+- install struct-lmm (hopefully all tests pass)
   ```bash
   git clone https://github.com/limix/struct-lmm.git
   cd struct-lmm
-  python setup.py install
+  python setup.py install test
+  ```
+
+- install documentation
+  ```bash
+  cd doc
+  make html
   ```
   
-4. aodmas
 
 ## Documentation
 
-To compile the documentation:
-TODO
+Documentation is available in struct-lmm/doc/html/index.html.
 
 ## Problems
 
