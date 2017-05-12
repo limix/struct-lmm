@@ -99,5 +99,6 @@ if __name__=='__main__':
                          unique_variants=opt.unique_variants)
 
     # export
+    print 'Export to %s' % opt.ofile
     make_out_dir(opt.ofile)
     res.to_csv(opt.ofile, index=False)

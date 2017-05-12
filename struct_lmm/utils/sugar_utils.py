@@ -76,5 +76,3 @@ def make_out_dir(outfile):
     resdir = '/'.join(sp.array(outfile.split('/'))[:-1])
     if not os.path.exists(resdir):
         os.makedirs(resdir)
-    
-
