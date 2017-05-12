@@ -1,7 +1,4 @@
 r"""
-Run functions
-~~~~~~~~~~~~~
-
 - :func:`.run_struct_lmm`
 """
 

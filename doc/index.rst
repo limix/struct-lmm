@@ -5,7 +5,7 @@ StructLMM's documentation
 .. toctree::
    :caption: Table of contents
    :name: mastertoc
-   :maxdepth: 2
+   :maxdepth: 3
 
    install
    python
