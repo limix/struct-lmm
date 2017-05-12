@@ -1,5 +1,8 @@
+.. _public:
+
+****************
 Public Interface
-^^^^^^^^^^^^^^^^
+****************
 .. automodule:: struct_lmm.lmm
   :members:
 .. automodule:: struct_lmm.interpretation

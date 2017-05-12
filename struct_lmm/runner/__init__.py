@@ -1,8 +1,8 @@
 r"""
+Run functions
+~~~~~~~~~~~~~
+
 - :func:`.run_struct_lmm`
-
-.. autofunction:: run_struct_lmm 
-
 """
 
 from .run_struct_lmm import run_struct_lmm

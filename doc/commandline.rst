@@ -1,6 +1,8 @@
-*******************
-Command Line Script
-*******************
+.. _commandline:
+
+**********************
+Command Line Interface 
+**********************
 
 StructLMM can also be run from command line as shown below.
 
