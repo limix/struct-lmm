@@ -97,9 +97,9 @@ class StructLMM():
 
     and now the interaction test
 
-        >>> hGWASjoint = StructLMM(y, E, rho_list=[0])
-        >>> null = hGWASjoint.fit_null(F=sp.hstack([covs, x]), verbose=False)
-        >>> pv, rho_opt = hGWASjoint.score_2_dof(x)
+        >>> hGWASint = StructLMM(y, E, rho_list=[0])
+        >>> null = hGWASint.fit_null(F=sp.hstack([covs, x]), verbose=False)
+        >>> pv, rho_opt = hGWASint.score_2_dof(x)
         >>> print('%.4f' % pv)
         0.3294
     """
@@ -113,7 +113,7 @@ class StructLMM():
         # W is low rank verion of kernel
         self.W = W
         self.rho_list = rho_list
-        if self.rho_list == None:
+        if self.rho_list is None:
             self.rho_list = sp.arange(0,1.01, 0.2)
         # This is to correct when Sigma is a block of ones as choice of rho parameter makes no difference to p-value but final p-value is inaccurate.  A similar correction is made in the original SKAT-O script
         #if self.rho_list[-1] == 1:

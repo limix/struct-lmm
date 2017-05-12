@@ -8,6 +8,7 @@ StructLMM's documentation
    :maxdepth: 2
 
    struct_lmm
+   scripts
 
 *****************
 Comments and bugs
