@@ -5,13 +5,14 @@ StructLMM
 
 Write me
 
-Public interface
-^^^^^^^^^^^^^^^^
 """
 
-from fdr import fdr_bh
-from structlmm import StructLMM
+from . import (lmm, runner, utils, interpretation)
+from runner import run_struct_lmm
+from lmm import StructLMM
 
-__all__ = ['StructLMM']
+__all__ = [
+    'lmm', 'runner', 'interpretation', 'utils' 
+]
 
 

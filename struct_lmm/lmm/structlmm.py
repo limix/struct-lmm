@@ -7,8 +7,7 @@ import scipy.linalg as la
 import scipy.stats as st
 from limix_core.covar import FreeFormCov
 from limix_core.gp import GP2KronSumLR  
-from struct_lmm.pvmixchi2 import * 
-import pdb
+from struct_lmm.utils.pvmixchi2 import * 
 
 def P(gp, M):
     RV = gp.covar.solve(M)

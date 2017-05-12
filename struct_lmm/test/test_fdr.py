@@ -1,6 +1,6 @@
 from numpy.testing import assert_allclose
 from numpy import array
-from struct_lmm import fdr_bh
+from struct_lmm.utils import fdr_bh
 
 def test_fdr():
     pv = array([.1, .5, .9])

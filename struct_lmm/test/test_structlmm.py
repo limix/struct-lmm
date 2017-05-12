@@ -1,7 +1,7 @@
 from numpy.testing import assert_allclose
 from numpy.random import RandomState
 import scipy as sp
-from struct_lmm import StructLMM 
+from struct_lmm.lmm import StructLMM 
 
 def test_structlmm():
     #1. generate data
