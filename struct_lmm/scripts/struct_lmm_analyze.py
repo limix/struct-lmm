@@ -11,9 +11,11 @@ from limix.data import build_geno_query
 from limix.data import GIter
 from limix.util import unique_variants
 from optparse import OptionParser
-from struct_lmm import StructLMM
+from struct_lmm import run_struct_lmm 
+from struct_lmm.utils.sugar_utils import *
 
 if __name__=='__main__':
+
     parser = OptionParser()
 
     # input files
@@ -54,8 +56,14 @@ if __name__=='__main__':
                       default=False)
     (opt, args) = parser.parse_args()
 
-    # geno
+    # assert stuff
     assert opt.bfile is not None, 'Specify bed file!'
+    assert opt.pfile is not None, 'Specify pheno file!'
+    assert opt.efile is not None, 'Specify env file!'
+    assert opt.ofile is not None, 'Specify out file!'
+    if opt.rhos is None: opt.rhos = '0.,.2,.4,.6,.8,1.'
+
+    # import geno and subset
     reader = BedReader(opt.bfile)
     query = build_geno_query(idx_start=opt.i0,
                              idx_end=opt.i1,
@@ -63,71 +71,33 @@ if __name__=='__main__':
                              pos_start=opt.pos_start,
                              pos_end=opt.pos_end)
     reader.subset_snps(query, inplace=True)
-    n_snps = reader.getSnpInfo().shape[0]
-    n_batches = int(sp.ceil(n_snps/float(opt.batch_size)))
 
     # pheno
-    assert opt.pfile is not None, 'Specify pheno file!'
-    #df = dd.read_csv('data/expr_table.csv', header=None)
-    df2 = dd.read_csv(opt.pfile)
-    Ip = df2['Unnamed: 0']==opt.pheno_id
-    del df2['Unnamed: 0']
-    y = df2[Ip].values.compute().T
-    y -= y.mean(0)
-    y /= y.std(0)
+    y = import_one_pheno_from_csv(opt.pfile,
+                                  pheno_id=opt.pheno_id,
+                                  standardize=True)
 
-    assert opt.efile is not None, 'Specify env file!'
+    # import environment
     E = sp.loadtxt(opt.efile)
-    if opt.no_mean_to_one:
-        E *= sp.sqrt(E.shape[0] / sp.sum(E**2))
-    else:
-        E /= ((E**2).sum(1)**0.5)[:, sp.newaxis]
 
+    # import fixed effects
     if opt.ffile is None:
         covs = sp.ones((E.shape[0], 1))
     else:
         covs = sp.loadtxt(opt.ffile)
 
-    assert opt.ofile is not None, 'Specify out file!'
-    resdir = '/'.join(sp.array(opt.efile.split('/'))[:-1])
-    if not os.path.exists(resdir):
-        os.makedirs(resdir)
-
-    if opt.rhos is None:
-        opt.rhos = '0.,.2,.4,.6,.8,1.'
+    # extract rhos
     rhos = sp.array(opt.rhos.split(','), dtype=float)
 
-    # slmm fit null 
-    slmm = StructLMM(y, E, W=E, rho_list=rhos)
-    null = slmm.fit_null(F=covs, verbose=False)
+    # run analysis
+    res = run_struct_lmm(reader, y, E,
+                         covs=covs,
+                         rhos=rhos,
+                         no_mean_to_one=opt.no_mean_to_one,
+                         batch_size=opt.batch_size,
+                         no_interaction_test=opt.no_interaction_test,
+                         unique_variants=opt.unique_variants)
 
-    # slmm int
-    if not opt.no_interaction_test:
-        slmm_int = StructLMM(y, E, W=E, rho_list=[0])
-
-    pv = []
-    pv_int = [] 
-    for i, gr in enumerate(GIter(reader, batch_size=opt.batch_size)):
-        print '.. batch %d/%d' % (i, n_batches)
-
-        X = gr.getGenotypes(standardize=True)
-
-        if opt.unique_variants:
-            X = unique_variants(X)
-
-        _pv = sp.zeros(X.shape[1])
-        _pv_int = sp.zeros(X.shape[1])
-        for snp in xrange(X.shape[1]):
-            x = X[:, [snp]]
-
-            # association test
-            _p, _ = slmm.score_2_dof(x)
-            _pv[snp] = _p
-
-            if not opt.no_interaction_test:
-                # interaction test
-                covs1 = sp.hstack((covs, x))
-                null = slmm_int.fit_null(F=covs1, verbose=False)
-                _p, _ = slmm.score_2_dof(x)
-                _pv[snp] = _p
-
+    # export
+    make_out_dir(opt.ofile)
+    res.to_csv(opt.ofile, index=False)

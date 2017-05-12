@@ -9,29 +9,93 @@ import dask.dataframe as dd
 from limix.data import BedReader
 from limix.data import build_geno_query
 from limix.data import GIter
-from limix.util import unique_variants
+from limix.util import unique_variants as f_univar
 from optparse import OptionParser
 from struct_lmm.lmm import StructLMM
+from struct_lmm.utils.sugar_utils import *
 
-def run_struct_lmm(pheno,
-                   greader,
-                   E,
-                   covs,
-                   batch_size):
 
-    n_batches = greader.getSnpInfo().shape[0]/batch_size
+def run_struct_lmm(reader,
+                   pheno,
+                   env,
+                   covs=None,
+                   rhos=None,
+                   no_mean_to_one=False,
+                   batch_size=1000,
+                   no_interaction_test=False,
+                   unique_variants=False):
+    """
+    Utility function to run StructLMM
+
+    Parameters
+    ----------
+    reader : :class:`limix.data.BedReader`
+        limix bed reader instance.
+    pheno : (`N`, 1) ndarray
+        phenotype vector
+    env : (`N`, `K`)
+          Environmental matrix (indviduals by number of environments)
+    covs : (`N`, L) ndarray
+        fixed effect design for covariates `N` samples and `L` covariates.
+    rhos : list
+        list of ``rho`` values.
+        ``rho=0`` correspond to no persistent effect (only GxE);
+        ``rho=1`` corresponds to only persitent effect (no GxE);
+        By default, ``rho=[0, 0.2, 0.4, 0.6, 0.8, 1.]``
+    no_mean_to_one : bool (optional)
+        if False, the environment matrix is normalized in such
+        a way that the outer product EE^T has diagonal of ones.
+        if True, the environment matrix is normalized in such
+        a way that the outer product EE^T has mean of diagonal
+        of ones.
+    batch_size : int    
+        to minimize memory usage the analysis is run in batches.
+        The number of variants loaded in a batch
+        (loaded into memory at the same time).
+    no_interaction_test : bool
+        if True the interaction test is not consdered.
+        Teh default value is True.
+    unique_variants : bool
+        if True, only non-repeated genotypes are considered
+        The default value is False.
+
+    Returns
+    -------
+    res : *:class:`pandas.DataFrame`*
+        contains pv of joint test, pv of interaction test
+        (if no_interaction_test is False) and snp info.
+    """
+    if covs is None:
+        covs = sp.ones((env.shape[0], 1))
+
+    if rhos is None:
+        rhos = [0, .2, .4, .6, .8, 1.]
+
+    # norm environments
+    env = norm_env_matrix(env)
+
+    # slmm fit null
+    slmm = StructLMM(pheno, env, W=env, rho_list=rhos)
+    null = slmm.fit_null(F=covs, verbose=False)
+
+    # slmm int
+    if not no_interaction_test:
+        slmm_int = StructLMM(pheno, env, W=env, rho_list=[0])
+
+    n_batches = reader.getSnpInfo().shape[0]/batch_size
 
     t0 = time.time()
 
-    pv = []
-    pv_int = [] 
-    for i, gr in enumerate(GIter(reader, batch_size=opt.batch_size)):
+    res = []
+    for i, gr in enumerate(GIter(reader, batch_size=batch_size)):
         print '.. batch %d/%d' % (i, n_batches)
 
-        X = gr.getGenotypes(standardize=True)
+        X, _res = gr.getGenotypes(standardize=True, return_snpinfo=True)
 
-        if opt.unique_variants:
-            X = unique_variants(X)
+        if unique_variants:
+            X, idxs = f_univar(X, return_idxs=True)
+            Isnp = sp.in1d(sp.arange(_res.shape[0]), idxs)
+            _res = _res[Isnp]
 
         _pv = sp.zeros(X.shape[1])
         _pv_int = sp.zeros(X.shape[1])
@@ -42,15 +106,23 @@ def run_struct_lmm(pheno,
             _p, _ = slmm.score_2_dof(x)
             _pv[snp] = _p
 
-            if not opt.no_interaction_test:
+            if not no_interaction_test:
                 # interaction test
                 covs1 = sp.hstack((covs, x))
                 null = slmm_int.fit_null(F=covs1, verbose=False)
                 _p, _ = slmm.score_2_dof(x)
                 _pv[snp] = _p
 
-    t = time.time() - t0
-    print '%.2f s elapsed'
+        # add pvalues to _res and append to res
+        _res = _res.assign(pv=pd.Series(_pv, index=_res.index))
+        _res = _res.assign(pv=pd.Series(_pv_int, index=_res.index))
+        res.append(_res)
 
-    return 
+    res = pd.concat(res)
+    res.reset_index(inplace=True, drop=True)
+
+    t = time.time() - t0
+    print '%.2f s elapsed' % t
+
+    return res
 
