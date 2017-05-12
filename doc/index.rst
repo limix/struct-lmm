@@ -7,11 +7,10 @@ StructLMM's documentation
    :name: mastertoc
    :maxdepth: 2
 
-   runner
-   scripts
-   lmm
-   interpretation
-   utils
+   install
+   python
+   commandline
+   public
 
 *****************
 Comments and bugs
