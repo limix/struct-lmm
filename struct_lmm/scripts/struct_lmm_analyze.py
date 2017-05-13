@@ -11,7 +11,7 @@ from limix.data import build_geno_query
 from limix.data import GIter
 from limix.util import unique_variants
 from optparse import OptionParser
-from struct_lmm import run_struct_lmm 
+from struct_lmm.runner import run_struct_lmm 
 from struct_lmm.utils.sugar_utils import *
 
 if __name__=='__main__':
