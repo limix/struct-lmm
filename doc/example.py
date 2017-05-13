@@ -12,6 +12,8 @@ from limix.data import GIter
 from limix.util import unique_variants
 from optparse import OptionParser
 from struct_lmm import run_struct_lmm 
+from struct_lmm import run_lmm_int
+from struct_lmm import run_lmm
 from struct_lmm.utils.sugar_utils import *
 
 if __name__=='__main__':
@@ -28,7 +30,7 @@ if __name__=='__main__':
 
     # pheno
     y = import_one_pheno_from_csv(phenofile,
-                                  pheno_id='gene1.txt',
+                                  pheno_id='gene1',
                                   standardize=True)
 
     # import environment and normalize
@@ -49,18 +51,21 @@ if __name__=='__main__':
     res_int = run_lmm_int(reader, y, E,
                           W=E,
                           covs=covs,
-                          batch_size=opt.batch_size,
-                          unique_variants=opt.unique_variants)
-
-    # run analysis with standard lmm
-    # pure environment is modelled as random effects 
-    res2_lmm = run_lr_lmm(reader, y, W=E,
-                          covs=covs,
                           batch_size=100,
                           unique_variants=True)
 
+    # run analysis with standard lmm
+    # pure environment is modelled as random effects 
+    res_lmm = run_lmm(reader, y, W=E,
+                      covs=covs,
+                      batch_size=100,
+                      unique_variants=True)
+
     # export
-    print 'Export to %s' % opt.ofile
-    make_out_dir(opt.ofile)
-    res.to_csv(opt.ofile, index=False)
+    print 'Export'
+    if not os.path.exists('out'):
+        os.makedirs('out')
+    res_slmm.to_csv('out/res_structlmm.csv', index=False)
+    res_int.to_csv('out/res_int.csv', index=False)
+    res_lmm.to_csv('out/res_lmm.csv', index=False)
 

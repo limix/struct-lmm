@@ -27,41 +27,42 @@ Quick example
 
 * Run analysis with struct LMM::
 
-    python struct_lmm_analyze.py --bfile $BFILE \
-                                 --pfile $PFILE \
-                                 --pheno_id gene10 \
-                                 --efile $EFILE \
-                                 --ofile out/results.res \
-                                 --idx_start 0 \
-                                 --idx_end 1000 \
-                                 --batch_size 100 \
-                                 --unique_variants
+    struct_lmm_analyze \
+    --bfile $BFILE \
+    --pfile $PFILE \
+    --pheno_id gene10 \
+    --efile $EFILE \
+    --ofile out/results.res \
+    --idx_start 0 \
+    --idx_end 1000 \
+    --batch_size 100 \
+    --unique_variants
 
 * Run analysis with interaction fixed-effect test::
 
-    python lmm_int_analyze.py \
-     --bfile $BFILE \
-     --pfile $PFILE \
-     --pheno_id gene10 \
-     --efile $EFILE \
-     --ofile out/results.res \
-     --idx_start 0 \
-     --idx_end 1000 \
-     --batch_size 100 \
-     --unique_variants
+    lmm_int_analyze \
+    --bfile $BFILE \
+    --pfile $PFILE \
+    --pheno_id gene10 \
+    --efile $EFILE \
+    --ofile out/results.res \
+    --idx_start 0 \
+    --idx_end 1000 \
+    --batch_size 100 \
+    --unique_variants
 
 * Run analysis with standard LMM::
 
-    python lmm_analyze.py \
-     --bfile $BFILE \
-     --pfile $PFILE \
-     --pheno_id gene10 \
-     --wfile $EFILE \
-     --ofile out/results.res \
-     --idx_start 0 \
-     --idx_end 1000 \
-     --batch_size 100 \
-     --unique_variants
+    lmm_analyze \
+    --bfile $BFILE \
+    --pfile $PFILE \
+    --pheno_id gene10 \
+    --wfile $EFILE \
+    --ofile out/results.res \
+    --idx_start 0 \
+    --idx_end 1000 \
+    --batch_size 100 \
+    --unique_variants
 
 Commands 
 ~~~~~~~~
@@ -71,20 +72,21 @@ Commands
 
 .. code-block:: bash
 
-  python struct_lmm_analyze.py --bfile bfile \
-   --pfile pfile \
-   --pheno_id pheno_id \
-   --efile efile \
-   --ffile ffile \
-   --ofile ofile \
-   --idx_start idx_start \
-   --idx_end idx_end \
-   --pos_start pos_start \
-   --pos_end pos_end \
-   - chrom pos_chrom \
-   --batch_size bathc_size \
-   --unique_variants \
-   --no_interaction_test \
+    struct_lmm_analyze \
+    --bfile bfile \
+    --pfile pfile \
+    --pheno_id pheno_id \
+    --efile efile \
+    --ffile ffile \
+    --ofile ofile \
+    --idx_start idx_start \
+    --idx_end idx_end \
+    --pos_start pos_start \
+    --pos_end pos_end \
+    --chrom pos_chrom \
+    --batch_size bathc_size \
+    --unique_variants \
+    --no_interaction_test \
 
 
 * **bfile** is the base name of of the binary bed file
@@ -114,20 +116,21 @@ Commands
 
 .. code-block:: bash
 
-  python struct_lmm_analyze.py --bfile bfile \
-                               --pfile pfile \
-                               --pheno_id pheno_id \
-                               --wfile wfile \
-                               --ffile ffile \
-                               --ofile ofile \
-                               --idx_start idx_start \
-                               --idx_end idx_end \
-                               --pos_start pos_start \
-                               --pos_end pos_end \
-                               - chrom pos_chrom \
-                               --batch_size bathc_size \
-                               --unique_variants \
-                               --no_mean_to_one
+    struct_lmm_analyze \
+    --bfile bfile \
+    --pfile pfile \
+    --pheno_id pheno_id \
+    --wfile wfile \
+    --ffile ffile \
+    --ofile ofile \
+    --idx_start idx_start \
+    --idx_end idx_end \
+    --pos_start pos_start \
+    --pos_end pos_end \
+    - chrom pos_chrom \
+    --batch_size bathc_size \
+    --unique_variants \
+    --no_mean_to_one
 
 
 * **wfile** file that defines the low rank random effect (see :ref:`formats_ref`).
