@@ -18,7 +18,12 @@ Quick example
 
     BFILE=data_structlmm/chrom22_subsample20_maf0.10
     PFILE=data_structlmm/expr.csv
-    EFILE=data_structlmm/env.txt
+    EFILE0=data_structlmm/env.txt
+    EFILE=data_structlmm/env_norm.txt
+
+* Normalize environments::
+
+    python norm_envs.py --in $EFILE0 --out $EFILE
 
 * Run analysis with struct LMM::
 
