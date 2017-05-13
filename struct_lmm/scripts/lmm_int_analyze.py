@@ -14,7 +14,7 @@ from optparse import OptionParser
 from struct_lmm.runner import run_lmm_int 
 from struct_lmm.utils.sugar_utils import *
 
-if __name__=='__main__':
+def entry_point():
 
     parser = OptionParser()
 
@@ -87,3 +87,8 @@ if __name__=='__main__':
     print 'Export to %s' % opt.ofile
     make_out_dir(opt.ofile)
     res.to_csv(opt.ofile, index=False)
+
+
+if __name__=='__main__':
+
+    entry_point()
