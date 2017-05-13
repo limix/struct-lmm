@@ -63,12 +63,15 @@ class LMM():
         >>> lmm.process(G)
         >>> pv = lmm.getPv()
         >>> beta = lmm.getBetaSNP()
+        >>> beta_ste = lmm.getBetaSNPste()
         >>> lrt = lmm.getLRT()
         >>>
         >>> print(pv[:4])
         [ 0.8335  0.1669  0.9179  0.279 ]
         >>> print(beta[:4])
         [-0.0479  0.3145  0.0235 -0.2465]
+        >>> print(beta_ste[:4])
+        [ 0.2279  0.2275  0.2283  0.2276]
         >>> print(lrt[:4])
         [ 0.0442  1.9108  0.0106  1.1721]
     """
@@ -140,18 +143,57 @@ class LMM():
             print 'Tested for %d variants in %.2f s' % (G.shape[1],t1-t0)
 
     def getPv(self):
-        """ get pvalues """
+        """
+        Get pvalues
+
+        Returns
+        -------
+        pv : ndarray
+        """
         return self.pv
 
     def getBetaSNP(self):
-        """ get effect size SNPs """
+        """
+        get effect size SNPs
+
+
+        Returns
+        -------
+        pv : ndarray
+        """
         return self.beta_g
 
     def getBetaCov(self):
-        """ get beta of covariates """
+        """
+        get beta of covariates
+
+        Returns
+        -------
+        beta : ndarray
+        """
         return self.beta_F
 
     def getLRT(self):
-        """ get lik ratio test statistics """
+        """
+        get lik ratio test statistics
+
+        Returns
+        -------
+        lrt : ndarray
+        """
         return self.lrt
+
+    def getBetaSNPste(self):
+        """
+        get standard errors on betas
+
+        Returns
+        -------
+        beta_ste : ndarray
+        """
+        beta = self.getBetaSNP()
+        pv = self.getPv()
+        z = sp.sign(beta) * sp.sqrt(st.chi2(1).isf(pv))
+        ste = beta / z
+        return ste
 
