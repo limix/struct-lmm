@@ -17,15 +17,15 @@ from struct_lmm.utils.sugar_utils import *
 import warnings
 
 
-def run_lr_lmm(reader,
-               pheno,
-               R=None,
-               S_R=None,
-               U_R=None,
-               W=None,
-               covs=None,
-               batch_size=1000,
-               unique_variants=False):
+def run_lmm(reader,
+            pheno,
+            R=None,
+            S_R=None,
+            U_R=None,
+            W=None,
+            covs=None,
+            batch_size=1000,
+            unique_variants=False):
     """
     Utility function to run StructLMM
 

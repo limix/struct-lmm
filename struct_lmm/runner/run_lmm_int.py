@@ -4,6 +4,7 @@ import os
 import numpy as np
 import pandas as pd
 import scipy as sp
+import scipy.stats as st
 import h5py
 import dask.dataframe as dd
 import scipy.linalg as la
@@ -18,16 +19,16 @@ from struct_lmm.utils.sugar_utils import *
 import warnings
 
 
-def run_lmm_inter(reader,
-                  pheno,
-                  env,
-                  R=None,
-                  S_R=None,
-                  U_R=None,
-                  W=None,
-                  covs=None,
-                  batch_size=1000,
-                  unique_variants=False):
+def run_lmm_int(reader,
+                pheno,
+                env,
+                R=None,
+                S_R=None,
+                U_R=None,
+                W=None,
+                covs=None,
+                batch_size=1000,
+                unique_variants=False):
     """
     Utility function to run interaction tests.
 
@@ -126,7 +127,7 @@ def run_lmm_inter(reader,
 
     # define lmms
     lmm_nul = LMM(pheno, covs, covar)
-    lmm_alt = LMMCore(y, F, gp.covar)
+    lmm_alt = LMMCore(pheno, covs, covar)
 
     # define inter
     ones = sp.ones([env.shape[0], 1])
@@ -153,25 +154,24 @@ def run_lmm_inter(reader,
         rv = {}
 
         # null quantities
-        rv['pv_null'] = lmm_alt.getPv()
-        rv['beta_null'] = lmm.getBetaSNP()
-        rv['pv_null'] = lmm.getBetaSNPste()
-        lrt['lrt_null'] = lmm.getLRT()
+        rv['pv_null'] = lmm_nul.getPv()
+        rv['beta_null'] = lmm_nul.getBetaSNP()
+        #rv['beta_ste_null'] = lmm_nul.getBetaSNPste()
+        rv['lrt_null'] = lmm_nul.getLRT()
 
         # alt quantities
         rv['pv_alt'] = lmm_alt.getPv()
-        rv['beta_alt'] = lmm.getBetaSNP()
-        rv['pv_alt'] = lmm.getBetaSNPste()
-        rv['lrt_alt'] = lmm.getLRT()
+        #rv['beta_alt'] = lmm_alt.getBetaSNP()
+        #rv['beta_ste_alt'] = lmm_alt.getBetaSNPste()
+        rv['lrt_alt'] = lmm_alt.getLRT()
 
         # inter quantities
-        dof_int = lmm_alt.dof - 1
-        rv['lrt_int'] = rv['lrt_alt']-lrt['lrt_null']
+        dof_int = inter.shape[1] - 1 
+        rv['lrt_int'] = rv['lrt_alt'] - rv['lrt_null']
         rv['pv_int'] = st.chi2(dof_int).sf(rv['lrt_int'])
 
         # add pvalues, beta, etc to res 
-        for key in rv.keys():
-            _res = _res.assign(key=pd.Series(rv[key], index=_res.index))
+        _res = _res.join(pd.DataFrame.from_dict(rv))
         res.append(_res)
 
     res = pd.concat(res)

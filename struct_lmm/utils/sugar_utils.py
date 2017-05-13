@@ -58,6 +58,7 @@ def norm_env_matrix(E, no_mean_to_one=False):
     E : array
         normalised environments.
     """
+    E -= E.mean(0); E /= E.std(0)
     if no_mean_to_one:
         E *= sp.sqrt(E.shape[0] / sp.sum(E**2))
     else:

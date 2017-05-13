@@ -42,12 +42,6 @@ def run_struct_lmm(reader,
         ``rho=0`` correspond to no persistent effect (only GxE);
         ``rho=1`` corresponds to only persitent effect (no GxE);
         By default, ``rho=[0, 0.2, 0.4, 0.6, 0.8, 1.]``
-    no_mean_to_one : bool (optional)
-        if False, the environment matrix is normalized in such
-        a way that the outer product EE^T has diagonal of ones.
-        if True, the environment matrix is normalized in such
-        a way that the outer product EE^T has mean of diagonal
-        of ones.
     batch_size : int    
         to minimize memory usage the analysis is run in batches.
         The number of variants loaded in a batch
@@ -70,9 +64,6 @@ def run_struct_lmm(reader,
 
     if rhos is None:
         rhos = [0, .2, .4, .6, .8, 1.]
-
-    # norm environments
-    env = norm_env_matrix(env)
 
     # slmm fit null
     slmm = StructLMM(pheno, env, W=env, rho_list=rhos)

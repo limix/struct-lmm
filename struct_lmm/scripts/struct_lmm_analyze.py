@@ -42,10 +42,6 @@ if __name__=='__main__':
 
     # analysis options
     parser.add_option("--rhos", dest='rhos', type=str, default=None)
-    parser.add_option("--no_mean_to_one",
-                      action="store_true",
-                      dest='no_mean_to_one',
-                      default=False)
     parser.add_option("--unique_variants",
                       action="store_true",
                       dest='unique_variants',
@@ -93,7 +89,6 @@ if __name__=='__main__':
     res = run_struct_lmm(reader, y, E,
                          covs=covs,
                          rhos=rhos,
-                         no_mean_to_one=opt.no_mean_to_one,
                          batch_size=opt.batch_size,
                          no_interaction_test=opt.no_interaction_test,
                          unique_variants=opt.unique_variants)

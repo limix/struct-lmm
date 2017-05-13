@@ -31,8 +31,9 @@ if __name__=='__main__':
                                   pheno_id='gene1.txt',
                                   standardize=True)
 
-    # import environment
+    # import environment and normalize
     E = sp.loadtxt(envfile)
+    E = norm_env_matrix(E)
 
     # mean as fixed effect 
     covs = sp.ones((E.shape[0], 1))
@@ -43,6 +44,13 @@ if __name__=='__main__':
                           batch_size=100,
                           unique_variants=True)
 
+    # run analysis with fixed-effect lmm
+    # envs are modelled as random effects
+    res = run_lmm_int(reader, y, E,
+                      W=E,
+                      covs=covs,
+                      batch_size=opt.batch_size,
+                      unique_variants=opt.unique_variants)
 
     # run analysis with standard lmm
     # pure environment is modelled as random effects 

@@ -76,8 +76,6 @@ if __name__=='__main__':
     else:
         covs = sp.loadtxt(opt.ffile)
 
-    pdb.set_trace()
-
     # run analysis
     res = run_lmm_int(reader, y, E,
                       W=E,

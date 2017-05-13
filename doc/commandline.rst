@@ -38,7 +38,7 @@ Quick example
      --bfile $BFILE \
      --pfile $PFILE \
      --pheno_id gene10 \
-     --wfile $EFILE \
+     --efile $EFILE \
      --ofile out/results.res \
      --idx_start 0 \
      --idx_end 1000 \
@@ -80,7 +80,6 @@ Commands
    --batch_size bathc_size \
    --unique_variants \
    --no_interaction_test \
-   --no_mean_to_one
 
 
 * **bfile** is the base name of of the binary bed file
@@ -104,12 +103,6 @@ Commands
   The number of variants loaded in a batch (in memory at the same time).
 * **no_interaction_test**. If active the interaction test is not consdered.
 * **unique_variants**. If activated, only non-repeated genotypes are considered.
-* **no_mean_to_one**. 
-  when not activated, the environment matrix is normalized in such
-  a way that the outer product EE^T has diagonal of ones.
-  if activated, the environment matrix is normalized in such
-  a way that the outer product EE^T has mean of diagonal
-  of ones.
 
 **lmm_lr**
 ^^^^^^^^^^
@@ -147,6 +140,11 @@ Formats
   See example at http://www.ebi.ac.uk/~casale/example_data/expr.csv.
 * **efile** (environment file) is a tsv file with dimensions #inds by #environments.
   See example at http://www.ebi.ac.uk/~casale/data_structlmm/env.txt
+  Note that the environment matrix is normalized in such
+  a way that the outer product EE^T has diagonal of ones.
+  This can be done in python using the function XXX 
+  or using the util XXX.
+
 * **ffile** (covariates file) is a tsv file with dimensions #inds by #covariates.
   Should contain a column of ones to include an intercept in the model.
 * **wfile** (random eff design file) is a tsv file with dimensions #inds by #random effects that defines the random effect.
