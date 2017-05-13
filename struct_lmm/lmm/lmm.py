@@ -106,7 +106,7 @@ class LMM():
 
         Parameters
         ----------
-        G : (`N`, S) ndarray
+        G : (`N`, `S`) ndarray
             genotype vector for `N` individuals and `S` variants.
         verbose : bool
             verbose flag.
