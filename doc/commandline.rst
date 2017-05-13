@@ -130,12 +130,27 @@ Commands
     - chrom pos_chrom \
     --batch_size bathc_size \
     --unique_variants \
-    --no_mean_to_one
 
 
 * **wfile** file that defines the low rank random effect (see :ref:`formats_ref`).
 
 See above for other parameters.
+
+**norm_env**
+^^^^^^^^^^^^
+
+.. code-block:: bash
+
+    norm_env \
+    --in ifile \
+    --out ofile \
+    --no_mean_to_one
+    
+* **no_mean_to_one**. if not set, the environment matrix is
+  normalized in such a way that the outer product EE^T has
+  diagonal of ones.
+  If set, the environment matrix is normalized in such
+  a way that the outer product EE^T has mean of diagonal of ones.
 
 .. _formats_ref:
 
@@ -150,8 +165,9 @@ Formats
   See example at http://www.ebi.ac.uk/~casale/data_structlmm/env.txt
   Note that the environment matrix is normalized in such
   a way that the outer product EE^T has diagonal of ones.
-  This can be done in python using the function XXX 
-  or using the util XXX.
+  This can be done in python using the function
+  :fun:`struct_lmm.utils.norm_env_matrix`
+  or using the script ``norm_env``.
 
 * **ffile** (covariates file) is a tsv file with dimensions #inds by #covariates.
   Should contain a column of ones to include an intercept in the model.
