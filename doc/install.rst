@@ -9,11 +9,11 @@ StructLMM requires scipy, numpy, rpy2, limix-core and limix.
     conda create -n struct-lmm python=2.7
     source activate struct-lmm
 
-* install numpy, scipy, rpy2 and limix-core::
+* install numpy, scipy, rpy2 and limix::
 
     conda install -n struct-lmm numpy scipy
     conda install -c r -n struct-lmm rpy2
-    pip install limix-core
+    pip install limix
 
 * install struct-lmm (hopefully all tests pass)::
 
