@@ -4,13 +4,76 @@ import scipy.linalg as la
 import pdb
 import limix
 import time
-from limix.core.gp import GP2KronSumLR
-from limix.core.covar import FreeFormCov
-from read_utils import read_geno
 
 class LMM():
+    r"""
+    Standard LMM with general bg covariance
 
-    def __init__(self,y,F,cov=None):
+    The LMM model is
+
+    .. math::
+        \mathbf{y}=\sim\mathcal{N}(
+        \underbrace{\mathbf{F}\mathbf{b}}_{\text{covariates}}+
+        \underbrace{\mathbf{x}\beta}_{\text{genetics}},
+        \underbrace{\mathbf{K}_{\boldsymbol{\theta}}}_{\text{covariance}})
+
+    The test :math:`\beta\neq{0}` is done for all provided variants
+    one-by-one.
+
+    Parameters
+    ----------
+    y : (`N`, 1) ndarray
+        phenotype vector
+    F : (`N`, L) ndarray
+        fixed effect design for covariates.
+    cov : :class:`limix_core.covar`
+        Covariance matrix of the random effect
+
+    Examples
+    --------
+
+    .. doctest::
+
+        >>> from numpy.random import RandomState
+        >>> import scipy as sp
+        >>> from struct_lmm import LMM
+        >>> from limix_core.gp import GP2KronSumLR
+        >>> from limix_core.covar import FreeFormCov
+        >>> random = RandomState(1)
+        >>> from numpy import set_printoptions
+        >>> set_printoptions(4)
+        >>>
+        >>> # generate data
+        >>> N = 100
+        >>> k = 1
+        >>> S = 1000
+        >>> y = random.randn(N, 1)
+        >>> E = random.randn(N, k)
+        >>> G = 1.*(random.rand(N, S) < 0.2)
+        >>> F = random.rand(N, 1)
+        >>> F = sp.concatenate([sp.ones((N, 1)), F], 1)
+        >>>
+        >>> # larn a covariance on the null model
+        >>> gp = GP2KronSumLR(Y=y, Cn=FreeFormCov(1), G=E, F=F, A=sp.ones((1,1)))
+        >>> gp.covar.Cr.setCovariance(0.5*sp.ones((1,1)))
+        >>> gp.covar.Cn.setCovariance(0.5*sp.ones((1,1)))
+        >>> info_opt = gp.optimize(verbose=False)
+        >>>
+        >>> lmm = LMM(y, F, gp.covar)
+        >>> lmm.process(G)
+        >>> pv = lmm.getPv()
+        >>> beta = lmm.getBetaSNP()
+        >>> lrt = lmm.getLRT()
+        >>>
+        >>> print(pv[:4])
+        [ 0.8335  0.1669  0.9179  0.279 ]
+        >>> print(beta[:4])
+        [-0.0479  0.3145  0.0235 -0.2465]
+        >>> print(lrt[:4])
+        [ 0.0442  1.9108  0.0106  1.1721]
+    """
+
+    def __init__(self, y, F, cov=None):
         if F is None:   F = sp.ones((y.shape[0],1))
         self.y = y
         self.F = F
@@ -19,7 +82,7 @@ class LMM():
         self._fit_null()
 
     def _fit_null(self):
-        """ fit the null model """
+        """ Internal functon. Fits the null model """
         if self.cov==None:
             self.Kiy = self.y
             self.KiF = self.F
@@ -35,7 +98,16 @@ class LMM():
         self.s20 = (self.yKiy-sp.dot(self.FKiy[:,0],self.beta_F0[:,0]))/self.df 
 
     def process(self, G, verbose=False):
-        """ LMM scan """
+        r"""
+        Fit genotypes one-by-one.
+
+        Parameters
+        ----------
+        G : (`N`, S) ndarray
+            genotype vector for `N` individuals and `S` variants.
+        verbose : bool
+            verbose flag.
+        """
         t0 = time.time()
         # precompute some stuff
         if self.cov==None:  KiG = G
@@ -67,71 +139,19 @@ class LMM():
         if verbose:
             print 'Tested for %d variants in %.2f s' % (G.shape[1],t1-t0)
 
-    def process_in_batch(self, geno, block_size=5000, type='bed', verbose=False):
-        t0 = time.time()
-        idxs = sp.arange(0,geno.shape[0],block_size)
-        n_blocks = idxs.shape[0]
-        idxs = sp.append(idxs, geno.shape[0])
-        beta_F = sp.zeros((self.F.shape[1], geno.shape[0]))
-        beta_g = sp.zeros(geno.shape[0])
-        lrt = sp.zeros(geno.shape[0]) 
-        pv = sp.zeros(geno.shape[0]) 
-        for block_i in range(n_blocks):
-            print 'Block %d/%d' % (block_i, n_blocks)
-            idx0 = idxs[block_i]
-            idx1 = idxs[block_i+1]
-            _G = read_geno(geno,idx0,idx1,type)
-            self.process(_G)
-            beta_F[:,idx0:idx1] = self.getBetaCov()
-            beta_g[idx0:idx1] = self.getBetaSNP()
-            lrt[idx0:idx1] = self.getLRT()
-            pv[idx0:idx1] = self.getPv()
-        self.beta_F = beta_F
-        self.beta_g = beta_g
-        self.lrt = lrt
-        self.pv = pv
-        t1 = time.time()
-        if verbose:
-            print 'Tested for %d variants in %.2f s' % (pv.shape[0],t1-t0)
-            
     def getPv(self):
+        """ get pvalues """
         return self.pv
 
     def getBetaSNP(self):
+        """ get effect size SNPs """
         return self.beta_g
 
     def getBetaCov(self):
+        """ get beta of covariates """
         return self.beta_F
 
     def getLRT(self):
+        """ get lik ratio test statistics """
         return self.lrt
-
-
-
-if __name__=="__main__":
-
-    N = 2000
-    k = 10
-    S = 1000
-    y = sp.randn(N,1)
-    E = sp.randn(N,k)
-    G = 1.*(sp.rand(N,S)<0.2)
-    F = sp.concatenate([sp.ones((N,1)), sp.randn(N,1)], 1)
-
-    gp = GP2KronSumLR(Y=y, Cn=FreeFormCov(1), G=E, F=F, A=sp.ones((1,1)))
-    gp.covar.Cr.setCovariance(0.5*sp.ones((1,1)))
-    gp.covar.Cn.setCovariance(0.5*sp.ones((1,1)))
-    gp.optimize()
-    print 'sg = %.2f' % gp.covar.Cr.K()[0,0]
-    print 'sn = %.2f' % gp.covar.Cn.K()[0,0]
-
-    print 'New LMM'
-    t0 = time.time()
-    lmm = LMM(y,F,gp.covar)
-    lmm.process(G)
-    t1 = time.time()
-    print 'Elapsed:', t1-t0
-    pv = lmm.getPv()
-    beta = lmm.getBetaSNP()
-    lrt = lmm.getLRT()
 
