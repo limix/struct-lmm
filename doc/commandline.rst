@@ -66,7 +66,7 @@ Commands
   If not set, only an intercept is considered
 * **ofile** output file. It contains pvalues for both the joint
   and the intaction test as well as snp info.
-  If **_no_interaction_test** is specified the interaction test
+  If **no_interaction_test** is specified the interaction test
   is not considered.
 * **idx_start** idx of snp for which the analyses should start.
   If specfied, the query 'idx >= idx_start' on genotype data is applied.
