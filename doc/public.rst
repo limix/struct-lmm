@@ -7,10 +7,14 @@ Public Interface
 - :ref:`wrapper_lmm_ref`
 
   - :func:`.run_struct_lmm`
+  - :func:`.run_lmm_int`
+  - :func:`.run_lmm`
 
 - :ref:`lmm_class_ref` 
 
   - :class:`.StructLMM`
+  - :class:`.LMMCore`
+  - :class:`.LMM`
 
 - :ref:`interpretation_ref` 
 
@@ -46,7 +50,7 @@ Tools for interpretation
 .. automodule:: struct_lmm.interpretation
   :members:
 
-.. _ utils_ref:
+.. _utils_ref:
 
 Utils
 ^^^^^

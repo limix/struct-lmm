@@ -46,11 +46,11 @@ if __name__=='__main__':
 
     # run analysis with fixed-effect lmm
     # envs are modelled as random effects
-    res = run_lmm_int(reader, y, E,
-                      W=E,
-                      covs=covs,
-                      batch_size=opt.batch_size,
-                      unique_variants=opt.unique_variants)
+    res_int = run_lmm_int(reader, y, E,
+                          W=E,
+                          covs=covs,
+                          batch_size=opt.batch_size,
+                          unique_variants=opt.unique_variants)
 
     # run analysis with standard lmm
     # pure environment is modelled as random effects 
