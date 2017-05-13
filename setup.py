@@ -25,6 +25,12 @@ def setup_package():
     install_requires = ['numpy', 'scipy']
     tests_require = ['pytest']
 
+    console_scripts = [
+        'struct_lmm_analyze=struct_lmm.scripts.struct_lmm_analyze:main',
+        'lmm_analyze=struct_lmm.scripts.lmm_analyze:main',
+        'lmm_int_analyze=struct_lmm.scripts.lmm_int_analyze:main'
+    ]
+
     metadata = dict(
         name='struct-lmm',
         version='0.0.1',
@@ -40,7 +46,7 @@ def setup_package():
         setup_requires=setup_requires,
         tests_require=tests_require,
         include_package_data=True,
-        )
+        entry_points={'console_scripts': console_scripts})
 
     try:
         setup(**metadata)
