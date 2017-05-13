@@ -1,11 +1,12 @@
 import scipy as sp
 import scipy.stats as st
 import scipy.linalg as la
+from struct_lmm.lmm import LMMCore
 import pdb
 import limix
 import time
 
-class LMM():
+class LMM(LMMCore):
     r"""
     Standard LMM with general bg covariance
 
@@ -141,59 +142,3 @@ class LMM():
         t1 = time.time()
         if verbose:
             print 'Tested for %d variants in %.2f s' % (G.shape[1],t1-t0)
-
-    def getPv(self):
-        """
-        Get pvalues
-
-        Returns
-        -------
-        pv : ndarray
-        """
-        return self.pv
-
-    def getBetaSNP(self):
-        """
-        get effect size SNPs
-
-
-        Returns
-        -------
-        pv : ndarray
-        """
-        return self.beta_g
-
-    def getBetaCov(self):
-        """
-        get beta of covariates
-
-        Returns
-        -------
-        beta : ndarray
-        """
-        return self.beta_F
-
-    def getLRT(self):
-        """
-        get lik ratio test statistics
-
-        Returns
-        -------
-        lrt : ndarray
-        """
-        return self.lrt
-
-    def getBetaSNPste(self):
-        """
-        get standard errors on betas
-
-        Returns
-        -------
-        beta_ste : ndarray
-        """
-        beta = self.getBetaSNP()
-        pv = self.getPv()
-        z = sp.sign(beta) * sp.sqrt(st.chi2(1).isf(pv))
-        ste = beta / z
-        return ste
-

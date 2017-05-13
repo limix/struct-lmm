@@ -4,7 +4,6 @@ import scipy.linalg as la
 import pdb
 import limix
 import time
-from struct_lmm.lmm import LMM
 
 def calc_Ai_beta_s2(yKiy,FKiF,FKiy,df):
     Ai = la.pinv(FKiF)
@@ -18,7 +17,7 @@ def hatodot(A, B):
     B1 = sp.kron(sp.ones((1, A.shape[1])), B)
     return A1*B1
 
-class LMMCore(LMM):
+class LMMCore():
     r"""
     Core LMM for interaction and association testing.
 
@@ -91,90 +90,103 @@ class LMMCore(LMM):
 
         Example with Inter and step=1
 
-        >>> from numpy.random import RandomState
-        >>> import scipy as sp
-        >>> from struct_lmm import LMMCore
-        >>> from limix_core.gp import GP2KronSumLR
-        >>> from limix_core.covar import FreeFormCov
-        >>> random = RandomState(1)
-        >>> from numpy import set_printoptions
-        >>> set_printoptions(4)
-        >>>
-        >>> N = 100
-        >>> k = 1
-        >>> m = 2
-        >>> S = 1000
-        >>> y = sp.randn(N,1)
-        >>> E = sp.randn(N,k)
-        >>> G = 1.*(sp.rand(N,S)<0.2)
-        >>> F = sp.concatenate([sp.ones((N,1)), sp.randn(N,1)], 1)
-        >>> Inter = sp.randn(N, m)
-        >>>
-        >>> gp = GP2KronSumLR(Y=y, Cn=FreeFormCov(1), G=E, F=F, A=sp.ones((1,1)))
-        >>> gp.covar.Cr.setCovariance(0.5*sp.ones((1,1)))
-        >>> gp.covar.Cn.setCovariance(0.5*sp.ones((1,1)))
-        >>> gp.optimize()
-        >>>
-        >>> lmm = LMMCore(y, F, gp.covar)
-        >>> lmm.process(G, Inter)
-        >>> pv = lmm.getPv()
-        >>> beta = lmm.getBetaSNP()
-        >>> beta_ste = lmm.getBetaSNPste()
-        >>> lrt = lmm.getLRT()
-        >>>
-        >>> print(pv.shape)
-        (1000,)
-        >>> print(beta.shape)
-        (2, 1000)
-        >>> print(pv[:4])
-        [ 0.4357  0.9631  0.6682  0.1345]
-        >>> print(beta[:,:4])
-        [[ 0.2393  0.011  -0.1154 -0.2802]
-         [ 0.0606  0.0731 -0.1291 -0.2974]]
+        .. doctest::
+
+            >>> from numpy.random import RandomState
+            >>> import scipy as sp
+            >>> from struct_lmm import LMMCore
+            >>> from limix_core.gp import GP2KronSumLR
+            >>> from limix_core.covar import FreeFormCov
+            >>> random = RandomState(1)
+            >>> from numpy import set_printoptions
+            >>> set_printoptions(4)
+            >>>
+            >>> N = 100
+            >>> k = 1
+            >>> m = 2
+            >>> S = 1000
+            >>> y = sp.randn(N,1)
+            >>> E = sp.randn(N,k)
+            >>> G = 1.*(sp.rand(N,S)<0.2)
+            >>> F = sp.concatenate([sp.ones((N,1)), sp.randn(N,1)], 1)
+            >>> Inter = sp.randn(N, m)
+            >>>
+            >>> gp = GP2KronSumLR(Y=y, Cn=FreeFormCov(1), G=E, F=F, A=sp.ones((1,1)))
+            >>> gp.covar.Cr.setCovariance(0.5*sp.ones((1,1)))
+            >>> gp.covar.Cn.setCovariance(0.5*sp.ones((1,1)))
+            >>> gp.optimize(verbose=False)
+            >>>
+            >>> lmm = LMMCore(y, F, gp.covar)
+            >>> lmm.process(G, Inter)
+            >>> pv = lmm.getPv()
+            >>> beta = lmm.getBetaSNP()
+            >>> beta_ste = lmm.getBetaSNPste()
+            >>> lrt = lmm.getLRT()
+            >>>
+            >>> print(pv.shape)
+            (1000,)
+            >>> print(beta.shape)
+            (2, 1000)
+            >>> print(pv[:4])
+            [ 0.4357  0.9631  0.6682  0.1345]
+            >>> print(beta[:,:4])
+            [[ 0.2393  0.011  -0.1154 -0.2802]
+             [ 0.0606  0.0731 -0.1291 -0.2974]]
 
         Example with step=4
 
-        >>> lmm.process(G, step=4)
-        >>> pv = lmm.getPv()
-        >>> beta = lmm.getBetaSNP()
-        >>> lrt = lmm.getLRT()
-        >>>
-        >>> print(pv.shape)
-        (250,)
-        >>> print(beta.shape)
-        (4, 250)
-        >>> print(pv[:4])
-        [ 0.466   0.509   0.2587  0.0242]
-        >>> print(beta[:,:4])
-        [[-0.0827 -0.2116 -0.4932  0.1934]
-         [-0.3204 -0.0287 -0.1827 -0.2561]
-         [ 0.2059  0.0777 -0.0613 -0.582 ]
-         [ 0.1783 -0.4189 -0.2429 -0.1931]]
+        .. doctest::
+
+            >>> lmm.process(G, step=4)
+            >>> pv = lmm.getPv()
+            >>> beta = lmm.getBetaSNP()
+            >>> lrt = lmm.getLRT()
+            >>>
+            >>> print(pv.shape)
+            (250,)
+            >>> print(beta.shape)
+            (4, 250)
+            >>> print(pv[:4])
+            [ 0.466   0.509   0.2587  0.0242]
+            >>> print(beta[:,:4])
+            [[-0.0827 -0.2116 -0.4932  0.1934]
+             [-0.3204 -0.0287 -0.1827 -0.2561]
+             [ 0.2059  0.0777 -0.0613 -0.582 ]
+             [ 0.1783 -0.4189 -0.2429 -0.1931]]
 
         Example with step=4 and Inter
 
-        >>> lmm = LMMCore(y, F, gp.covar)
-        >>> lmm.process(G, Inter=Inter, step=4)
-        >>> pv = lmm.getPv()
-        >>> beta = lmm.getBetaSNP()
-        >>> lrt = lmm.getLRT()
-        >>>
-        >>> print(pv.shape)
-        (250,)
-        >>> print(beta.shape)
-        (8, 250)
-        >>> print(pv[:4])
-        [ 0.5771  0.1618  0.433   0.6666]
-        >>> print(beta[:,:4])
-        [[ 0.2866  0.2929 -0.1993 -0.0407]
-         [ 0.0339 -0.3662 -0.358  -0.0709]
-         [-0.0095 -0.1869 -0.086  -0.1147]
-         [-0.3332 -0.243  -0.2058  0.0868]
-         [ 0.0879  0.2488  0.169   0.0294]
-         [ 0.0903 -0.0867  0.0657 -0.4517]
-         [-0.0621  0.0466  0.0709  0.1487]
-         [-0.2597 -0.7184 -0.272  -0.1507]]
+        .. doctest::
+
+            >>> lmm = LMMCore(y, F, gp.covar)
+            >>> lmm.process(G, Inter=Inter, step=4)
+            >>> pv = lmm.getPv()
+            >>> beta = lmm.getBetaSNP()
+            >>> lrt = lmm.getLRT()
+            >>>
+            >>> print(pv.shape)
+            (250,)
+            >>> print(beta.shape)
+            (8, 250)
+            >>> print(pv[:4])
+            [ 0.5771  0.1618  0.433   0.6666]
+            >>> print(beta[:,:4])
+            [[ 0.2866  0.2929 -0.1993 -0.0407]
+             [ 0.0339 -0.3662 -0.358  -0.0709]
+             [-0.0095 -0.1869 -0.086  -0.1147]
+             [-0.3332 -0.243  -0.2058  0.0868]
+             [ 0.0879  0.2488  0.169   0.0294]
+             [ 0.0903 -0.0867  0.0657 -0.4517]
+             [-0.0621  0.0466  0.0709  0.1487]
+             [-0.2597 -0.7184 -0.272  -0.1507]]
     """
+    def __init__(self, y, F, cov=None):
+        if F is None:   F = sp.ones((y.shape[0],1))
+        self.y = y
+        self.F = F
+        self.cov = cov
+        self.df = y.shape[0]-F.shape[1]
+        self._fit_null()
 
     def _fit_null(self):
         """ Internal functon. Fits the null model """
@@ -245,3 +257,58 @@ class LMMCore(LMM):
         t1 = time.time()
         if verbose:
             print 'Tested for %d variants in %.2f s' % (G.shape[1],t1-t0)
+
+    def getPv(self):
+        """
+        Get pvalues
+
+        Returns
+        -------
+        pv : ndarray
+        """
+        return self.pv
+
+    def getBetaSNP(self):
+        """
+        get effect size SNPs
+
+
+        Returns
+        -------
+        pv : ndarray
+        """
+        return self.beta_g
+
+    def getBetaCov(self):
+        """
+        get beta of covariates
+
+        Returns
+        -------
+        beta : ndarray
+        """
+        return self.beta_F
+
+    def getLRT(self):
+        """
+        get lik ratio test statistics
+
+        Returns
+        -------
+        lrt : ndarray
+        """
+        return self.lrt
+
+    def getBetaSNPste(self):
+        """
+        get standard errors on betas
+
+        Returns
+        -------
+        beta_ste : ndarray
+        """
+        beta = self.getBetaSNP()
+        pv = self.getPv()
+        z = sp.sign(beta) * sp.sqrt(st.chi2(1).isf(pv))
+        ste = beta / z
+        return ste

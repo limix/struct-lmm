@@ -11,7 +11,8 @@ from limix.data import build_geno_query
 from limix.data import GIter
 from limix.util import unique_variants
 from optparse import OptionParser
-from struct_lmm import run_lr_lmm 
+from struct_lmm import run_lmm 
+from struct_lmm import run_lmm_int 
 from struct_lmm.utils.sugar_utils import *
 
 if __name__=='__main__':
@@ -21,7 +22,7 @@ if __name__=='__main__':
     # input files
     parser.add_option("--bfile", dest='bfile', type=str, default=None)
     parser.add_option("--pfile", dest='pfile', type=str, default=None)
-    parser.add_option("--wfile", dest='wfile', type=str, default=None)
+    parser.add_option("--efile", dest='efile', type=str, default=None)
     parser.add_option("--ffile", dest='ffile', type=str, default=None)
 
     # output file
@@ -41,17 +42,27 @@ if __name__=='__main__':
     parser.add_option("--batch_size", dest='batch_size', type=int, default=1000)
 
     # analysis options
+    parser.add_option("--rhos", dest='rhos', type=str, default=None)
+    parser.add_option("--no_mean_to_one",
+                      action="store_true",
+                      dest='no_mean_to_one',
+                      default=False)
     parser.add_option("--unique_variants",
                       action="store_true",
                       dest='unique_variants',
+                      default=False)
+    parser.add_option("--no_interaction_test",
+                      action="store_true",
+                      dest='no_interaction_test',
                       default=False)
     (opt, args) = parser.parse_args()
 
     # assert stuff
     assert opt.bfile is not None, 'Specify bed file!'
     assert opt.pfile is not None, 'Specify pheno file!'
-    assert opt.wfile is not None, 'Specify low rank random effect file!'
+    assert opt.efile is not None, 'Specify env file!'
     assert opt.ofile is not None, 'Specify out file!'
+    if opt.rhos is None: opt.rhos = '0.,.2,.4,.6,.8,1.'
 
     # import geno and subset
     reader = BedReader(opt.bfile)
@@ -68,19 +79,25 @@ if __name__=='__main__':
                                   standardize=True)
 
     # import environment
-    W = sp.loadtxt(opt.wfile)
+    E = sp.loadtxt(opt.efile)
 
     # import fixed effects
     if opt.ffile is None:
-        covs = sp.ones((W.shape[0], 1))
+        covs = sp.ones((E.shape[0], 1))
     else:
         covs = sp.loadtxt(opt.ffile)
 
+    # extract rhos
+    rhos = sp.array(opt.rhos.split(','), dtype=float)
+
     # run analysis
-    res = run_lr_lmm(reader, y, W=W,
-                     covs=covs,
-                     batch_size=opt.batch_size,
-                     unique_variants=opt.unique_variants)
+    res = run_struct_lmm(reader, y, E,
+                         covs=covs,
+                         rhos=rhos,
+                         no_mean_to_one=opt.no_mean_to_one,
+                         batch_size=opt.batch_size,
+                         no_interaction_test=opt.no_interaction_test,
+                         unique_variants=opt.unique_variants)
 
     # export
     print 'Export to %s' % opt.ofile
