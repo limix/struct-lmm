@@ -37,11 +37,19 @@ if __name__=='__main__':
     # mean as fixed effect 
     covs = sp.ones((E.shape[0], 1))
 
-    # run analysis
-    res = run_struct_lmm(reader, y, E,
-                         covs=covs,
-                         batch_size=100,
-                         unique_variants=True)
+    # run analysis with struct lmm
+    res_slmm = run_struct_lmm(reader, y, E,
+                          covs=covs,
+                          batch_size=100,
+                          unique_variants=True)
+
+
+    # run analysis with standard lmm
+    # pure environment is modelled as random effects 
+    res2_lmm = run_lr_lmm(reader, y, W=E,
+                          covs=covs,
+                          batch_size=100,
+                          unique_variants=True)
 
     # export
     print 'Export to %s' % opt.ofile

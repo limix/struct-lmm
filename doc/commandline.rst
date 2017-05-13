@@ -20,7 +20,7 @@ Quick example
     PFILE=data_structlmm/expr.csv
     EFILE=data_structlmm/env.txt
 
-* Run analysis::
+* Run analysis with struct LMM::
 
     python struct_lmm_analyze.py --bfile $BFILE \
                                  --pfile $PFILE \
@@ -31,6 +31,19 @@ Quick example
                                  --idx_end 1000 \
                                  --batch_size 100 \
                                  --unique_variants
+
+* Run analysis with standard LMM::
+
+    python lmm_lr.py --bfile $BFILE \
+                     --pfile $PFILE \
+                     --pheno_id gene10 \
+                     --wfile $EFILE \
+                     --ofile out/results.res \
+                     --idx_start 0 \
+                     --idx_end 1000 \
+                     --batch_size 100 \
+                     --unique_variants
+
 
 
 Commands 
@@ -86,18 +99,43 @@ Commands
   a way that the outer product EE^T has mean of diagonal
   of ones.
 
+**lmm_lr**
+^^^^^^^^^^
+
+.. code-block:: bash
+
+  python struct_lmm_analyze.py --bfile bfile \
+                               --pfile pfile \
+                               --pheno_id pheno_id \
+                               --wfile wfile \
+                               --ffile ffile \
+                               --ofile ofile \
+                               --idx_start idx_start \
+                               --idx_end idx_end \
+                               --pos_start pos_start \
+                               --pos_end pos_end \
+                               - chrom pos_chrom \
+                               --batch_size bathc_size \
+                               --unique_variants \
+                               --no_mean_to_one
+
+
+* **wfile** file that defines the low rank random effect (see :ref:`formats_ref`).
+
+See above for other parameters.
+
 .. _formats_ref:
 
 Formats
 ~~~~~~~
 
-* Genotype are in the plink bed format
-* Pheno is assumed to be a csv file with dimension #pheno by #individuals and
+* **bfile** are plink bed
+* **pfile** (phenotype file) is assumed to be a csv file with dimension #pheno by #individuals and
   having row and col readers.
   See example at http://www.ebi.ac.uk/~casale/example_data/expr.csv.
-* Env file is a tsv file with dimensions #inds by #environments.
+* **efile** (environment file) is a tsv file with dimensions #inds by #environments.
   See example at http://www.ebi.ac.uk/~casale/data_structlmm/env.txt
-* File with covariates is a tsv file with dimensions #inds by #covariates.
+* **ffile** (covariates file) is a tsv file with dimensions #inds by #covariates.
   Should contain a column of ones to include an intercept in the model.
-
+* **wfile** (random eff design file) is a tsv file with dimensions #inds by #random effects that defines the random effect.
 
