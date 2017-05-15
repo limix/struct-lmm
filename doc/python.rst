@@ -24,6 +24,8 @@ The following script can be downloader :download:`here <example.py>`.
 The core functions to run the different lmms are
 
 - :func:`.struct_lmm.runner.run_struct_lmm`
+- :func:`.struct_lmm.runner.run_lmm_int`
+- :func:`.struct_lmm.runner.run_lmm`
 
 and are described in :ref:`public`.
 
