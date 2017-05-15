@@ -4,19 +4,18 @@ Describe me
 
 ## Install
 
-The package depends scipy, numpy, rpy2, limix-core.
-
 - Create a new environment in [conda](https://conda.io/docs/index.html)
   ```bash
   conda create -n struct-lmm python=2.7
   source activate struct-lmm
   ```
 
-- install numpy, scipy, rpy2 and limix-core
+- install numpy, scipy, rpy2 and limix
   ```
-  conda install -n struct-lmm numpy scipy
+  conda install -n struct-lmm numpy scipy ipython cython sphinx
   conda install -c r -n struct-lmm rpy2
-  pip install limix-core
+  conda install -c conda-forge liknorm-py
+  pip install limix
   ```
 
 - install struct-lmm (hopefully all tests pass)
@@ -30,6 +29,7 @@ The package depends scipy, numpy, rpy2, limix-core.
   ```bash
   cd doc
   make html
+  open _build/html/index.html
   ```
   
 
