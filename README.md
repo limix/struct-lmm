@@ -12,7 +12,7 @@ Describe me
 
 - install numpy, scipy, rpy2 and limix
   ```
-  conda install -n struct-lmm numpy scipy ipython cython
+  conda install -n struct-lmm numpy scipy ipython cython sphinx
   conda install -c r -n struct-lmm rpy2
   conda install -c conda-forge liknorm-py
   pip install limix
@@ -25,7 +25,7 @@ Describe me
   python setup.py install test
   ```
 
-- install documentation using sphinx (see [here](http://www.sphinx-doc.org/en/stable/install.html) how to install it)
+- install documentation
   ```bash
   cd doc
   make html
