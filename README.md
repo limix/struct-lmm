@@ -25,7 +25,7 @@ Describe me
   python setup.py install test
   ```
 
-- install documentation
+- install documentation using sphinx (see [here](http://www.sphinx-doc.org/en/stable/install.html) how to install it)
   ```bash
   cd doc
   make html
