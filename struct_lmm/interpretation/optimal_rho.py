@@ -31,7 +31,7 @@ class OptimalRho():
 
         >>> from numpy.random import RandomState
         >>> import scipy as sp
-        >>> from struct_lmm import OptimalRho
+        >>> from struct_lmm.interpretation import OptimalRho
         >>> random = RandomState(1)
         >>>
         >>> # generate data
@@ -44,30 +44,38 @@ class OptimalRho():
         >>> covs = sp.ones((n, 1)) # intercept
         >>>
         >>> rho = OptimalRho(y, x, F = covs, Env = E, W=E)
-        >>> print('%.4f' % rho)
-        0.4035
+        >>> opt_rho = rho.calc_opt_rho()
+        >>> print('%.4f' % opt_rho)
+        1.0000
     """
 
-def __init__(y, x, F, Env, W=None):
-    if W is None:   W = Env
-    _covs = sp.concatenate([F, W, x], 1)
-    xoE = x*Env
-    gp=GP2KronSumLR(Y=y, F=_covs, A=sp.eye(1), Cn=FreeFormCov(1), G=xoE)
-    gp.covar.Cr.setCovariance(0.5 * sp.ones((1,1)))
-    gp.covar.Cn.setCovariance(0.5 * sp.ones((1,1)))
-    RV = gp.optimize()
+    def __init__(self, y, x, F, Env, W=None):
+        self.y = y
+        self.x = x
+        self.F = F
+        self.Env = Env
+        self.W = W
+        if self.W is None:   self.W = self.Env
 
-    # var_xEEx = sp.tr(xEEx P)/(n-1) = sp.tr(PW (PW)^T)/(n-1) = (PW**2).sum()/(n-1)
-    # W = xE
-    
-    # variance heterogenenty
-    var_xEEx = ((xoE - xoE.mean(0))**2).sum()
-    var_xEEx/= float(y.shape[0]-1)
-    v_het = gp.covar.Cr.K()[0,0] * var_xEEx
+    def calc_opt_rho(self):
+        _covs = sp.concatenate([self.F, self.W, self.x], 1)
+        xoE = self.x*self.Env
+        gp=GP2KronSumLR(Y=self.y, F=_covs, A=sp.eye(1), Cn=FreeFormCov(1), G=xoE)
+        gp.covar.Cr.setCovariance(0.5 * sp.ones((1,1)))
+        gp.covar.Cn.setCovariance(0.5 * sp.ones((1,1)))
+        RV = gp.optimize()
 
-    # variance persistent
-    v_comm = sp.var(gp.b()[-1]*x)
-    
-    rho = v_comm / (v_comm + v_het)
+        # var_xEEx = sp.tr(xEEx P)/(n-1) = sp.tr(PW (PW)^T)/(n-1) = (PW**2).sum()/(n-1)
+        # W = xE
+        
+        # variance heterogenenty
+        var_xEEx = ((xoE - xoE.mean(0))**2).sum()
+        var_xEEx/= float(self.y.shape[0]-1)
+        v_het = gp.covar.Cr.K()[0,0] * var_xEEx
 
-    return rho
+        # variance persistent
+        v_comm = sp.var(gp.b()[-1]*self.x)
+        
+        rho = v_comm / (v_comm + v_het)
+
+        return rho
