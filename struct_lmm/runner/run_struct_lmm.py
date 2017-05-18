@@ -22,6 +22,7 @@ def run_struct_lmm(reader,
                    rhos=None,
                    no_mean_to_one=False,
                    batch_size=1000,
+                   no_association_test=False,
                    no_interaction_test=False,
                    unique_variants=False):
     """
@@ -46,9 +47,12 @@ def run_struct_lmm(reader,
         to minimize memory usage the analysis is run in batches.
         The number of variants loaded in a batch
         (loaded into memory at the same time).
+    no_association_test : bool
+        if True the association test is not consdered.
+        The default value is False.
     no_interaction_test : bool
         if True the interaction test is not consdered.
-        Teh default value is True.
+        Teh default value is False.
     unique_variants : bool
         if True, only non-repeated genotypes are considered
         The default value is False.
@@ -65,12 +69,12 @@ def run_struct_lmm(reader,
     if rhos is None:
         rhos = [0, .2, .4, .6, .8, 1.]
 
-    # slmm fit null
-    slmm = StructLMM(pheno, env, W=env, rho_list=rhos)
-    null = slmm.fit_null(F=covs, verbose=False)
-
-    # slmm int
+    if not no_association_test:
+        # slmm fit null
+        slmm = StructLMM(pheno, env, W=env, rho_list=rhos)
+        null = slmm.fit_null(F=covs, verbose=False)
     if not no_interaction_test:
+        # slmm int
         slmm_int = StructLMM(pheno, env, W=env, rho_list=[0])
 
     n_batches = reader.getSnpInfo().shape[0]/batch_size
@@ -93,20 +97,23 @@ def run_struct_lmm(reader,
         for snp in xrange(X.shape[1]):
             x = X[:, [snp]]
 
-            # association test
-            _p, _ = slmm.score_2_dof(x)
-            _pv[snp] = _p
+            if not no_association_test:
+                # association test
+                _p, _ = slmm.score_2_dof(x)
+                _pv[snp] = _p
 
             if not no_interaction_test:
                 # interaction test
                 covs1 = sp.hstack((covs, x))
                 null = slmm_int.fit_null(F=covs1, verbose=False)
-                _p, _ = slmm.score_2_dof(x)
-                _pv[snp] = _p
+                _p, _ = slmm_int.score_2_dof(x)
+                _pv_int[snp] = _p
 
         # add pvalues to _res and append to res
-        _res = _res.assign(pv=pd.Series(_pv, index=_res.index))
-        _res = _res.assign(pv=pd.Series(_pv_int, index=_res.index))
+        if not no_association_test:
+            _res = _res.assign(pv=pd.Series(_pv, index=_res.index))
+        if not no_interaction_test:
+            _res = _res.assign(pv_int=pd.Series(_pv_int, index=_res.index))
         res.append(_res)
 
     res = pd.concat(res)

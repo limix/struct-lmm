@@ -23,7 +23,7 @@ Quick example
 
 * Normalize environments::
 
-    python norm_envs.py --in $EFILE0 --out $EFILE
+    norm_env  --in $EFILE0 --out $EFILE
 
 * Run analysis with struct LMM::
 
