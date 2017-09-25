@@ -7,9 +7,10 @@ import scipy as sp
 
 
 def get_Rdir():
-    rdir = sys.modules['struct_lmm'].__file__
-    rdir = os.path.join(rdir.split('/__init__.pyc')[0], 'R')
-    return rdir
+    # rdir = sys.modules['struct_lmm'].__file__
+    # rdir = os.path.join(rdir.split('/__init__.pyc')[0], 'R')
+    # return rdir
+    return os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'R') 
 
 
 class CompQuadFormLiu():
