@@ -1,18 +1,22 @@
-import scipy as sp
-import time
-import pdb
 import os
-import sys 
+import pdb
+import sys
+import time
+
+import scipy as sp
+
 
 def get_Rdir():
     rdir = sys.modules['struct_lmm'].__file__
     rdir = os.path.join(rdir.split('/__init__.pyc')[0], 'R')
     return rdir
 
+
 class CompQuadFormLiu():
     """
     Pvalues using liu method from CompQuadFrom
     """
+
     def __init__(self):
         from rpy2.robjects.packages import importr
         from rpy2.robjects.numpy2ri import numpy2ri
@@ -24,10 +28,12 @@ class CompQuadFormLiu():
         RV = self.cqf.liu(Q, Matrix(lambdas))
         return RV
 
+
 class CompQuadFormDavies():
     """
     Pvalues for min test statistics from SKAT-O
     """
+
     def __init__(self):
         import rpy2.robjects as ro
         from rpy2.robjects.numpy2ri import numpy2ri
@@ -35,17 +41,23 @@ class CompQuadFormDavies():
         ro.r.source(os.path.join(get_Rdir(), 'davies_final_integration.R'))
         self.r_davies = ro.globalenv['SKAT_Optimal_PValue_Davies']
 
-    def getPv(self, qminrho, MuQ, VarQ, KerQ, lam, VarRemain, Df, tau, rho_list, T):
+    def getPv(self, qminrho, MuQ, VarQ, KerQ, lam, VarRemain, Df, tau,
+              rho_list, T):
         from rpy2.robjects.vectors import FloatVector
-        RV = self.r_davies(FloatVector(qminrho), MuQ, VarQ, KerQ, FloatVector(lam), VarRemain, Df, FloatVector(tau), FloatVector(rho_list), T)
+        RV = self.r_davies(
+            FloatVector(qminrho), MuQ, VarQ, KerQ,
+            FloatVector(lam), VarRemain, Df,
+            FloatVector(tau), FloatVector(rho_list), T)
         RV = [sp.array(RV[i]) for i in range(len(RV))]
         RV = RV[0].flatten()[0]
         return RV
+
 
 class CompQuadFormLiuMod():
     """
     Pvs from modified Liu method in SKAT
     """
+
     def __init__(self):
         import rpy2.robjects as ro
         from rpy2.robjects.numpy2ri import numpy2ri
@@ -58,10 +70,12 @@ class CompQuadFormLiuMod():
         RV = self.r_liu_mod(Q, Matrix(lambdas))
         return RV
 
+
 class CompQuadFormDaviesSkat():
     """
     Pvs using Davies method
     """
+
     def __init__(self):
         import rpy2.robjects as ro
         from rpy2.robjects.numpy2ri import numpy2ri
@@ -71,11 +85,11 @@ class CompQuadFormDaviesSkat():
 
     def getPv(self, optimal_Q_rho, LAtAL):
         from rpy2.robjects.vectors import Matrix
-        RV = self.r_davies(Q = optimal_Q_rho, K = Matrix(LAtAL))
+        RV = self.r_davies(Q=optimal_Q_rho, K=Matrix(LAtAL))
         RV = [sp.array(RV[i]) for i in range(len(RV))]
         RV = RV[0]
         return RV
 
-if __name__=='__main__':
-    pass
 
+if __name__ == '__main__':
+    pass

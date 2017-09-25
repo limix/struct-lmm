@@ -1,21 +1,26 @@
-import scipy as sp
-import scipy.stats as st
-import scipy.linalg as la
 import pdb
-import limix
 import time
 
-def calc_Ai_beta_s2(yKiy,FKiF,FKiy,df):
+import scipy as sp
+import scipy.linalg as la
+import scipy.stats as st
+
+import limix
+
+
+def calc_Ai_beta_s2(yKiy, FKiF, FKiy, df):
     Ai = la.pinv(FKiF)
-    beta = sp.dot(Ai,FKiy)
-    s2 = (yKiy-sp.dot(FKiy[:,0],beta[:,0]))/df
-    return Ai,beta,s2
+    beta = sp.dot(Ai, FKiy)
+    s2 = (yKiy - sp.dot(FKiy[:, 0], beta[:, 0])) / df
+    return Ai, beta, s2
+
 
 def hatodot(A, B):
     """ should be implemented in C """
     A1 = sp.kron(A, sp.ones((1, B.shape[1])))
     B1 = sp.kron(sp.ones((1, A.shape[1])), B)
-    return A1*B1
+    return A1 * B1
+
 
 class LMMCore():
     r"""
@@ -83,7 +88,7 @@ class LMMCore():
         fixed effect design for covariates.
     cov : :class:`limix_core.covar`
         Covariance matrix of the random effect.
-        
+
 
     Examples
     --------
@@ -180,17 +185,18 @@ class LMMCore():
              [-0.413   0.0278  0.1946 -0.1199]
              [ 0.0268 -0.0317 -0.1059  0.1414]]
     """
+
     def __init__(self, y, F, cov=None):
-        if F is None:   F = sp.ones((y.shape[0],1))
+        if F is None: F = sp.ones((y.shape[0], 1))
         self.y = y
         self.F = F
         self.cov = cov
-        self.df = y.shape[0]-F.shape[1]
+        self.df = y.shape[0] - F.shape[1]
         self._fit_null()
 
     def _fit_null(self):
         """ Internal functon. Fits the null model """
-        if self.cov==None:
+        if self.cov == None:
             self.Kiy = self.y
             self.KiF = self.F
         else:
@@ -198,9 +204,10 @@ class LMMCore():
             self.KiF = self.cov.solve(self.F)
         self.FKiy = sp.dot(self.F.T, self.Kiy)
         self.FKiF = sp.dot(self.F.T, self.KiF)
-        self.yKiy = sp.dot(self.y[:,0], self.Kiy[:,0])
+        self.yKiy = sp.dot(self.y[:, 0], self.Kiy[:, 0])
         # calc beta_F0 and s20
-        self.A0i, self.beta_F0, self.s20 = calc_Ai_beta_s2(self.yKiy,self.FKiF,self.FKiy,self.df)
+        self.A0i, self.beta_F0, self.s20 = calc_Ai_beta_s2(
+            self.yKiy, self.FKiF, self.FKiy, self.df)
 
     def process(self, G, Inter=None, step=1, verbose=False):
         r"""
@@ -210,7 +217,7 @@ class LMMCore():
         ----------
         G : (`N`, `S`) ndarray
         Inter : (`N`, `M`) ndarray
-            Matrix of `M` factors for `N` inds with which 
+            Matrix of `M` factors for `N` inds with which
             each variant interact
             By default, Inter is set to a matrix of ones.
         step : int
@@ -222,41 +229,41 @@ class LMMCore():
         t0 = time.time()
         ntests = int(G.shape[1] / step)
         if Inter is None: mi = 1
-        else:             mi = Inter.shape[1]
+        else: mi = Inter.shape[1]
         k = self.F.shape[1]
-        m = mi * step 
-        F1KiF1 = sp.zeros((k+m, k+m))
-        F1KiF1[:k,:k] = self.FKiF
-        F1Kiy = sp.zeros((k+m,1))
-        F1Kiy[:k,0] = self.FKiy[:,0] 
+        m = mi * step
+        F1KiF1 = sp.zeros((k + m, k + m))
+        F1KiF1[:k, :k] = self.FKiF
+        F1Kiy = sp.zeros((k + m, 1))
+        F1Kiy[:k, 0] = self.FKiy[:, 0]
         s2 = sp.zeros(ntests)
         self.beta_g = sp.zeros([m, ntests])
         for s in range(ntests):
             idx1 = step * s
-            idx2 = step * (s + 1) 
+            idx2 = step * (s + 1)
             if Inter is not None:
-                if step==1:
-                    X = Inter * G[:,idx1:idx2]
+                if step == 1:
+                    X = Inter * G[:, idx1:idx2]
                 else:
-                    X = hatodot(Inter, G[:,idx1:idx2])
+                    X = hatodot(Inter, G[:, idx1:idx2])
             else:
-                X = G[:,idx1:idx2]
-            if self.cov==None:  KiX = X 
-            else:               KiX = self.cov.solve(X)
-            F1KiF1[k:,:k] = sp.dot(X.T,self.KiF)
-            F1KiF1[:k,k:] = F1KiF1[k:,:k].T
-            F1KiF1[k:,k:] = sp.dot(X.T, KiX) 
-            F1Kiy[k:,0] = sp.dot(X.T,self.Kiy[:,0])
+                X = G[:, idx1:idx2]
+            if self.cov == None: KiX = X
+            else: KiX = self.cov.solve(X)
+            F1KiF1[k:, :k] = sp.dot(X.T, self.KiF)
+            F1KiF1[:k, k:] = F1KiF1[k:, :k].T
+            F1KiF1[k:, k:] = sp.dot(X.T, KiX)
+            F1Kiy[k:, 0] = sp.dot(X.T, self.Kiy[:, 0])
             #this can be sped up by using block matrix inversion, etc
-            _,beta,s2[s] = calc_Ai_beta_s2(self.yKiy,F1KiF1,F1Kiy,self.df)
-            self.beta_g[:,s] = beta[k:,0]
+            _, beta, s2[s] = calc_Ai_beta_s2(self.yKiy, F1KiF1, F1Kiy, self.df)
+            self.beta_g[:, s] = beta[k:, 0]
         #dlml and pvs
-        self.lrt = -self.df*sp.log(s2/self.s20)
+        self.lrt = -self.df * sp.log(s2 / self.s20)
         self.pv = st.chi2(m).sf(self.lrt)
 
         t1 = time.time()
         if verbose:
-            print 'Tested for %d variants in %.2f s' % (G.shape[1],t1-t0)
+            print('Tested for %d variants in %.2f s' % (G.shape[1], t1 - t0))
 
     def getPv(self):
         """

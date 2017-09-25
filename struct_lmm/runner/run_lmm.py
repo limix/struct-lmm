@@ -1,20 +1,15 @@
 import time
-import sys
-import os
-import numpy as np
+import warnings
+from optparse import OptionParser
+
 import pandas as pd
 import scipy as sp
-import h5py
-import dask.dataframe as dd
 import scipy.linalg as la
-from limix.data import BedReader
-from limix.data import build_geno_query
+
 from limix.data import GIter
 from limix.util import unique_variants as f_univar
-from optparse import OptionParser
 from struct_lmm.lmm import LMM
 from struct_lmm.utils.sugar_utils import *
-import warnings
 
 
 def run_lmm(reader,
@@ -59,7 +54,7 @@ def run_lmm(reader,
     covs : (`N`, L) ndarray
         fixed effect design for covariates `N` samples and `L` covariates.
         If None (dafault value), an intercept only is considered.
-    batch_size : int    
+    batch_size : int
         to minimize memory usage the analysis is run in batches.
         The number of variants loaded in a batch
         (loaded into memory at the same time).
@@ -101,19 +96,18 @@ def run_lmm(reader,
         from limix_core.gp import GP2KronSum
         Cg = FreeFormCov(P)
         Cn = FreeFormCov(P)
-        gp = GP2KronSum(Y=pheno, Cg=Cg, Cn=Cn, F=covs,
-                        A=sp.eye(1), S_R=S_R, U_R=U_R)
-        Cg.setCovariance(0.5*sp.ones(1,1))
-        Cn.setCovariance(0.5*sp.ones(1,1))
+        gp = GP2KronSum(
+            Y=pheno, Cg=Cg, Cn=Cn, F=covs, A=sp.eye(1), S_R=S_R, U_R=U_R)
+        Cg.setCovariance(0.5 * sp.ones(1, 1))
+        Cn.setCovariance(0.5 * sp.ones(1, 1))
         info_opt = gp.optimize(verbose=False)
         covar = gp.covar
     elif W is not None:
         from limix_core.gp import GP2KronSumLR
         from limix_core.covar import FreeFormCov
-        gp = GP2KronSumLR(Y=pheno, Cn=FreeFormCov(1),
-                          G=W, F=covs, A=sp.eye(1))
-        gp.covar.Cr.setCovariance(0.5*sp.ones((1,1)))
-        gp.covar.Cn.setCovariance(0.5*sp.ones((1,1)))
+        gp = GP2KronSumLR(Y=pheno, Cn=FreeFormCov(1), G=W, F=covs, A=sp.eye(1))
+        gp.covar.Cr.setCovariance(0.5 * sp.ones((1, 1)))
+        gp.covar.Cn.setCovariance(0.5 * sp.ones((1, 1)))
         info_opt = gp.optimize(verbose=False)
         covar = gp.covar
     else:
@@ -122,13 +116,13 @@ def run_lmm(reader,
     # define lmm
     lmm = LMM(pheno, covs, covar)
 
-    n_batches = reader.getSnpInfo().shape[0]/batch_size
+    n_batches = reader.getSnpInfo().shape[0] / batch_size
 
     t0 = time.time()
 
     res = []
     for i, gr in enumerate(GIter(reader, batch_size=batch_size)):
-        print '.. batch %d/%d' % (i, n_batches)
+        print('.. batch %d/%d' % (i, n_batches))
 
         X, _res = gr.getGenotypes(standardize=True, return_snpinfo=True)
 
@@ -144,7 +138,7 @@ def run_lmm(reader,
         beta_ste = lmm.getBetaSNPste()
         lrt = lmm.getLRT()
 
-        # add pvalues, beta, etc to res 
+        # add pvalues, beta, etc to res
         _res = _res.assign(pv=pd.Series(pv, index=_res.index))
         _res = _res.assign(beta=pd.Series(beta, index=_res.index))
         _res = _res.assign(beta_ste=pd.Series(beta_ste, index=_res.index))
@@ -155,7 +149,6 @@ def run_lmm(reader,
     res.reset_index(inplace=True, drop=True)
 
     t = time.time() - t0
-    print '%.2f s elapsed' % t
+    print('%.2f s elapsed' % t)
 
     return res
-

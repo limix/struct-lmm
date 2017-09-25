@@ -1,16 +1,16 @@
-import time
-import sys
 import os
+import sys
+import time
+from optparse import OptionParser
+
+import dask.dataframe as dd
+import h5py
 import numpy as np
 import pandas as pd
 import scipy as sp
-import h5py
-import dask.dataframe as dd
-from limix.data import BedReader
-from limix.data import build_geno_query
-from limix.data import GIter
+
+from limix.data import BedReader, GIter, build_geno_query
 from limix.util import unique_variants as f_univar
-from optparse import OptionParser
 from struct_lmm.lmm import StructLMM
 from struct_lmm.utils.sugar_utils import *
 
@@ -43,7 +43,7 @@ def run_struct_lmm(reader,
         ``rho=0`` correspond to no persistent effect (only GxE);
         ``rho=1`` corresponds to only persitent effect (no GxE);
         By default, ``rho=[0, 0.2, 0.4, 0.6, 0.8, 1.]``
-    batch_size : int    
+    batch_size : int
         to minimize memory usage the analysis is run in batches.
         The number of variants loaded in a batch
         (loaded into memory at the same time).
@@ -77,7 +77,7 @@ def run_struct_lmm(reader,
         # slmm int
         slmm_int = StructLMM(pheno, env, W=env, rho_list=[0])
 
-    n_batches = reader.getSnpInfo().shape[0]/batch_size
+    n_batches = reader.getSnpInfo().shape[0] / batch_size
 
     t0 = time.time()
 
@@ -123,4 +123,3 @@ def run_struct_lmm(reader,
     print '%.2f s elapsed' % t
 
     return res
-
