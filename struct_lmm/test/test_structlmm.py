@@ -1,7 +1,9 @@
-from numpy.testing import assert_allclose
-from numpy.random import RandomState
 import scipy as sp
-from struct_lmm.lmm import StructLMM 
+from numpy.random import RandomState
+from numpy.testing import assert_allclose
+
+from struct_lmm.lmm import StructLMM
+
 
 def test_structlmm():
     #1. generate data
@@ -24,6 +26,6 @@ def test_structlmm():
     #4. assert close
     assert_allclose([pv, rho_opt], [0.83718061744700234, 0.0])
 
+
 if __name__ == '__main__':
     __import__('pytest').main([__file__, '-s'])
-

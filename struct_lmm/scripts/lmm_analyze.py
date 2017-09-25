@@ -1,18 +1,19 @@
-import time
-import sys
 import os
+import sys
+import time
+from optparse import OptionParser
+
+import dask.dataframe as dd
+import h5py
 import numpy as np
 import pandas as pd
 import scipy as sp
-import h5py
-import dask.dataframe as dd
-from limix.data import BedReader
-from limix.data import build_geno_query
-from limix.data import GIter
+
+from limix.data import BedReader, GIter, build_geno_query
 from limix.util import unique_variants
-from optparse import OptionParser
-from struct_lmm.runner import run_lmm 
+from struct_lmm.runner import run_lmm
 from struct_lmm.utils.sugar_utils import *
+
 
 def entry_point():
 
@@ -38,13 +39,15 @@ def entry_point():
     parser.add_option("--pos_end", dest='pos_end', type=int, default=None)
 
     # size of batches to load into memory
-    parser.add_option("--batch_size", dest='batch_size', type=int, default=1000)
+    parser.add_option(
+        "--batch_size", dest='batch_size', type=int, default=1000)
 
     # analysis options
-    parser.add_option("--unique_variants",
-                      action="store_true",
-                      dest='unique_variants',
-                      default=False)
+    parser.add_option(
+        "--unique_variants",
+        action="store_true",
+        dest='unique_variants',
+        default=False)
     (opt, args) = parser.parse_args()
 
     # assert stuff
@@ -55,17 +58,17 @@ def entry_point():
 
     # import geno and subset
     reader = BedReader(opt.bfile)
-    query = build_geno_query(idx_start=opt.i0,
-                             idx_end=opt.i1,
-                             chrom=opt.chrom,
-                             pos_start=opt.pos_start,
-                             pos_end=opt.pos_end)
+    query = build_geno_query(
+        idx_start=opt.i0,
+        idx_end=opt.i1,
+        chrom=opt.chrom,
+        pos_start=opt.pos_start,
+        pos_end=opt.pos_end)
     reader.subset_snps(query, inplace=True)
 
     # pheno
-    y = import_one_pheno_from_csv(opt.pfile,
-                                  pheno_id=opt.pheno_id,
-                                  standardize=True)
+    y = import_one_pheno_from_csv(
+        opt.pfile, pheno_id=opt.pheno_id, standardize=True)
 
     # import environment
     W = sp.loadtxt(opt.wfile)
@@ -77,10 +80,13 @@ def entry_point():
         covs = sp.loadtxt(opt.ffile)
 
     # run analysis
-    res = run_lmm(reader, y, W=W,
-                  covs=covs,
-                  batch_size=opt.batch_size,
-                  unique_variants=opt.unique_variants)
+    res = run_lmm(
+        reader,
+        y,
+        W=W,
+        covs=covs,
+        batch_size=opt.batch_size,
+        unique_variants=opt.unique_variants)
 
     # export
     print 'Export to %s' % opt.ofile
@@ -88,6 +94,6 @@ def entry_point():
     res.to_csv(opt.ofile, index=False)
 
 
-if __name__=='__main__':
+if __name__ == '__main__':
 
     entry_point()

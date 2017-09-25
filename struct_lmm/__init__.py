@@ -7,16 +7,10 @@ Write me
 
 """
 
-from . import (lmm, runner, utils, interpretation)
-from runner import run_struct_lmm
-from runner import run_lmm
-from runner import run_lmm_int
-from lmm import StructLMM
-from lmm import LMMCore
-from lmm import LMM
+from __future__ import absolute_import as _
 
-__all__ = [
-    'lmm', 'runner', 'interpretation', 'utils' 
-]
+from . import interpretation, lmm, runner, utils
+from .lmm import LMM, LMMCore, StructLMM
+from .runner import run_lmm, run_lmm_int, run_struct_lmm
 
-
+__all__ = ['lmm', 'runner', 'interpretation', 'utils']

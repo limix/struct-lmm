@@ -4,8 +4,8 @@ r"""
 - :class:`.LMM`
 """
 
-from .structlmm import StructLMM
-from .lmm_core import LMMCore
 from .lmm import LMM
+from .lmm_core import LMMCore
+from .structlmm import StructLMM
 
 __all__ = ['StructLMM', 'LMMCore', 'LMM']
