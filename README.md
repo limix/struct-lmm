@@ -10,19 +10,16 @@ Describe me
   source activate struct-lmm
   ```
 
-- install numpy, scipy, rpy2 and limix
+- install limix and r dependencies
   ```
-  conda install -n struct-lmm numpy scipy ipython cython sphinx
-  conda install -c r -n struct-lmm rpy2
-  conda install -c conda-forge liknorm-py
-  pip install limix
+  conda install -c conda-forge limix r r-base r-essentials rpy2 r-compquadform sphinx sphinx_rtd_theme
   ```
 
 - install struct-lmm (hopefully all tests pass)
   ```bash
   git clone https://github.com/limix/struct-lmm.git
   cd struct-lmm
-  python setup.py install test
+  python setup.py install
   ```
 
 - install documentation

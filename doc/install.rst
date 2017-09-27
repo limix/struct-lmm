@@ -20,6 +20,7 @@ StructLMM requires scipy, numpy, rpy2, limix-core and limix.
     python setup.py install
 
 * install sphinx, documentation::
+
     cd doc
     make html
 
