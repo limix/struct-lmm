@@ -11,16 +11,15 @@ StructLMM requires scipy, numpy, rpy2, limix-core and limix.
 
 * install limix and r dependencies::
 
-    conda install -c conda-forge limix r r-base r-essentials rpy2 r-compquadform
+    conda install -c conda-forge limix r r-base r-essentials rpy2 r-compquadform sphinx sphinx_rtd_theme
 
 * install struct-lmm (hopefully all tests pass)::
 
     git clone https://github.com/limix/struct-lmm.git
     cd struct-lmm
-    python setup.py install test
+    python setup.py install
 
-* install documentation::
-
+* install sphinx, documentation::
     cd doc
     make html
 
