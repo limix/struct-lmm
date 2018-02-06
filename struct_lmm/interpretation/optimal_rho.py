@@ -63,8 +63,8 @@ class OptimalRho():
         _covs = sp.concatenate([self.F, self.W, self.x], 1)
         xoE = self.x*self.Env
         gp=GP2KronSumLR(Y=self.y, F=_covs, A=sp.eye(1), Cn=FreeFormCov(1), G=xoE)
-        gp.covar.Cr.setCovariance(0.5 * sp.ones((1,1)))
-        gp.covar.Cn.setCovariance(0.5 * sp.ones((1,1)))
+        gp.covar.Cr.setCovariance(1e-4 * sp.ones((1,1)))
+        gp.covar.Cn.setCovariance(0.02 * sp.ones((1,1)))
         RV = gp.optimize(verbose=False)
 
         # var_xEEx = sp.tr(xEEx P)/(n-1) = sp.tr(PW (PW)^T)/(n-1) = (PW**2).sum()/(n-1)
