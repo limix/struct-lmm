@@ -11,6 +11,7 @@ StructLMM's documentation
    python
    commandline
    public
+   tutorial
 
 *****************
 Comments and bugs
