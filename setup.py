@@ -2,6 +2,7 @@ from __future__ import unicode_literals
 
 import os
 import sys
+import pypandoc
 
 from setuptools import find_packages, setup
 
@@ -32,13 +33,18 @@ def setup_package():
         'norm_env=struct_lmm.scripts.norm_env:entry_point'
     ]
 
+    readme = open('README.md').read()
+    long_description = pypandoc.convert_text(
+            readme, 'rst', format='markdown')
+ 
+
     metadata = dict(
         name='struct-lmm',
-        version='0.0.1',
+        version='0.0.4',
         maintainer="StructLMM developers",
         maintainer_email="casale@ebi.ac.uk",
         license="Apache License 2.0'",
-        #description="Linear mixed model",
+        description="Linear mixed model to study multivariate genotype-environment interactions",
         long_description=long_description,
         url='https://github.com/limix/struct-lmm',
         packages=find_packages(),
