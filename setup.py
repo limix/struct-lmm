@@ -2,7 +2,7 @@ from __future__ import unicode_literals
 
 import os
 import sys
-import pypandoc
+#import pypandoc
 
 from setuptools import find_packages, setup
 
@@ -40,7 +40,7 @@ def setup_package():
 
     metadata = dict(
         name='struct-lmm',
-        version='0.0.4',
+        version='0.0.7',
         maintainer="StructLMM developers",
         maintainer_email="casale@ebi.ac.uk",
         license="Apache License 2.0'",
