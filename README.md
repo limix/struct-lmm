@@ -12,7 +12,7 @@ Describe me
 
 - install dependencies
   ```
-  conda install -c conda-forge limix-core r r-base r-essentials rpy2 r-compquadform sphinx sphinx_rtd_theme
+  conda install -c conda-forge limix r r-base r-essentials rpy2 r-compquadform sphinx sphinx_rtd_theme
   ```
 
 - install struct-lmm (hopefully all tests pass)
