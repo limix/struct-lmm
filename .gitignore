@@ -1,3 +1,4 @@
+.pytest_cache/
 .asv/env/
 .asv/html/
 glimix-core/

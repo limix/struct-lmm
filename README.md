@@ -1,6 +1,8 @@
 # struct-lmm
 
-Describe me
+The structured linear mixed model (StructLMM) is a computationally efficient method to test for and characterize loci that interact with multiple environments.
+
+See link for more details.
 
 ## Install
 
@@ -10,7 +12,7 @@ Describe me
   source activate struct-lmm
   ```
 
-- install limix and r dependencies
+- install dependencies
   ```
   conda install -c conda-forge limix r r-base r-essentials rpy2 r-compquadform sphinx sphinx_rtd_theme
   ```
