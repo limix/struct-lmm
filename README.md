@@ -1,6 +1,8 @@
 # struct-lmm
 
-Describe me
+The structured linear mixed model (StructLMM) is a computationally efficient method to test for and characterize loci that interact with multiple environments.
+
+See link for more details.
 
 ## Install
 
