@@ -33,9 +33,9 @@ def setup_package():
         'norm_env=struct_lmm.scripts.norm_env:entry_point'
     ]
 
-    readme = open('README.md').read()
-    long_description = pypandoc.convert_text(
-            readme, 'rst', format='markdown')
+    # readme = open('README.md').read()
+    # long_description = pypandoc.convert_text(
+    #         readme, 'rst', format='markdown')
  
 
     metadata = dict(
