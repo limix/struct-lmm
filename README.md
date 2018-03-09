@@ -44,6 +44,10 @@ bash <(curl -fsSL https://raw.githubusercontent.com/limix/struct-lmm/master/inst
 The user might be prompted to install conda in case he/she does not have
 it, and will warn the user if for some reason the installation process cannot
 proceed.
+The whole installation process should take less than 15 minutes and mainly
+consists in downloading essential R and Python packages for a working
+environment.
+
 
 ## Usage example
 
