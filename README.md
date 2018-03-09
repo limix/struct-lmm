@@ -78,8 +78,10 @@ If you encounter any problem, please, consider submitting a [new issue](https://
 
 ## Authors
 
-* **Francesco Paolo Casale** - [https://github.com/fpcasale](https://github.com/fpcasale)
 * **Rachel Moore** - [https://github.com/rm18](https://github.com/rm18)
+* **Danilo Horta** - [https://github.com/rm18](https://github.com/horta)
+* **Francesco Paolo Casale** - [https://github.com/fpcasale](https://github.com/fpcasale)
+
 
 ## License
 
