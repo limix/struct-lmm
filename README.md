@@ -6,31 +6,12 @@ See link for more details.
 
 ## Install
 
-- Create a new environment in [conda](https://conda.io/docs/index.html)
-  ```bash
-  conda create -n struct-lmm python=2.7
-  source activate struct-lmm
-  ```
+For Linux and macOS operating systems, struct-lmm can be install from the
+command line by entering
 
-- install dependencies
-  ```
-  conda install -c conda-forge limix r r-base r-essentials rpy2 r-compquadform sphinx sphinx_rtd_theme
-  ```
-
-- install struct-lmm (hopefully all tests pass)
-  ```bash
-  git clone https://github.com/limix/struct-lmm.git
-  cd struct-lmm
-  python setup.py install
-  ```
-
-- install documentation
-  ```bash
-  cd doc
-  make html
-  open _build/html/index.html
-  ```
-  
+```bash
+bash <(curl -fsSL https://raw.githubusercontent.com/limix/struct-lmm/master/install)
+```
 
 ## Documentation
 
