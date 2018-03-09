@@ -79,7 +79,7 @@ If you encounter any problem, please, consider submitting a [new issue](https://
 ## Authors
 
 * **Rachel Moore** - [https://github.com/rm18](https://github.com/rm18)
-* **Danilo Horta** - [https://github.com/rm18](https://github.com/horta)
+* **Danilo Horta** - [https://github.com/horta](https://github.com/horta)
 * **Francesco Paolo Casale** - [https://github.com/fpcasale](https://github.com/fpcasale)
 
 
