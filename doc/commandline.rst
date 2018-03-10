@@ -166,7 +166,7 @@ Formats
   Note that the environment matrix is normalized in such
   a way that the outer product EE^T has diagonal of ones.
   This can be done in python using the function
-  :fun:`struct_lmm.utils.norm_env_matrix`
+  :func:`struct_lmm.utils.norm_env_matrix`
   or using the script ``norm_env``.
 
 * **ffile** (covariates file) is a tsv file with dimensions #inds by #covariates.

@@ -3,13 +3,9 @@ from __future__ import unicode_literals
 import os
 import sphinx_rtd_theme
 
-#try:
-#    import struct_lmm
-#    version = struct_lmm.__version__
-#except ImportError:
-#    version = 'unknown'
-
-version = 'unknown'
+def get_version():
+    import struct_lmm
+    return struct_lmm.__version__
 
 extensions = [
     'matplotlib.sphinxext.only_directives',
@@ -28,6 +24,7 @@ master_doc = 'index'
 project = 'StructLMM'
 copyright = '2017, Rachel Moore, Francesco Paolo Casale, Oliver Stegle'
 author = 'Rachel Moore, Francesco Paolo Casale, Oliver Stegle'
+version = get_version()
 release = version
 language = None
 exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store', 'conf.py']
