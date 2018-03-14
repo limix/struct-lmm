@@ -9,7 +9,7 @@ if "%SPHINXBUILD%" == "" (
 )
 set SOURCEDIR=.
 set BUILDDIR=_build
-set SPHINXPROJ=limix
+set SPHINXPROJ=struct-lmm
 
 if "%1" == "" goto help
 

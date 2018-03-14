@@ -1,8 +1,9 @@
 from __future__ import unicode_literals
 
+import re
 import os
 import sys
-#import pypandoc
+import codecs
 
 from setuptools import find_packages, setup
 
@@ -11,6 +12,20 @@ try:
     long_description = pypandoc.convert_file('README.md', 'rst')
 except (OSError, IOError, ImportError):
     long_description = open('README.md').read()
+
+here = os.path.abspath(os.path.dirname(__file__))
+
+def read(*parts):
+    with codecs.open(os.path.join(here, *parts), 'r') as fp:
+        return fp.read()
+
+def find_version(*file_paths):
+    version_file = read(*file_paths)
+    version_match = re.search(r"^__version__ = ['\"]([^'\"]*)['\"]",
+                              version_file, re.M)
+    if version_match:
+        return version_match.group(1)
+    raise RuntimeError("Unable to find version string.")
 
 
 def setup_package():
@@ -33,14 +48,10 @@ def setup_package():
         'norm_env=struct_lmm.scripts.norm_env:entry_point'
     ]
 
-    # readme = open('README.md').read()
-    # long_description = pypandoc.convert_text(
-    #         readme, 'rst', format='markdown')
- 
 
     metadata = dict(
         name='struct-lmm',
-        version='0.0.7',
+        version=find_version("struct_lmm", "__init__.py"),
         maintainer="StructLMM developers",
         maintainer_email="casale@ebi.ac.uk",
         license="Apache License 2.0'",
