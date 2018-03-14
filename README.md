@@ -51,7 +51,7 @@ environment.
 
 ## Usage example
 
-TODO: Rachel, consider a minimal usage example here. Like this:
+StructLMM can be run from the command line using the following
 
 ```bash
 wget http://www.ebi.ac.uk/~casale/data_structlmm.zip
@@ -61,11 +61,10 @@ BFILE=data_structlmm/chrom22_subsample20_maf0.10
 PFILE=data_structlmm/expr.csv
 EFILE0=data_structlmm/env.txt
 EFILE=data_structlmm/env_norm.txt
-```
 
-Something simpler (10 lines max) than what is in the documentation itself.
-Basically to show that something actually happens, and provides a quick way
-to test that it is installed and doing something.
+struct_lmm_analyze --bfile $BFILE --pfile $PFILE --pheno_id gene10 --efile $EFILE --ofile out/results.res --idx_start 0 --idx_end 1000 --batch_size 100 --unique_variants
+```
+Further examples can be found at [http://struct-lmm.readthedocs.io/](http://struct-lmm.readthedocs.io/).
 
 ## Documentation
 
