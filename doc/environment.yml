@@ -87,7 +87,7 @@ dependencies:
 - nbformat=4.4.0=py27_0
 - ncephes=1.0.40=py27_0
 - ncurses=5.9=10
-- ndarray-listener=1.1.0=py27_0
+- ndarray-listener=1.1.1=py27_0
 - notebook=5.4.0=py27_0
 - numpy-sugar=1.2.0=py27_0
 - optimix=1.2.21=py27_0
