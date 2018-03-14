@@ -48,7 +48,7 @@ class OptimalRho():
         >>> rho = OptimalRho(y, x, F = covs, Env = E, W=E)
         >>> opt_rho = rho.calc_opt_rho()
         >>> print('%.4f' % opt_rho)
-        1.0000
+        0.0000
     """
 
     def __init__(self, y, x, F, Env, W=None):
@@ -78,6 +78,6 @@ class OptimalRho():
         # variance persistent
         v_comm = sp.var(gp.b()[-1] * self.x)
 
-        rho = v_comm / (v_comm + v_het)
+        rho = v_het / (v_comm + v_het)
 
         return rho
