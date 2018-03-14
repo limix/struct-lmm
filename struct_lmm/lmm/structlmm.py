@@ -113,6 +113,7 @@ class StructLMM(object):
         self.K = K
         # W is low rank verion of kernel
         self.W = W
+        # rho_list here is 1-rho used in documentation and paper but used in same manner as for SKAT-O
         self.rho_list = rho_list
         if self.rho_list is None:
             self.rho_list = sp.arange(0, 1.01, 0.2)
