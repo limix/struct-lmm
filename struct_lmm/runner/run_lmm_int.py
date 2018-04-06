@@ -104,6 +104,7 @@ def run_lmm_int(reader,
     # fit null
     if R is not None:
         from limix_core.gp import GP2KronSum
+        from limix_core.covar import FreeFormCov
         Cg = FreeFormCov(P)
         Cn = FreeFormCov(P)
         gp = GP2KronSum(
