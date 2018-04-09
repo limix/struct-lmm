@@ -94,8 +94,9 @@ def run_lmm(reader,
     # fit null
     if R is not None:
         from limix_core.gp import GP2KronSum
-        Cg = FreeFormCov(P)
-        Cn = FreeFormCov(P)
+        from limix_core.covar import FreeFormCov
+        Cg = FreeFormCov(1)
+        Cn = FreeFormCov(1)
         gp = GP2KronSum(
             Y=pheno, Cg=Cg, Cn=Cn, F=covs, A=sp.eye(1), S_R=S_R, U_R=U_R)
         Cg.setCovariance(0.5 * sp.ones(1, 1))
