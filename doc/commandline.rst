@@ -127,7 +127,7 @@ Commands
     --idx_end idx_end \
     --pos_start pos_start \
     --pos_end pos_end \
-    - chrom pos_chrom \
+    --chrom pos_chrom \
     --batch_size bathc_size \
     --unique_variants \
 
@@ -144,13 +144,16 @@ See above for other parameters.
     norm_env \
     --in ifile \
     --out ofile \
-    --no_mean_to_one
+    --norm_type norm_type
     
-* **no_mean_to_one**. if not set, the environment matrix is
-  normalized in such a way that the outer product EE^T has
+* **norm_type**. by default, the norm_type is 'weighted_correlation' and the 
+  environment matrix is normalized in such a way that the outer product EE^T has
   diagonal of ones.
-  If set, the environment matrix is normalized in such
+  If 'linear_covariance', the environment matrix is normalized in such
   a way that the outer product EE^T has mean of diagonal of ones.
+  If 'correlation', the environment matrix is normalized in such
+  a way that the outer product EE^T is a correlation matrix with a 
+  diagonal of ones.
 
 .. _formats_ref:
 

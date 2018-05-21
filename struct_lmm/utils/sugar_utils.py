@@ -41,7 +41,7 @@ def import_one_pheno_from_csv(pfile, pheno_id, standardize=False):
     return y
 
 
-def norm_env_matrix(E, no_mean_to_one=False):
+def norm_env_matrix(E, norm_type='weighted_correlation'):
     """
     Normalises the environmental matrix.
 
@@ -49,13 +49,13 @@ def norm_env_matrix(E, no_mean_to_one=False):
     ----------
     E : array
         matrix of environments
-    no_mean_to_one : bool
-        if False, the environment matrix is normalized in such
+    norm_type : string
+        if 'linear_covariance', the environment matrix is normalized in such
+        a way that the outer product EE^T has mean of diagonal.
+        if 'weighted_correlation', the environment matrix is normalized in such
         a way that the outer product EE^T has diagonal of ones.
-        if True, the environment matrix is normalized in such
-        a way that the outer product EE^T has mean of diagonal
-        of ones.
-
+        if 'correlation', the environment is normalized in such a way that the 
+        outer product EE^T is a correlation matrix with a diagonal of ones.
     Returns
     -------
     E : array
@@ -65,9 +65,12 @@ def norm_env_matrix(E, no_mean_to_one=False):
     E = E[:, std > 0]
     E -= E.mean(0)
     E /= E.std(0)
-    if no_mean_to_one:
+    if norm_type=='linear_covariance':
         E *= sp.sqrt(E.shape[0] / sp.sum(E**2))
-    else:
+    elif norm_type=='weighted_correlation':
+        E /= ((E**2).sum(1)**0.5)[:, sp.newaxis]
+    elif norm_type=='correlation':
+        E -= E.mean(1)
         E /= ((E**2).sum(1)**0.5)[:, sp.newaxis]
     return E
 
