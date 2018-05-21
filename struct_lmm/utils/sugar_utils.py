@@ -51,11 +51,11 @@ def norm_env_matrix(E, norm_type='weighted_correlation'):
         matrix of environments
     norm_type : string
         if 'linear_covariance', the environment matrix is normalized in such
-        a way that the outer product EE^T has mean of diagonal.
+        a way that the outer product EE^T has mean of diagonal of ones.
         if 'weighted_correlation', the environment matrix is normalized in such
         a way that the outer product EE^T has diagonal of ones.
         if 'correlation', the environment is normalized in such a way that the 
-        outer product EE^T is a correlation matrix with a diagonal of ones.
+        outer product EE^T is a correlation matrix (with a diagonal of ones).
     Returns
     -------
     E : array

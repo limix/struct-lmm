@@ -25,6 +25,9 @@ def entry_point():
     assert opt.inf is not None, 'Specify in file!'
     assert opt.outf is not None, 'Specify out file!'
 
+    allowed_types = ['linear_covariance', 'weighted_correlation', 'correlation']
+    assert norm_type in allowed_types, 'Value of norm_type not allowed'
+
     E = sp.loadtxt(opt.inf)
     En = norm_env_matrix(E, norm_type=opt.norm_type)
     sp.savetxt(opt.outf, En)

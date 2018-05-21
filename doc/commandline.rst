@@ -152,8 +152,8 @@ See above for other parameters.
   If 'linear_covariance', the environment matrix is normalized in such
   a way that the outer product EE^T has mean of diagonal of ones.
   If 'correlation', the environment matrix is normalized in such
-  a way that the outer product EE^T is a correlation matrix with a 
-  diagonal of ones.
+  a way that the outer product EE^T is a correlation matrix (with a 
+  diagonal of ones).
 
 .. _formats_ref:
 
