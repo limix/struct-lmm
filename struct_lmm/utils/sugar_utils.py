@@ -70,7 +70,7 @@ def norm_env_matrix(E, norm_type='weighted_correlation'):
     elif norm_type=='weighted_correlation':
         E /= ((E**2).sum(1)**0.5)[:, sp.newaxis]
     elif norm_type=='correlation':
-        E -= E.mean(1)
+        E -= E.mean(1)[:, sp.newaxis]
         E /= ((E**2).sum(1)**0.5)[:, sp.newaxis]
     return E
 

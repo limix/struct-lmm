@@ -13,6 +13,6 @@ from . import interpretation, lmm, runner, utils
 from .lmm import LMM, LMMCore, StructLMM
 from .runner import run_lmm, run_lmm_int, run_struct_lmm
 
-__version__ = '0.0.12'
+__version__ = '0.0.13'
 
 __all__ = ['lmm', 'runner', 'interpretation', 'utils', '__version__']
