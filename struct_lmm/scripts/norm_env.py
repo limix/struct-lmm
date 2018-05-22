@@ -18,7 +18,7 @@ def entry_point():
     # input files
     parser.add_option("--in", dest='inf', type=str, default=None)
     parser.add_option("--out", dest='outf', type=str, default=None)
-    parser.add_option("--norm_type", dest='norm_type', type = str, default='weighted_correlation')
+    parser.add_option("--norm_type", dest='norm_type', type = str, default='linear_covariance')
 
     (opt, args) = parser.parse_args()
 

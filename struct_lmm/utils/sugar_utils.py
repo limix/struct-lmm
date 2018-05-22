@@ -41,7 +41,7 @@ def import_one_pheno_from_csv(pfile, pheno_id, standardize=False):
     return y
 
 
-def norm_env_matrix(E, norm_type='weighted_correlation'):
+def norm_env_matrix(E, norm_type='linear_covariance'):
     """
     Normalises the environmental matrix.
 
