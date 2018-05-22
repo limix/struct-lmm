@@ -166,9 +166,7 @@ Formats
   See example at http://www.ebi.ac.uk/~casale/example_data/expr.csv.
 * **efile** (environment file) is a tsv file with dimensions #inds by #environments.
   See example at http://www.ebi.ac.uk/~casale/data_structlmm/env.txt
-  Note that the environment matrix is normalized in such
-  a way that the outer product EE^T has diagonal of ones.
-  This can be done in python using the function
+  and can be normalized using the function
   :func:`struct_lmm.utils.norm_env_matrix`
   or using the script ``norm_env``.
 
