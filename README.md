@@ -62,6 +62,8 @@ PFILE=data_structlmm/expr.csv
 EFILE0=data_structlmm/env.txt
 EFILE=data_structlmm/env_norm.txt
 
+norm_env  --in $EFILE0 --out $EFILE
+
 struct_lmm_analyze --bfile $BFILE --pfile $PFILE --pheno_id gene10 --efile $EFILE --ofile out/results.res --idx_start 0 --idx_end 1000 --batch_size 100 --unique_variants
 ```
 Further examples can be found at [http://struct-lmm.readthedocs.io/](http://struct-lmm.readthedocs.io/).
