@@ -10,8 +10,10 @@ import pandas as pd
 import scipy as sp
 
 from limix.data import BedReader, GIter, build_geno_query
+from limix.util.preprocess import regressOut, gaussianize
 from limix.util import unique_variants
 from struct_lmm.runner import run_struct_lmm
+from struct_lmm.lmm import LMM
 from struct_lmm.utils.sugar_utils import *
 
 
@@ -37,6 +39,10 @@ def entry_point():
     parser.add_option("--chrom", dest='chrom', type=int, default=None)
     parser.add_option("--pos_start", dest='pos_start', type=int, default=None)
     parser.add_option("--pos_end", dest='pos_end', type=int, default=None)
+
+    # conditioning options and filt out
+    parser.add_option("--pos_cond", dest='posc', type=int, default=None)
+    parser.add_option("--nstds", dest='nstds', type=int, default=None)
 
     # size of batches to load into memory
     parser.add_option(
@@ -80,6 +86,26 @@ def entry_point():
     # import environment
     E = sp.loadtxt(opt.efile)
 
+    # regress out conditioning genotype
+    if opt.posc:
+        query = build_geno_query(
+            chrom=opt.chrom,
+            pos_start=opt.posc,
+            pos_end=opt.posc+1)
+        xc = reader.getGenotypes(query, impute=True)
+        # comp pvalues
+        covs = sp.ones_like(xc)
+        pv_env = []
+        for ie in range(E.shape[1]):
+            lmm = LMM(E[:,[ie]], covs)
+            lmm.process(xc)
+            pv_env.append(lmm.getPv()[0])
+        pv_env = sp.array([sp.array(pv_env).min()])
+        # regressout
+        _W = sp.concatenate([xc, covs], 1)
+        E = regressOut(E, _W)
+        E = gaussianize(E)
+
     # import fixed effects
     if opt.ffile is None:
         covs = sp.ones((E.shape[0], 1))
@@ -88,6 +114,10 @@ def entry_point():
 
     # extract rhos
     rhos = sp.array(opt.rhos.split(','), dtype=float)
+
+    Isample = None
+    if opt.nstds is not None:
+        Isample = sp.logical_or(y[:,0]<opt.nstds, y[:,0]>-opt.nstds)
 
     # run analysis
     res = run_struct_lmm(
@@ -98,7 +128,11 @@ def entry_point():
         rhos=rhos,
         batch_size=opt.batch_size,
         no_interaction_test=opt.no_interaction_test,
-        unique_variants=opt.unique_variants)
+        unique_variants=opt.unique_variants,
+        Isample=Isample)
+
+    if opt.posc is not None:
+        res = res.assign(pv_env=pd.Series(pv_env, index=res.index))
 
     # export
     print 'Export to %s' % opt.ofile
