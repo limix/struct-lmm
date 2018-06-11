@@ -117,7 +117,7 @@ def entry_point():
 
     Isample = None
     if opt.nstds is not None:
-        Isample = sp.logical_or(y[:,0]<opt.nstds, y[:,0]>-opt.nstds)
+        Isample = sp.logical_and(y[:,0]<opt.nstds, y[:,0]>-opt.nstds)
 
     # run analysis
     res = run_struct_lmm(
