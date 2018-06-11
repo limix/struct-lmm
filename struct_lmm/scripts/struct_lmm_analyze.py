@@ -42,7 +42,7 @@ def entry_point():
 
     # conditioning options and filt out
     parser.add_option("--pos_cond", dest='posc', type=int, default=None)
-    parser.add_option("--nstds", dest='nstds', type=int, default=None)
+    parser.add_option("--nstds", dest='nstds', type=float, default=None)
 
     # size of batches to load into memory
     parser.add_option(
