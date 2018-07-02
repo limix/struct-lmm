@@ -52,7 +52,7 @@ def norm_env_matrix(E, norm_type='linear_covariance'):
     norm_type : string
         if 'linear_covariance', the environment matrix is normalized in such
         a way that the outer product EE^T has mean of diagonal of ones.
-        if 'weighted_correlation', the environment matrix is normalized in such
+        if 'weighted_covariance', the environment matrix is normalized in such
         a way that the outer product EE^T has diagonal of ones.
         if 'correlation', the environment is normalized in such a way that the 
         outer product EE^T is a correlation matrix (with a diagonal of ones).
@@ -67,7 +67,7 @@ def norm_env_matrix(E, norm_type='linear_covariance'):
     E /= E.std(0)
     if norm_type=='linear_covariance':
         E *= sp.sqrt(E.shape[0] / sp.sum(E**2))
-    elif norm_type=='weighted_correlation':
+    elif norm_type=='weighted_covariance':
         E /= ((E**2).sum(1)**0.5)[:, sp.newaxis]
     elif norm_type=='correlation':
         E -= E.mean(1)[:, sp.newaxis]
