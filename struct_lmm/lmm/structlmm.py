@@ -93,7 +93,7 @@ class StructLMM(object):
         >>> null = slmm.fit_null(F=covs, verbose=False)
         >>> pv = slmm.score_2_dof(x)
         >>> print('%.4f' % pv)
-        0.4035
+        0.4034
 
     and now the interaction test
 
@@ -217,7 +217,7 @@ class StructLMM(object):
             LToxPxoL = 0.5 * sp.dot(xoL.T, PxoL)
             pval = self.qwedaviesskat.getPv(Q_rho[0], LToxPxoL)
             # Script ends here for interaction test
-            return pval, self.rho_list
+            return pval
         #or if we consider multiple values of rho i.e. equivalent to SKAT-O and used for association test
         else:
             pliumod = sp.zeros((len(self.rho_list), 4))

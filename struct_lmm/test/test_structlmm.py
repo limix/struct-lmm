@@ -21,10 +21,10 @@ def test_structlmm():
     null = slmm.fit_null(F=covs, verbose=False)
 
     #3. score test
-    pv, rho_opt = slmm.score_2_dof(x)
+    pv = slmm.score_2_dof(x)
 
     #4. assert close
-    assert_allclose([pv, rho_opt], [0.83718061744700234, 0.0])
+    assert_allclose([pv], [0.83718061744700234])
 
 
 if __name__ == '__main__':
