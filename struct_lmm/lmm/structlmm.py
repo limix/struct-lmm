@@ -87,7 +87,7 @@ class StructLMM(object):
         >>> x = 1. * (random.rand(n, 1) < 0.2) # genotype
         >>> E = random.randn(n, k) # environemnts
         >>> covs = sp.ones((n, 1)) # intercept
-        >>> rho = [0., 0.1**2, 0.2**2, 0.3**2, 0.4**2 0.5**2, 0.5, 1.] # list of rhos
+        >>> rho = [0., 0.1**2, 0.2**2, 0.3**2, 0.4**2, 0.5**2, 0.5, 1.] # list of rhos
         >>>
         >>> slmm = StructLMM(y, E, W=E, rho_list=rho)
         >>> null = slmm.fit_null(F=covs, verbose=False)
