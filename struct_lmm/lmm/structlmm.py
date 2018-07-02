@@ -65,7 +65,7 @@ class StructLMM(object):
         list of ``rho`` values.
         ``rho=0`` correspond to no persistent effect (only GxE);
         ``rho=1`` corresponds to only persitent effect (no GxE);
-        By default, ``rho=[0, 0.2, 0.4, 0.6, 0.8, 1.]``
+        By default, ``rho=[0, 0.1^2, 0.2^2, 0.3^2, 0.4^2, 0.5^2, 0.5, 1.]``
 
     Examples
     --------
@@ -87,11 +87,11 @@ class StructLMM(object):
         >>> x = 1. * (random.rand(n, 1) < 0.2) # genotype
         >>> E = random.randn(n, k) # environemnts
         >>> covs = sp.ones((n, 1)) # intercept
-        >>> rho = [0., .2, .4, .6, .8, 1.] # list of rhos
+        >>> rho = [0., 0.1**2, 0.2**2, 0.3**2, 0.4**2 0.5**2, 0.5, 1.] # list of rhos
         >>>
         >>> slmm = StructLMM(y, E, W=E, rho_list=rho)
         >>> null = slmm.fit_null(F=covs, verbose=False)
-        >>> pv, rho_opt = slmm.score_2_dof(x)
+        >>> pv = slmm.score_2_dof(x)
         >>> print('%.4f' % pv)
         0.4035
 
@@ -99,7 +99,7 @@ class StructLMM(object):
 
         >>> hGWASint = StructLMM(y, E, rho_list=[0])
         >>> null = hGWASint.fit_null(F=sp.hstack([covs, x]), verbose=False)
-        >>> pv, rho_opt = hGWASint.score_2_dof(x)
+        >>> pv = hGWASint.score_2_dof(x)
         >>> print('%.4f' % pv)
         0.3294
     """
@@ -194,8 +194,6 @@ class StructLMM(object):
         -------
         pvalue : float
             P value
-        optimal_rho : float
-            optimal value of rho (rho with min pv)
         """
         #1. calculate Qs and pvs
         Q_rho = sp.zeros(len(self.rho_list))
@@ -302,6 +300,6 @@ class StructLMM(object):
                     'Df': Df,
                     'tau': tau_rho
                 }
-                return pvalue, optimal_rho, info
+                return pvalue, info
             else:
-                return pvalue, optimal_rho
+                return pvalue
