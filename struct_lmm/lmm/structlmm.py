@@ -65,7 +65,7 @@ class StructLMM(object):
         list of ``rho`` values.
         ``rho=0`` correspond to no persistent effect (only GxE);
         ``rho=1`` corresponds to only persitent effect (no GxE);
-        By default, ``rho=[0, 0.1^2, 0.2^2, 0.3^2, 0.4^2, 0.5^2, 0.5, 1.]``
+        By default, ``rho=[0, :math:`0.1^2`,:math:`0.2^2`, :math:`0.3^2`, :math:`0.4^2`, :math:`0.5^2`, 0.5, 1.]``
 
     Examples
     --------
