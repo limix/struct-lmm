@@ -12,21 +12,21 @@ function yes_or_no {
 
 function getfile {
 
-	command -v wget >/dev/null 2>&1
-	if [ $? -eq 0 ]
-	then
+    command -v wget >/dev/null 2>&1
+    if [ $? -eq 0 ]
+    then
         echo "Downloading $1"
-		wget -O $2 $1 -q --show-progress
+        wget -O $2 $1 -q --show-progress
         return $?
-	fi
+    fi
 
-	command -v curl >/dev/null 2>&1
-	if [ $? -eq 0 ]
-	then
+    command -v curl >/dev/null 2>&1
+    if [ $? -eq 0 ]
+    then
         echo "Downloading $1"
-		curl -o $2 $1 --progress-bar
+        curl -o $2 $1 --progress-bar
         return $?
-	fi
+    fi
 
     echo "Could not find wget nor curl command line tools for downloading file."
     exit 1
@@ -93,15 +93,16 @@ then
         fi
 
         [ -f ~/.bashrc ] && source ~/.bashrc
+        hash -r
 
         command -v conda >/dev/null 2>&1
-		if [ $? -eq 1 ]
-		then
+        if [ $? -eq 1 ]
+        then
             echo "I still cannot find the conda package manager."
             echo -n "Please, make sure it is properly installed so we can "
             echo "proceed."
             exit 1
-		fi
+        fi
     fi
 fi
 
@@ -113,10 +114,10 @@ check_conda_env struct-lmm
 
 if [ $? -eq 0 ]
 then
-	echo "[2/4] Creating struct-lmm environment..."
-	conda create -n struct-lmm python=2.7 --yes
+    echo "[2/4] Creating struct-lmm environment..."
+    conda create -n struct-lmm python=2.7 --yes
 else
-	echo "[2/4] Activating struct-lmm environment..."
+    echo "[2/4] Activating struct-lmm environment..."
 fi
 source activate struct-lmm
 
