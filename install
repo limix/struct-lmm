@@ -55,9 +55,9 @@ function check_conda_env
 function anaconda_url
 {
     if [ "$(uname)" == "Darwin" ]; then
-        url=https://repo.continuum.io/archive/Anaconda2-5.1.0-MacOSX-x86_64.sh
+        url=https://repo.continuum.io/miniconda/Miniconda2-latest-MacOSX-x86_64.sh
     elif [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
-        url=https://repo.continuum.io/archive/Anaconda2-5.1.0-Linux-x86_64.sh
+        url=https://repo.continuum.io/miniconda/Miniconda2-latest-Linux-x86_64.sh
     else
         echo -n "Unrecognized Operating system. This installer is for"
         echo " Linux and macOS only."
@@ -80,19 +80,19 @@ then
         echo "Goodbye!"
         exit 0
     else
-        getfile $(anaconda_url) Anaconda.sh
+        getfile $(anaconda_url) Miniconda.sh
         if [ $? -ne 0 ]
         then
             echo "Failed to download the conda package manager."
             exit 1
         fi
-        bash Anaconda.sh
+        bash Miniconda.sh -b
         if [ $? -ne 0 ]
         then
             exit 1
         fi
 
-        [ -f ~/.bashrc ] && source ~/.bashrc
+        export PATH=$HOME/miniconda2/bin:$PATH
         hash -r
 
         command -v conda >/dev/null 2>&1
