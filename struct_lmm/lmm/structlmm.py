@@ -49,8 +49,8 @@ class StructLMM(object):
 
     StructLMM can be used to implement
 
-    - joint test (persistent+GxE vs no effect, i.e. :math:`\sigma_g^2>0`)
     - GxE test (persistent+GxE vs persistent, i.e. :math:`\rho\neq{0}`)
+    - joint test (persistent+GxE vs no effect, i.e. :math:`\sigma_g^2>0`)
 
     Parameters
     ----------
@@ -62,10 +62,10 @@ class StructLMM(object):
         design of random effect in the null model.
         By default, W is set to ``Env``.
     rho_list : list
-        list of ``rho`` values.
+        list of ``rho`` values.  Note that ``rho = 1-rho`` in the equation described above.
         ``rho=0`` correspond to no persistent effect (only GxE);
-        ``rho=1`` corresponds to only persitent effect (no GxE);
-        By default, ``rho=[0, :math:`0.1^2`,:math:`0.2^2`, :math:`0.3^2`, :math:`0.4^2`, :math:`0.5^2`, 0.5, 1.]``
+        ``rho=1`` corresponds to only persistent effect (no GxE);
+        By default, ``rho=[0, 0.1**2, 0.2**2, 0.3**2, 0.4**2, 0.5**2, 0.5, 1.]``
 
     Examples
     --------
@@ -116,7 +116,7 @@ class StructLMM(object):
         # rho_list here is 1-rho used in documentation and paper but used in same manner as for SKAT-O
         self.rho_list = rho_list
         if self.rho_list is None:
-            self.rho_list = sp.arange(0, 1.01, 0.2)
+            self.rho_list = [0., 0.1**2, 0.2**2, 0.3**2, 0.4**2, 0.5**2, 0.5, 1.]
 
         # This  is to correct when Sigma is a block of ones as choice of rho
         # parameter makes no difference to p-value but final p-value is

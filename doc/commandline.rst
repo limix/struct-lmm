@@ -149,7 +149,7 @@ See above for other parameters.
 * **norm_type**. by default, the norm_type is 'linear_covariance' and the 
   environment matrix is normalized in such a way that the outer product 
   EE^T has mean of diagonal of ones.
-  If 'weighted_correlation', the environment matrix is normalized in such 
+  If 'weighted_covariance', the environment matrix is normalized in such 
   a way that the outer product EE^T has diagonal of ones.
   If 'correlation', the environment matrix is normalized in such
   a way that the outer product EE^T is a correlation matrix (with a 

@@ -39,10 +39,10 @@ def run_struct_lmm(reader,
     covs : (`N`, L) ndarray
         fixed effect design for covariates `N` samples and `L` covariates.
     rhos : list
-        list of ``rho`` values.
+        list of ``rho`` values.  Note that ``rho = 1-rho`` in the equation described above.
         ``rho=0`` correspond to no persistent effect (only GxE);
-        ``rho=1`` corresponds to only persitent effect (no GxE);
-        By default, ``rho=[0, 0.2, 0.4, 0.6, 0.8, 1.]``
+        ``rho=1`` corresponds to only persistent effect (no GxE);
+        By default, ``rho=[0, 0.1**2, 0.2**2, 0.3**2, 0.4**2, 0.5**2, 0.5, 1.]``
     batch_size : int
         to minimize memory usage the analysis is run in batches.
         The number of variants loaded in a batch
@@ -67,7 +67,7 @@ def run_struct_lmm(reader,
         covs = sp.ones((env.shape[0], 1))
 
     if rhos is None:
-        rhos = [0, .2, .4, .6, .8, 1.]
+        rhos = [0., 0.1**2, 0.2**2, 0.3**2, 0.4**2, 0.5**2, 0.5, 1.]
 
     if not no_association_test:
         # slmm fit null
