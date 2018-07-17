@@ -61,7 +61,7 @@ def entry_point():
     assert opt.pfile is not None, 'Specify pheno file!'
     assert opt.efile is not None, 'Specify env file!'
     assert opt.ofile is not None, 'Specify out file!'
-    if opt.rhos is None: opt.rhos = '0.,0.1**2,0.2**2,0.3**2,0.4**2,0.5**2,0.5,1.'
+    if opt.rhos is None: opt.rhos = '0.,0.01,0.04,0.09,0.16,0.25,0.5,1.'
 
     # import geno and subset
     reader = BedReader(opt.bfile)
