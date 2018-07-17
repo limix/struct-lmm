@@ -99,14 +99,14 @@ def run_struct_lmm(reader,
 
             if not no_association_test:
                 # association test
-                _p, _ = slmm.score_2_dof(x)
+                _p = slmm.score_2_dof(x)
                 _pv[snp] = _p
 
             if not no_interaction_test:
                 # interaction test
                 covs1 = sp.hstack((covs, x))
                 null = slmm_int.fit_null(F=covs1, verbose=False)
-                _p, _ = slmm_int.score_2_dof(x)
+                _p = slmm_int.score_2_dof(x)
                 _pv_int[snp] = _p
 
         # add pvalues to _res and append to res
