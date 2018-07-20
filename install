@@ -109,7 +109,7 @@ fi
 echo "[1/4] Updating the conda package manager..."
 conda update -n base conda --yes
 
-source deactivate
+conda deactivate
 check_conda_env struct-lmm
 
 if [ $? -eq 0 ]
@@ -119,7 +119,7 @@ then
 else
     echo "[2/4] Activating struct-lmm environment..."
 fi
-source activate struct-lmm
+conda activate struct-lmm
 
 echo "[3/4] Installing dependencies into the struct-lmm environment..."
 conda install -c conda-forge limix r r-base r-essentials rpy2 \
@@ -130,7 +130,7 @@ pip install git+https://github.com/limix/struct-lmm.git
 
 echo
 echo "Done. To use struct-lmm, please, enter"
-echo "  source activate struct-lmm"
+echo "  conda activate struct-lmm"
 echo "Further information can be found at"
 echo "  https://struct-lmm.readthedocs.io/"
 
