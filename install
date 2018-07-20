@@ -106,8 +106,8 @@ then
     fi
 fi
 
-echo "[1/4] Updating the conda package manager..."
-conda update -n base conda --yes
+echo "[1/4] Trying to update the conda package manager..."
+conda update -n base conda --yes > /dev/null 2>&1 || true
 
 conda deactivate
 check_conda_env struct-lmm
