@@ -76,6 +76,11 @@ def run_struct_lmm(reader,
         env = env[Isample]
         covs = covs[Isample]
 
+    if Isample is not None:
+        pheno = pheno[Isample]
+        env = env[Isample]
+        covs = covs[Isample]
+
     if not no_association_test:
         # slmm fit null
         slmm = StructLMM(pheno, env, W=env, rho_list=rhos)
