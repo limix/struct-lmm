@@ -5,8 +5,6 @@ import scipy as sp
 import scipy.linalg as la
 import scipy.stats as st
 
-import limix
-
 
 def calc_Ai_beta_s2(yKiy, FKiF, FKiy, df):
     Ai = la.pinv(FKiF)

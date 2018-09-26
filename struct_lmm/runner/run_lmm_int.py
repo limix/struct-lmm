@@ -12,8 +12,6 @@ import scipy as sp
 import scipy.linalg as la
 import scipy.stats as st
 
-from limix.data import BedReader, GIter, build_geno_query
-from limix.util import unique_variants as f_univar
 from struct_lmm.lmm import LMM, LMMCore
 from struct_lmm.utils.sugar_utils import *
 
@@ -81,6 +79,9 @@ def run_lmm_int(reader,
         contains pv, effect size, standard error on effect size,
         and test statistcs as well as variant info.
     """
+    from limix.data import BedReader, GIter, build_geno_query
+    from limix.util import unique_variants as f_univar
+
     if covs is None:
         covs = sp.ones((pheno.shape[0], 1))
 

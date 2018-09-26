@@ -5,8 +5,6 @@ import scipy as sp
 import scipy.linalg as la
 import scipy.stats as st
 
-import limix
-
 from .lmm_core import LMMCore
 
 

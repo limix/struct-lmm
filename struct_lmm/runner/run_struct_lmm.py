@@ -9,8 +9,6 @@ import numpy as np
 import pandas as pd
 import scipy as sp
 
-from limix.data import BedReader, GIter, build_geno_query
-from limix.util import unique_variants as f_univar
 from struct_lmm.lmm import StructLMM
 from struct_lmm.utils.sugar_utils import *
 
@@ -63,6 +61,9 @@ def run_struct_lmm(reader,
         contains pv of joint test, pv of interaction test
         (if no_interaction_test is False) and snp info.
     """
+    from limix.data import GIter
+    from limix.util import unique_variants as f_univar
+
     if covs is None:
         covs = sp.ones((env.shape[0], 1))
 
