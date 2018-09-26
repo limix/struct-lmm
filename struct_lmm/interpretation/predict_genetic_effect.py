@@ -78,7 +78,7 @@ class PredictGenEffect():
             self.y = self.y[random_idx]
             self.x = self.x[random_idx]
             self.F = self.F[random_idx, :]
-            self.PredictEnv = self.TrainingEnv[~random_idx, :] 
+            self.PredictEnv = self.TrainingEnv[~random_idx, :]
             self.TrainingEnv = self.TrainingEnv[random_idx, :]
             self.W = self.W[random_idx, :]
 
@@ -122,4 +122,3 @@ class PredictGenEffect():
 
     def predict_total_gen_effect(self):
         return self.persistent_effect+self.effect
-

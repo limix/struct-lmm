@@ -9,11 +9,11 @@ import numpy as np
 import pandas as pd
 import scipy as sp
 
-from struct_lmm.lmm import StructLMM
+from . import StructLMM
 from struct_lmm.utils.sugar_utils import *
 
 
-def run_struct_lmm(reader,
+def run_structlmm(reader,
                    pheno,
                    env,
                    covs=None,

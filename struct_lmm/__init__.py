@@ -9,10 +9,9 @@ Write me
 
 from __future__ import absolute_import as _
 
-from . import interpretation, lmm, runner, utils
-from .lmm import LMM, LMMCore, StructLMM
-from .runner import run_lmm, run_lmm_int, run_struct_lmm
+from . import interpretation, lmm, utils
+from .lmm import StructLMM, run_structlmm
 
 __version__ = '0.0.22'
 
-__all__ = ['lmm', 'runner', 'interpretation', 'utils', '__version__']
+__all__ = ['lmm', 'interpretation', 'utils', '__version__']

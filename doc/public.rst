@@ -4,19 +4,12 @@
 Public Interface
 ****************
 
-- :ref:`wrapper_lmm_ref`
+- :ref:`lmm_class_ref`
 
   - :func:`.run_struct_lmm`
-  - :func:`.run_lmm_int`
-  - :func:`.run_lmm`
-
-- :ref:`lmm_class_ref` 
-
   - :class:`.StructLMM`
-  - :class:`.LMMCore`
-  - :class:`.LMM`
 
-- :ref:`interpretation_ref` 
+- :ref:`interpretation_ref`
 
 - :ref:`utils_ref`
 
@@ -29,16 +22,9 @@ Public Interface
   - :class:`.CompQuadFormLiuMod`
   - :class:`.CompQuadFormDaviesSkat`
 
-.. _wrapper_lmm_ref:
-
-Wrapper LMM functions
-^^^^^^^^^^^^^^^^^^^^^
-.. automodule:: struct_lmm.runner
-  :members:
-
 .. _lmm_class_ref:
 
-LMM classes
+StructLMM class
 ^^^^^^^^^^^
 .. automodule:: struct_lmm.lmm
   :members:
