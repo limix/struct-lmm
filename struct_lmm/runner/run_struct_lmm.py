@@ -22,7 +22,8 @@ def run_struct_lmm(reader,
                    batch_size=1000,
                    no_association_test=False,
                    no_interaction_test=False,
-                   unique_variants=False):
+                   unique_variants=False,
+                   Isample=None):
     """
     Utility function to run StructLMM
 
@@ -70,6 +71,11 @@ def run_struct_lmm(reader,
     if rhos is None:
         rhos = [0., 0.1**2, 0.2**2, 0.3**2, 0.4**2, 0.5**2, 0.5, 1.]
 
+    if Isample is not None:
+        pheno = pheno[Isample]
+        env = env[Isample]
+        covs = covs[Isample]
+
     if not no_association_test:
         # slmm fit null
         slmm = StructLMM(pheno, env, W=env, rho_list=rhos)
@@ -92,6 +98,10 @@ def run_struct_lmm(reader,
             X, idxs = f_univar(X, return_idxs=True)
             Isnp = sp.in1d(sp.arange(_res.shape[0]), idxs)
             _res = _res[Isnp]
+
+
+        if Isample is not None:
+            X = X[Isample]
 
         _pv = sp.zeros(X.shape[1])
         _pv_int = sp.zeros(X.shape[1])
