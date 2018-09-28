@@ -24,7 +24,7 @@ def test_structlmm():
     pv = slmm.score_2_dof(x)
 
     #4. assert close
-    assert_allclose([pv], [0.83718061744700234])
+    assert_allclose([pv], [0.8470040855489341])
 
 
 if __name__ == '__main__':
