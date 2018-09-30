@@ -49,6 +49,11 @@ def entry_point():
         action="store_true",
         dest='no_association',
         default=False)
+    parser.add_option(
+        "--unique_variants",
+        action="store_true",
+        dest='unique_variants',
+        default=False)
     (opt, args) = parser.parse_args()
 
     # assert stuff
@@ -66,7 +71,7 @@ def entry_point():
     if opt.i1 is not None:      Isnp = Isnp & (bim.i.values<opt.i1)
     if opt.chrom is not None:   Isnp = Isnp & (bim.chrom.values==opt.chrom)
     if opt.pos_start is not None:  Isnp = Isnp & (bim.pos.values>=opt.pos_start)
-    if opt.pos_end is not None:  Isnp = Isnp & (bim.pos.values>opt.pos_end)
+    if opt.pos_end is not None:  Isnp = Isnp & (bim.pos.values<opt.pos_end)
     G, bim = gs.snp_query(G, bim, Isnp)
 
     # pheno
@@ -83,20 +88,20 @@ def entry_point():
         covs = sp.loadtxt(opt.ffile)
 
     # extract rhos
-    if opt.rhos no is None: 
-        rhos = sp.array(opt.rhos.split(','), dtype=float)
-    else:
+    if opt.rhos is None: 
         rhos = sp.array([0., 0.1**2, 0.2**2, 0.3**2, 0.4**2, 0.5**2, 0.5, 1.])
+    else:
+        rhos = sp.array(opt.rhos.split(','), dtype=float)
 
     # tets
-    test = None
+    tests = None
     if opt.no_interaction:
         tests = ['association']
     if opt.no_association:
         tests = ['interaction']
 
     # run analysis
-    res = run_struct_lmm(
+    res = run_structlmm(
         G,
         bim,
         y,
