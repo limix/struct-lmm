@@ -8,8 +8,6 @@ def get_version():
     return struct_lmm.__version__
 
 extensions = [
-    'matplotlib.sphinxext.only_directives',
-    'matplotlib.sphinxext.plot_directive',
     'sphinx.ext.autodoc',
     'sphinx.ext.doctest',
     'sphinx.ext.intersphinx',

@@ -199,7 +199,7 @@ class StructLMM(object):
         Q_rho = sp.zeros(len(self.rho_list))
         Py = P(self.gp, self.y)
         xoPy = X * Py
-        for i in xrange(len(self.rho_list)):
+        for i in range(len(self.rho_list)):
             rho = self.rho_list[i]
             LT = sp.vstack((rho**0.5 * self.vec_ones,
                             (1 - rho)**0.5 * self.Env.T))
@@ -221,7 +221,7 @@ class StructLMM(object):
         #or if we consider multiple values of rho i.e. equivalent to SKAT-O and used for association test
         else:
             pliumod = sp.zeros((len(self.rho_list), 4))
-            for i in xrange(len(self.rho_list)):
+            for i in range(len(self.rho_list)):
                 rho = self.rho_list[i]
                 L = sp.hstack((rho**0.5 * self.vec_ones.T,
                                (1 - rho)**0.5 * self.Env))
@@ -239,7 +239,7 @@ class StructLMM(object):
             # 2. Calculate qmin
             qmin = sp.zeros(len(self.rho_list))
             percentile = 1 - T
-            for i in xrange(len(self.rho_list)):
+            for i in range(len(self.rho_list)):
                 q = st.chi2.ppf(percentile, pliumod[i, 3])
                 # Recalculate p-value for each Q rho of seeing values at least as extreme as q again using the modified matching moments method
                 qmin[i] = (q - pliumod[i, 3]) / (
@@ -262,7 +262,7 @@ class StructLMM(object):
             OneZTZE = 0.5 * sp.dot(X.T, PxoE)
             tau_top = sp.dot(OneZTZE, OneZTZE.T)
             tau_rho = sp.zeros(len(self.rho_list))
-            for i in xrange(len(self.rho_list)):
+            for i in range(len(self.rho_list)):
                 tau_rho[i] = self.rho_list[i] * m + (
                     1 - self.rho_list[i]) / m * tau_top
 

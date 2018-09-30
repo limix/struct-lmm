@@ -1,36 +1,34 @@
 import os
 import sys
 import time
-from optparse import OptionParser
-
-import dask.dataframe as dd
-import h5py
-import numpy as np
 import pandas as pd
 import scipy as sp
-
 from . import StructLMM
-from struct_lmm.utils.sugar_utils import *
+import geno_sugar as gs
+import geno_sugar.preprocess
+from sklearn.preprocessing import Imputer
+
+TESTS = ['interaction', 'association']
 
 
-def run_structlmm(reader,
+def run_structlmm(snps,
+                   bim,
                    pheno,
                    env,
                    covs=None,
                    rhos=None,
-                   no_mean_to_one=False,
                    batch_size=1000,
-                   no_association_test=False,
-                   no_interaction_test=False,
-                   unique_variants=False,
-                   Isample=None):
+                   tests=None,
+                   unique_variants=False):
     """
     Utility function to run StructLMM
 
     Parameters
     ----------
-    reader : :class:`limix.data.BedReader`
-        limix bed reader instance.
+    snps : array_like
+        snps data
+    bim : pandas.DataFrame
+        snps annot
     pheno : (`N`, 1) ndarray
         phenotype vector
     env : (`N`, `K`)
@@ -46,12 +44,10 @@ def run_structlmm(reader,
         to minimize memory usage the analysis is run in batches.
         The number of variants loaded in a batch
         (loaded into memory at the same time).
-    no_association_test : bool
-        if True the association test is not consdered.
-        The default value is False.
-    no_interaction_test : bool
-        if True the interaction test is not consdered.
-        Teh default value is False.
+    tests : list
+        list of tests to perform.
+        Each element shoudl be in ['association', 'interation'].
+        By default, both tests are considered.
     unique_variants : bool
         if True, only non-repeated genotypes are considered
         The default value is False.
@@ -62,75 +58,73 @@ def run_structlmm(reader,
         contains pv of joint test, pv of interaction test
         (if no_interaction_test is False) and snp info.
     """
-    from limix.data import GIter
-    from limix.util import unique_variants as f_univar
-
     if covs is None:
         covs = sp.ones((env.shape[0], 1))
 
     if rhos is None:
         rhos = [0., 0.1**2, 0.2**2, 0.3**2, 0.4**2, 0.5**2, 0.5, 1.]
 
-    if Isample is not None:
-        pheno = pheno[Isample]
-        env = env[Isample]
-        covs = covs[Isample]
+    if tests is None:
+        tests = TESTS
 
-    if not no_association_test:
-        # slmm fit null
-        slmm = StructLMM(pheno, env, W=env, rho_list=rhos)
-        null = slmm.fit_null(F=covs, verbose=False)
-    if not no_interaction_test:
-        # slmm int
+    if TESTS[0] in tests:
         slmm_int = StructLMM(pheno, env, W=env, rho_list=[0])
 
-    n_batches = reader.getSnpInfo().shape[0] / batch_size
+    if TESTS[1] in tests:
+        slmm = StructLMM(pheno, env, W=env, rho_list=rhos)
+        null = slmm.fit_null(F=covs, verbose=False)
+
+    # geno preprocessing function
+    impute = gs.preprocess.impute(Imputer(missing_values=sp.nan, strategy='mean', axis=1))
+    standardize = gs.preprocess.standardize()
+    preprocess = gs.preprocess.compose([impute, standardize])
+
+    # filtering funciton
+    filter = None
+    if unique_variants:
+        filter = gs.unique_variants
 
     t0 = time.time()
 
+    # loop on geno
     res = []
-    for i, gr in enumerate(GIter(reader, batch_size=batch_size)):
-        print '.. batch %d/%d' % (i, n_batches)
+    n_analyzed = 0
+    queue = gs.GenoQueue(snps, bim, batch_size=50, preprocess=preprocess, filter=filter)
+    for _G, _bim in queue:
 
-        X, _res = gr.getGenotypes(standardize=True, return_snpinfo=True)
+        _pv = sp.zeros(_G.shape[0])
+        _pv_int = sp.zeros(_G.shape[0])
+        for snp in range(_G.shape[0]):
+            x = _G[[snp], :].T
 
-        if unique_variants:
-            X, idxs = f_univar(X, return_idxs=True)
-            Isnp = sp.in1d(sp.arange(_res.shape[0]), idxs)
-            _res = _res[Isnp]
-
-
-        if Isample is not None:
-            X = X[Isample]
-
-        _pv = sp.zeros(X.shape[1])
-        _pv_int = sp.zeros(X.shape[1])
-        for snp in xrange(X.shape[1]):
-            x = X[:, [snp]]
-
-            if not no_association_test:
-                # association test
-                _p = slmm.score_2_dof(x)
-                _pv[snp] = _p
-
-            if not no_interaction_test:
+            if TESTS[0] in tests:
                 # interaction test
                 covs1 = sp.hstack((covs, x))
                 null = slmm_int.fit_null(F=covs1, verbose=False)
                 _p = slmm_int.score_2_dof(x)
                 _pv_int[snp] = _p
 
+            if TESTS[1] in tests:
+                # association test
+                _p = slmm.score_2_dof(x)
+                _pv[snp] = _p
+
+        if TESTS[0] in tests:
+            _bim = _bim.assign(pv_int=pd.Series(_pv_int, index=_bim.index))
+
+        if TESTS[1] in tests:
+            _bim = _bim.assign(pv=pd.Series(_pv, index=_bim.index))
+
         # add pvalues to _res and append to res
-        if not no_association_test:
-            _res = _res.assign(pv=pd.Series(_pv, index=_res.index))
-        if not no_interaction_test:
-            _res = _res.assign(pv_int=pd.Series(_pv_int, index=_res.index))
-        res.append(_res)
+        res.append(_bim)
+
+        n_analyzed += _G.shape[0]
+        print('.. analysed %d/%d variants' % (n_analyzed, snps.shape[0]))
 
     res = pd.concat(res)
     res.reset_index(inplace=True, drop=True)
 
     t = time.time() - t0
-    print '%.2f s elapsed' % t
+    print('%.2f s elapsed' % t)
 
     return res

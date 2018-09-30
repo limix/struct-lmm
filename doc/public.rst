@@ -25,7 +25,7 @@ Public Interface
 .. _lmm_class_ref:
 
 StructLMM class
-^^^^^^^^^^^
+^^^^^^^^^^^^^^^
 .. automodule:: struct_lmm.lmm
   :members:
 

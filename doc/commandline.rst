@@ -38,31 +38,6 @@ Quick example
     --batch_size 100 \
     --unique_variants
 
-* Run analysis with interaction fixed-effect test::
-
-    lmm_int_analyze \
-    --bfile $BFILE \
-    --pfile $PFILE \
-    --pheno_id gene10 \
-    --efile $EFILE \
-    --ofile out/results.res \
-    --idx_start 0 \
-    --idx_end 1000 \
-    --batch_size 100 \
-    --unique_variants
-
-* Run analysis with standard LMM::
-
-    lmm_analyze \
-    --bfile $BFILE \
-    --pfile $PFILE \
-    --pheno_id gene10 \
-    --wfile $EFILE \
-    --ofile out/results.res \
-    --idx_start 0 \
-    --idx_end 1000 \
-    --batch_size 100 \
-    --unique_variants
 
 Commands 
 ~~~~~~~~
@@ -110,31 +85,6 @@ Commands
   The number of variants loaded in a batch (in memory at the same time).
 * **no_interaction_test**. If active the interaction test is not consdered.
 * **unique_variants**. If activated, only non-repeated genotypes are considered.
-
-**lmm_lr**
-^^^^^^^^^^
-
-.. code-block:: bash
-
-    struct_lmm_analyze \
-    --bfile bfile \
-    --pfile pfile \
-    --pheno_id pheno_id \
-    --wfile wfile \
-    --ffile ffile \
-    --ofile ofile \
-    --idx_start idx_start \
-    --idx_end idx_end \
-    --pos_start pos_start \
-    --pos_end pos_end \
-    --chrom pos_chrom \
-    --batch_size bathc_size \
-    --unique_variants \
-
-
-* **wfile** file that defines the low rank random effect (see :ref:`formats_ref`).
-
-See above for other parameters.
 
 **norm_env**
 ^^^^^^^^^^^^
