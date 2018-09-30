@@ -2,19 +2,12 @@ import os
 import sys
 import time
 from optparse import OptionParser
-
-import dask.dataframe as dd
-import h5py
-import numpy as np
 import pandas as pd
 import scipy as sp
-
-from limix.data import BedReader, GIter, build_geno_query
-from limix.util.preprocess import regressOut, gaussianize
-from limix.util import unique_variants
-from struct_lmm.runner import run_struct_lmm
-from struct_lmm.lmm import LMM
+from struct_lmm import run_structlmm
 from struct_lmm.utils.sugar_utils import *
+from pandas_plink import read_plink
+import geno_sugar as gs
 
 
 def entry_point():
@@ -40,25 +33,21 @@ def entry_point():
     parser.add_option("--pos_start", dest='pos_start', type=int, default=None)
     parser.add_option("--pos_end", dest='pos_end', type=int, default=None)
 
-    # conditioning options and filt out
-    parser.add_option("--pos_cond", dest='posc', type=int, default=None)
-    parser.add_option("--nstds", dest='nstds', type=float, default=None)
-
-    # size of batches to load into memory
+    # size of snps to load into memory
     parser.add_option(
         "--batch_size", dest='batch_size', type=int, default=1000)
 
     # analysis options
     parser.add_option("--rhos", dest='rhos', type=str, default=None)
     parser.add_option(
-        "--unique_variants",
+        "--no_interaction",
         action="store_true",
-        dest='unique_variants',
+        dest='no_interaction',
         default=False)
     parser.add_option(
-        "--no_interaction_test",
+        "--no_association",
         action="store_true",
-        dest='no_interaction_test',
+        dest='no_association',
         default=False)
     (opt, args) = parser.parse_args()
 
@@ -67,17 +56,18 @@ def entry_point():
     assert opt.pfile is not None, 'Specify pheno file!'
     assert opt.efile is not None, 'Specify env file!'
     assert opt.ofile is not None, 'Specify out file!'
-    if opt.rhos is None: opt.rhos = '0.,0.01,0.04,0.09,0.16,0.25,0.5,1.'
 
-    # import geno and subset
-    reader = BedReader(opt.bfile)
-    query = build_geno_query(
-        idx_start=opt.i0,
-        idx_end=opt.i1,
-        chrom=opt.chrom,
-        pos_start=opt.pos_start,
-        pos_end=opt.pos_end)
-    reader.subset_snps(query, inplace=True)
+    # import genotype file
+    (bim, fam, G) = read_plink(opt.bfile)
+
+    # subsample snps
+    Isnp = sp.ones(bim.shape[0], dtype=bool)
+    if opt.i0 is not None:      Isnp = Isnp & (bim.i.values>=opt.i0)
+    if opt.i1 is not None:      Isnp = Isnp & (bim.i.values<opt.i1)
+    if opt.chrom is not None:   Isnp = Isnp & (bim.chrom.values==opt.chrom)
+    if opt.pos_start is not None:  Isnp = Isnp & (bim.pos.values>=opt.pos_start)
+    if opt.pos_end is not None:  Isnp = Isnp & (bim.pos.values>opt.pos_end)
+    G, bim = gs.snp_query(G, bim, Isnp)
 
     # pheno
     y = import_one_pheno_from_csv(
@@ -86,26 +76,6 @@ def entry_point():
     # import environment
     E = sp.loadtxt(opt.efile)
 
-    # regress out conditioning genotype
-    if opt.posc:
-        query = build_geno_query(
-            chrom=opt.chrom,
-            pos_start=opt.posc,
-            pos_end=opt.posc+1)
-        xc = reader.getGenotypes(query, impute=True)
-        # comp pvalues
-        covs = sp.ones_like(xc)
-        pv_env = []
-        for ie in range(E.shape[1]):
-            lmm = LMM(E[:,[ie]], covs)
-            lmm.process(xc)
-            pv_env.append(lmm.getPv()[0])
-        pv_env = sp.array([sp.array(pv_env).min()])
-        # regressout
-        _W = sp.concatenate([xc, covs], 1)
-        E = regressOut(E, _W)
-        E = gaussianize(E)
-
     # import fixed effects
     if opt.ffile is None:
         covs = sp.ones((E.shape[0], 1))
@@ -113,29 +83,32 @@ def entry_point():
         covs = sp.loadtxt(opt.ffile)
 
     # extract rhos
-    rhos = sp.array(opt.rhos.split(','), dtype=float)
+    if opt.rhos no is None: 
+        rhos = sp.array(opt.rhos.split(','), dtype=float)
+    else:
+        rhos = sp.array([0., 0.1**2, 0.2**2, 0.3**2, 0.4**2, 0.5**2, 0.5, 1.])
 
-    Isample = None
-    if opt.nstds is not None:
-        Isample = sp.logical_and(y[:,0]<opt.nstds, y[:,0]>-opt.nstds)
+    # tets
+    test = None
+    if opt.no_interaction:
+        tests = ['association']
+    if opt.no_association:
+        tests = ['interaction']
 
     # run analysis
     res = run_struct_lmm(
-        reader,
+        G,
+        bim,
         y,
         E,
         covs=covs,
         rhos=rhos,
         batch_size=opt.batch_size,
-        no_interaction_test=opt.no_interaction_test,
-        unique_variants=opt.unique_variants,
-        Isample=Isample)
-
-    if opt.posc is not None:
-        res = res.assign(pv_env=pd.Series(pv_env, index=res.index))
+        tests=tests,
+        unique_variants=opt.unique_variants)
 
     # export
-    print 'Export to %s' % opt.ofile
+    print('Export to %s' % opt.ofile)
     make_out_dir(opt.ofile)
     res.to_csv(opt.ofile, index=False)
 
