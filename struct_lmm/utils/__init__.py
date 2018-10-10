@@ -11,15 +11,21 @@ r"""
 
 from .fdr import fdr_bh
 from .pvmixchi2 import (
-    CompQuadFormDavies, CompQuadFormDaviesSkat, CompQuadFormLiu,
-    CompQuadFormLiuMod
+    CompQuadFormDavies,
+    CompQuadFormDaviesSkat,
+    CompQuadFormLiu,
+    CompQuadFormLiuMod,
 )
-from .sugar_utils import (
-    import_one_pheno_from_csv, make_out_dir, norm_env_matrix
-)
+from .sugar_utils import import_one_pheno_from_csv, make_out_dir, norm_env_matrix
 
 __all__ = [
-    'fdr', 'import_one_pheno_from_csv', 'norm_env_matrix', 'make_out_dir',
-    'CompQuadFormLiu', 'CompQuadFormDavies', 'CompQuadFormLiuMod',
-    'CompQuadFormDaviesSkat'
+    "fdr",
+    "import_one_pheno_from_csv",
+    "norm_env_matrix",
+    "make_out_dir",
+    "CompQuadFormLiu",
+    "CompQuadFormDavies",
+    "CompQuadFormLiuMod",
+    "CompQuadFormDaviesSkat",
+    "fdr_bh",
 ]

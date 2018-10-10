@@ -1,30 +1,25 @@
-import os
-import sys
 import time
-from optparse import OptionParser
 
-import dask.dataframe as dd
-import h5py
-import numpy as np
 import pandas as pd
 import scipy as sp
 
-from limix.data import BedReader, GIter, build_geno_query
+from limix.data import GIter
 from limix.util import unique_variants as f_univar
 from struct_lmm.lmm import StructLMM
-from struct_lmm.utils.sugar_utils import *
 
 
-def run_struct_lmm(reader,
-                   pheno,
-                   env,
-                   covs=None,
-                   rhos=None,
-                   no_mean_to_one=False,
-                   batch_size=1000,
-                   no_association_test=False,
-                   no_interaction_test=False,
-                   unique_variants=False):
+def run_struct_lmm(
+    reader,
+    pheno,
+    env,
+    covs=None,
+    rhos=None,
+    no_mean_to_one=False,
+    batch_size=1000,
+    no_association_test=False,
+    no_interaction_test=False,
+    unique_variants=False,
+):
     """
     Utility function to run StructLMM
 
@@ -67,12 +62,12 @@ def run_struct_lmm(reader,
         covs = sp.ones((env.shape[0], 1))
 
     if rhos is None:
-        rhos = [0., 0.1**2, 0.2**2, 0.3**2, 0.4**2, 0.5**2, 0.5, 1.]
+        rhos = [0.0, 0.1 ** 2, 0.2 ** 2, 0.3 ** 2, 0.4 ** 2, 0.5 ** 2, 0.5, 1.0]
 
     if not no_association_test:
         # slmm fit null
         slmm = StructLMM(pheno, env, W=env, rho_list=rhos)
-        null = slmm.fit_null(F=covs, verbose=False)
+        slmm.fit_null(F=covs, verbose=False)
     if not no_interaction_test:
         # slmm int
         slmm_int = StructLMM(pheno, env, W=env, rho_list=[0])
@@ -83,7 +78,7 @@ def run_struct_lmm(reader,
 
     res = []
     for i, gr in enumerate(GIter(reader, batch_size=batch_size)):
-        print '.. batch %d/%d' % (i, n_batches)
+        print(".. batch %d/%d" % (i, n_batches))
 
         X, _res = gr.getGenotypes(standardize=True, return_snpinfo=True)
 
@@ -94,7 +89,7 @@ def run_struct_lmm(reader,
 
         _pv = sp.zeros(X.shape[1])
         _pv_int = sp.zeros(X.shape[1])
-        for snp in xrange(X.shape[1]):
+        for snp in range(X.shape[1]):
             x = X[:, [snp]]
 
             if not no_association_test:
@@ -105,7 +100,7 @@ def run_struct_lmm(reader,
             if not no_interaction_test:
                 # interaction test
                 covs1 = sp.hstack((covs, x))
-                null = slmm_int.fit_null(F=covs1, verbose=False)
+                slmm_int.fit_null(F=covs1, verbose=False)
                 _p = slmm_int.score_2_dof(x)
                 _pv_int[snp] = _p
 
@@ -120,6 +115,6 @@ def run_struct_lmm(reader,
     res.reset_index(inplace=True, drop=True)
 
     t = time.time() - t0
-    print '%.2f s elapsed' % t
+    print("%.2f s elapsed" % t)
 
     return res

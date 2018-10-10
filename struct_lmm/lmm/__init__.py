@@ -8,4 +8,4 @@ from .lmm import LMM
 from .lmm_core import LMMCore
 from .structlmm import StructLMM
 
-__all__ = ['StructLMM', 'LMMCore', 'LMM']
+__all__ = ["StructLMM", "LMMCore", "LMM"]

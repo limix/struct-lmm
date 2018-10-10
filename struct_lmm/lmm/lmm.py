@@ -82,7 +82,8 @@ class LMM(LMMCore):
     """
 
     def __init__(self, y, F, cov=None):
-        if F is None: F = sp.ones((y.shape[0], 1))
+        if F is None:
+            F = sp.ones((y.shape[0], 1))
         self.y = y
         self.F = F
         self.cov = cov
@@ -103,8 +104,7 @@ class LMM(LMMCore):
         # calc beta_F0 and s20
         self.A0i = la.inv(self.FKiF)
         self.beta_F0 = sp.dot(self.A0i, self.FKiy)
-        self.s20 = (
-            self.yKiy - sp.dot(self.FKiy[:, 0], self.beta_F0[:, 0])) / self.df
+        self.s20 = (self.yKiy - sp.dot(self.FKiy[:, 0], self.beta_F0[:, 0])) / self.df
 
     def process(self, G, verbose=False):
         r"""
@@ -119,31 +119,33 @@ class LMM(LMMCore):
         """
         t0 = time.time()
         # precompute some stuff
-        if self.cov == None: KiG = G
-        else: KiG = self.cov.solve(G)
+        if self.cov == None:
+            KiG = G
+        else:
+            KiG = self.cov.solve(G)
         GKiy = sp.dot(G.T, self.Kiy[:, 0])
-        GKiG = sp.einsum('ij,ij->j', G, KiG)
+        GKiG = sp.einsum("ij,ij->j", G, KiG)
         FKiG = sp.dot(self.F.T, KiG)
 
         # Let us denote the inverse of Areml as
         # Ainv = [[A0i + m mt / n, m], [mT, n]]
         A0iFKiG = sp.dot(self.A0i, FKiG)
-        n = 1. / (GKiG - sp.einsum('ij,ij->j', FKiG, A0iFKiG))
+        n = 1.0 / (GKiG - sp.einsum("ij,ij->j", FKiG, A0iFKiG))
         M = -n * A0iFKiG
         self.beta_F = self.beta_F0 + M * sp.dot(M.T, self.FKiy[:, 0]) / n
         self.beta_F += M * GKiy
-        self.beta_g = sp.einsum('is,i->s', M, self.FKiy[:, 0])
+        self.beta_g = sp.einsum("is,i->s", M, self.FKiy[:, 0])
         self.beta_g += n * GKiy
 
         # sigma
-        s2 = self.yKiy - sp.einsum('i,is->s', self.FKiy[:, 0], self.beta_F)
+        s2 = self.yKiy - sp.einsum("i,is->s", self.FKiy[:, 0], self.beta_F)
         s2 -= GKiy * self.beta_g
         s2 /= self.df
 
-        #dlml and pvs
+        # dlml and pvs
         self.lrt = -self.df * sp.log(s2 / self.s20)
         self.pv = st.chi2(1).sf(self.lrt)
 
         t1 = time.time()
         if verbose:
-            print('Tested for %d variants in %.2f s' % (G.shape[1], t1 - t0))
+            print("Tested for %d variants in %.2f s" % (G.shape[1], t1 - t0))

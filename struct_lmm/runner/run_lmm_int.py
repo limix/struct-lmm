@@ -18,16 +18,18 @@ from struct_lmm.lmm import LMM, LMMCore
 from struct_lmm.utils.sugar_utils import *
 
 
-def run_lmm_int(reader,
-                pheno,
-                env,
-                R=None,
-                S_R=None,
-                U_R=None,
-                W=None,
-                covs=None,
-                batch_size=1000,
-                unique_variants=False):
+def run_lmm_int(
+    reader,
+    pheno,
+    env,
+    R=None,
+    S_R=None,
+    U_R=None,
+    W=None,
+    covs=None,
+    batch_size=1000,
+    unique_variants=False,
+):
     """
     Utility function to run interaction tests.
 
@@ -92,7 +94,7 @@ def run_lmm_int(reader,
     S_is = S_R is not None
     U_is = U_R is not None
     if S_is or U_is:
-        assert S_is and U_is, 'Both U_R and S_R should be specified'
+        assert S_is and U_is, "Both U_R and S_R should be specified"
 
     # assert semidefinite positiveness
     if S_R is not None:
@@ -105,10 +107,10 @@ def run_lmm_int(reader,
     if R is not None:
         from limix_core.gp import GP2KronSum
         from limix_core.covar import FreeFormCov
+
         Cg = FreeFormCov(1)
         Cn = FreeFormCov(1)
-        gp = GP2KronSum(
-            Y=pheno, Cg=Cg, Cn=Cn, F=covs, A=sp.eye(1), S_R=S_R, U_R=U_R)
+        gp = GP2KronSum(Y=pheno, Cg=Cg, Cn=Cn, F=covs, A=sp.eye(1), S_R=S_R, U_R=U_R)
         Cg.setCovariance(0.5 * sp.ones(1, 1))
         Cn.setCovariance(0.5 * sp.ones(1, 1))
         info_opt = gp.optimize(verbose=False)
@@ -116,6 +118,7 @@ def run_lmm_int(reader,
     elif W is not None:
         from limix_core.gp import GP2KronSumLR
         from limix_core.covar import FreeFormCov
+
         gp = GP2KronSumLR(Y=pheno, Cn=FreeFormCov(1), G=W, F=covs, A=sp.eye(1))
         gp.covar.Cr.setCovariance(0.5 * sp.ones((1, 1)))
         gp.covar.Cn.setCovariance(0.5 * sp.ones((1, 1)))
@@ -137,7 +140,7 @@ def run_lmm_int(reader,
     res = []
     n_batches = reader.getSnpInfo().shape[0] / batch_size
     for i, gr in enumerate(GIter(reader, batch_size=batch_size)):
-        print '.. batch %d/%d' % (i, n_batches)
+        print(".. batch %d/%d" % (i, n_batches))
 
         X, _res = gr.getGenotypes(standardize=True, return_snpinfo=True)
 
@@ -153,21 +156,21 @@ def run_lmm_int(reader,
         rv = {}
 
         # null quantities
-        rv['pv_null'] = lmm_nul.getPv()
-        rv['beta_null'] = lmm_nul.getBetaSNP()
-        #rv['beta_ste_null'] = lmm_nul.getBetaSNPste()
-        rv['lrt_null'] = lmm_nul.getLRT()
+        rv["pv_null"] = lmm_nul.getPv()
+        rv["beta_null"] = lmm_nul.getBetaSNP()
+        # rv['beta_ste_null'] = lmm_nul.getBetaSNPste()
+        rv["lrt_null"] = lmm_nul.getLRT()
 
         # alt quantities
-        rv['pv_alt'] = lmm_alt.getPv()
-        #rv['beta_alt'] = lmm_alt.getBetaSNP()
-        #rv['beta_ste_alt'] = lmm_alt.getBetaSNPste()
-        rv['lrt_alt'] = lmm_alt.getLRT()
+        rv["pv_alt"] = lmm_alt.getPv()
+        # rv['beta_alt'] = lmm_alt.getBetaSNP()
+        # rv['beta_ste_alt'] = lmm_alt.getBetaSNPste()
+        rv["lrt_alt"] = lmm_alt.getLRT()
 
         # inter quantities
         dof_int = inter.shape[1] - 1
-        rv['lrt_int'] = rv['lrt_alt'] - rv['lrt_null']
-        rv['pv_int'] = st.chi2(dof_int).sf(rv['lrt_int'])
+        rv["lrt_int"] = rv["lrt_alt"] - rv["lrt_null"]
+        rv["pv_int"] = st.chi2(dof_int).sf(rv["lrt_int"])
 
         # add pvalues, beta, etc to res
         _res = _res.join(pd.DataFrame.from_dict(rv))
@@ -177,6 +180,6 @@ def run_lmm_int(reader,
     res.reset_index(inplace=True, drop=True)
 
     t = time.time() - t0
-    print '%.2f s elapsed' % t
+    print("%.2f s elapsed" % t)
 
     return res
