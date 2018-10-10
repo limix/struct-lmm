@@ -1,0 +1,7 @@
+numpy>=1.14.3
+pytest-runner>=4.2
+pytest>=3.6.3
+scipy>=1.0.1
+setuptools>=40.0.0
+sphinx_rtd_theme>=0.4.0
+sphinx>=1.7.5

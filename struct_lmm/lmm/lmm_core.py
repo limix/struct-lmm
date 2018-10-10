@@ -22,7 +22,7 @@ def hatodot(A, B):
     return A1 * B1
 
 
-class LMMCore():
+class LMMCore:
     r"""
     Core LMM for interaction and association testing.
 
@@ -187,7 +187,8 @@ class LMMCore():
     """
 
     def __init__(self, y, F, cov=None):
-        if F is None: F = sp.ones((y.shape[0], 1))
+        if F is None:
+            F = sp.ones((y.shape[0], 1))
         self.y = y
         self.F = F
         self.cov = cov
@@ -207,7 +208,8 @@ class LMMCore():
         self.yKiy = sp.dot(self.y[:, 0], self.Kiy[:, 0])
         # calc beta_F0 and s20
         self.A0i, self.beta_F0, self.s20 = calc_Ai_beta_s2(
-            self.yKiy, self.FKiF, self.FKiy, self.df)
+            self.yKiy, self.FKiF, self.FKiy, self.df
+        )
 
     def process(self, G, Inter=None, step=1, verbose=False):
         r"""
@@ -228,8 +230,10 @@ class LMMCore():
         """
         t0 = time.time()
         ntests = int(G.shape[1] / step)
-        if Inter is None: mi = 1
-        else: mi = Inter.shape[1]
+        if Inter is None:
+            mi = 1
+        else:
+            mi = Inter.shape[1]
         k = self.F.shape[1]
         m = mi * step
         F1KiF1 = sp.zeros((k + m, k + m))
@@ -248,22 +252,24 @@ class LMMCore():
                     X = hatodot(Inter, G[:, idx1:idx2])
             else:
                 X = G[:, idx1:idx2]
-            if self.cov == None: KiX = X
-            else: KiX = self.cov.solve(X)
+            if self.cov == None:
+                KiX = X
+            else:
+                KiX = self.cov.solve(X)
             F1KiF1[k:, :k] = sp.dot(X.T, self.KiF)
             F1KiF1[:k, k:] = F1KiF1[k:, :k].T
             F1KiF1[k:, k:] = sp.dot(X.T, KiX)
             F1Kiy[k:, 0] = sp.dot(X.T, self.Kiy[:, 0])
-            #this can be sped up by using block matrix inversion, etc
+            # this can be sped up by using block matrix inversion, etc
             _, beta, s2[s] = calc_Ai_beta_s2(self.yKiy, F1KiF1, F1Kiy, self.df)
             self.beta_g[:, s] = beta[k:, 0]
-        #dlml and pvs
+        # dlml and pvs
         self.lrt = -self.df * sp.log(s2 / self.s20)
         self.pv = st.chi2(m).sf(self.lrt)
 
         t1 = time.time()
         if verbose:
-            print('Tested for %d variants in %.2f s' % (G.shape[1], t1 - t0))
+            print("Tested for %d variants in %.2f s" % (G.shape[1], t1 - t0))
 
     def getPv(self):
         """

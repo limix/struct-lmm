@@ -1,6 +1,5 @@
 import time
 import warnings
-from optparse import OptionParser
 
 import pandas as pd
 import scipy as sp
@@ -9,18 +8,19 @@ import scipy.linalg as la
 from limix.data import GIter
 from limix.util import unique_variants as f_univar
 from struct_lmm.lmm import LMM
-from struct_lmm.utils.sugar_utils import *
 
 
-def run_lmm(reader,
-            pheno,
-            R=None,
-            S_R=None,
-            U_R=None,
-            W=None,
-            covs=None,
-            batch_size=1000,
-            unique_variants=False):
+def run_lmm(
+    reader,
+    pheno,
+    R=None,
+    S_R=None,
+    U_R=None,
+    W=None,
+    covs=None,
+    batch_size=1000,
+    unique_variants=False,
+):
     """
     Utility function to run StructLMM
 
@@ -82,7 +82,7 @@ def run_lmm(reader,
     S_is = S_R is not None
     U_is = U_R is not None
     if S_is or U_is:
-        assert S_is and U_is, 'Both U_R and S_R should be specified'
+        assert S_is and U_is, "Both U_R and S_R should be specified"
 
     # assert semidefinite positiveness
     if S_R is not None:
@@ -95,21 +95,22 @@ def run_lmm(reader,
     if R is not None:
         from limix_core.gp import GP2KronSum
         from limix_core.covar import FreeFormCov
+
         Cg = FreeFormCov(1)
         Cn = FreeFormCov(1)
-        gp = GP2KronSum(
-            Y=pheno, Cg=Cg, Cn=Cn, F=covs, A=sp.eye(1), S_R=S_R, U_R=U_R)
+        gp = GP2KronSum(Y=pheno, Cg=Cg, Cn=Cn, F=covs, A=sp.eye(1), S_R=S_R, U_R=U_R)
         Cg.setCovariance(0.5 * sp.ones(1, 1))
         Cn.setCovariance(0.5 * sp.ones(1, 1))
-        info_opt = gp.optimize(verbose=False)
+        gp.optimize(verbose=False)
         covar = gp.covar
     elif W is not None:
         from limix_core.gp import GP2KronSumLR
         from limix_core.covar import FreeFormCov
+
         gp = GP2KronSumLR(Y=pheno, Cn=FreeFormCov(1), G=W, F=covs, A=sp.eye(1))
         gp.covar.Cr.setCovariance(0.5 * sp.ones((1, 1)))
         gp.covar.Cn.setCovariance(0.5 * sp.ones((1, 1)))
-        info_opt = gp.optimize(verbose=False)
+        gp.optimize(verbose=False)
         covar = gp.covar
     else:
         covar = None
@@ -123,7 +124,7 @@ def run_lmm(reader,
 
     res = []
     for i, gr in enumerate(GIter(reader, batch_size=batch_size)):
-        print('.. batch %d/%d' % (i, n_batches))
+        print(".. batch %d/%d" % (i, n_batches))
 
         X, _res = gr.getGenotypes(standardize=True, return_snpinfo=True)
 
@@ -150,6 +151,6 @@ def run_lmm(reader,
     res.reset_index(inplace=True, drop=True)
 
     t = time.time() - t0
-    print('%.2f s elapsed' % t)
+    print("%.2f s elapsed" % t)
 
     return res
