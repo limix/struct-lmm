@@ -1,6 +1,9 @@
-import time
-import sys
 import os
+import sys
+import time
+from optparse import OptionParser
+import dask.dataframe as dd
+import h5py
 import numpy as np
 import pandas as pd
 import scipy as sp
@@ -12,7 +15,7 @@ from pandas_plink import read_plink
 import geno_sugar as gs
 
 
-if __name__=='__main__':
+if __name__ == "__main__":
 
     # import genotype file
     bedfile = 'data_structlmm/chrom22_subsample20_maf0.10'
@@ -42,3 +45,4 @@ if __name__=='__main__':
     print('Export')
     if not os.path.exists('out'): os.makedirs('out')
     res.to_csv('out/res_structlmm.csv', index=False)
+

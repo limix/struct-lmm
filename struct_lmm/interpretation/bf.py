@@ -1,14 +1,12 @@
 # -*- coding: utf-8 -*-
-import pdb
 
 import scipy as sp
-import scipy.linalg as la
-import scipy.stats as st
+
 from limix_core.covar import FreeFormCov
 from limix_core.gp import GP2KronSumLR
 
 
-class BF():
+class BF:
     r"""
     Calculates BF between full model (including all environments used for the analysis) and models with environments removed
 
@@ -49,8 +47,8 @@ class BF():
         >>> persistent_model = bf.calc_persistent_model()
         >>> full_model = bf.calc_full_model()
         >>> marginal_model = bf.calc_marginal_model()
-        >>> print('%.4f' % persistent_model, '%.4f' % full_model, '%.4f' % marginal_model)
-        ('-16.1504', '-16.1504', '-16.1504')
+        >>> print("%.4f %.4f %.4f" % (persistent_model, full_model, marginal_model))
+        -16.1504 -16.1504 -16.1504
     """
 
     def __init__(self, y, x, F, Env, W=None):
@@ -59,15 +57,16 @@ class BF():
         self.F = F
         self.Env = Env
         self.W = W
-        if self.W is None: self.W = self.Env
+        if self.W is None:
+            self.W = self.Env
 
     def calc_persistent_model(self):
         _covs = sp.concatenate([self.F, self.W, self.x], 1)
         xoE = sp.ones(self.x.shape)
-        gp=GP2KronSumLR(Y=self.y, F=_covs, A=sp.eye(1), Cn=FreeFormCov(1), G=xoE)
-        gp.covar.Cr.setCovariance(1e-4 * sp.ones((1,1)))
-        gp.covar.Cn.setCovariance(0.02 * sp.ones((1,1)))
-        RV = gp.optimize(verbose=False)
+        gp = GP2KronSumLR(Y=self.y, F=_covs, A=sp.eye(1), Cn=FreeFormCov(1), G=xoE)
+        gp.covar.Cr.setCovariance(1e-4 * sp.ones((1, 1)))
+        gp.covar.Cn.setCovariance(0.02 * sp.ones((1, 1)))
+        gp.optimize(verbose=False)
         lml = -gp.LML()
 
         return lml
@@ -75,22 +74,22 @@ class BF():
     def calc_full_model(self):
         _covs = sp.concatenate([self.F, self.W, self.x], 1)
         xoE = self.x * self.Env
-        gp=GP2KronSumLR(Y=self.y, F=_covs, A=sp.eye(1), Cn=FreeFormCov(1), G=xoE)
-        gp.covar.Cr.setCovariance(1e-4 * sp.ones((1,1)))
-        gp.covar.Cn.setCovariance(0.02 * sp.ones((1,1)))
-        RV = gp.optimize(verbose=False)
+        gp = GP2KronSumLR(Y=self.y, F=_covs, A=sp.eye(1), Cn=FreeFormCov(1), G=xoE)
+        gp.covar.Cr.setCovariance(1e-4 * sp.ones((1, 1)))
+        gp.covar.Cn.setCovariance(0.02 * sp.ones((1, 1)))
+        gp.optimize(verbose=False)
         lml = -gp.LML()
 
-        return lml    
+        return lml
 
-    def calc_marginal_model(self, env_remove = 0):
+    def calc_marginal_model(self, env_remove=0):
         _covs = sp.concatenate([self.F, self.W, self.x], 1)
-        Env_subset = sp.delete(self.Env, env_remove, axis = 1)
+        Env_subset = sp.delete(self.Env, env_remove, axis=1)
         xoE = self.x * Env_subset
-        gp=GP2KronSumLR(Y=self.y, F=_covs, A=sp.eye(1), Cn=FreeFormCov(1), G=xoE)
-        gp.covar.Cr.setCovariance(1e-4 * sp.ones((1,1)))
-        gp.covar.Cn.setCovariance(0.02 * sp.ones((1,1)))
-        RV = gp.optimize(verbose=False)
+        gp = GP2KronSumLR(Y=self.y, F=_covs, A=sp.eye(1), Cn=FreeFormCov(1), G=xoE)
+        gp.covar.Cr.setCovariance(1e-4 * sp.ones((1, 1)))
+        gp.covar.Cn.setCovariance(0.02 * sp.ones((1, 1)))
+        gp.optimize(verbose=False)
         lml = -gp.LML()
 
-        return lml    
+        return lml

@@ -1,5 +1,3 @@
-import os
-import sys
 import time
 import pandas as pd
 import scipy as sp
@@ -62,7 +60,7 @@ def run_structlmm(snps,
         covs = sp.ones((env.shape[0], 1))
 
     if rhos is None:
-        rhos = [0., 0.1**2, 0.2**2, 0.3**2, 0.4**2, 0.5**2, 0.5, 1.]
+        rhos = [0.0, 0.1 ** 2, 0.2 ** 2, 0.3 ** 2, 0.4 ** 2, 0.5 ** 2, 0.5, 1.0]
 
     if tests is None:
         tests = TESTS
@@ -100,7 +98,7 @@ def run_structlmm(snps,
             if TESTS[0] in tests:
                 # interaction test
                 covs1 = sp.hstack((covs, x))
-                null = slmm_int.fit_null(F=covs1, verbose=False)
+                slmm_int.fit_null(F=covs1, verbose=False)
                 _p = slmm_int.score_2_dof(x)
                 _pv_int[snp] = _p
 
