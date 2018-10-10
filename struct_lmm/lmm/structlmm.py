@@ -93,7 +93,7 @@ class StructLMM(object):
         >>> null = slmm.fit_null(F=covs, verbose=False)
         >>> pv = slmm.score_2_dof(x)
         >>> print('%.4f' % pv)
-        0.4034
+        0.4032
 
     and now the interaction test
 
@@ -117,13 +117,8 @@ class StructLMM(object):
         self.rho_list = rho_list
         if self.rho_list is None:
             self.rho_list = [0., 0.1**2, 0.2**2, 0.3**2, 0.4**2, 0.5**2, 0.5, 1.]
-
-        # This  is to correct when Sigma is a block of ones as choice of rho
-        # parameter makes no difference to p-value but final p-value is
-        # inaccurate.  A similar correction is made in the original SKAT-O
-        # script
-        # if self.rho_list[-1] == 1:
-        #    self.rho_list[-1] = 0.999
+        if len(sp.where(sp.array(self.rho_list)==1)[0])>0:
+            self.rho_list[sp.where(sp.array(self.rho_list)==1)[0][0]]=0.999
         self.vec_ones = sp.ones((1, self.y.shape[0]))
 
     def fit_null(self, F=None, verbose=True):
