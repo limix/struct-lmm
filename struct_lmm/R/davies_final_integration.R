@@ -7,10 +7,10 @@ SKAT_Optimal_PValue_Davies<-function(pmin.q, MuQ, VarQ, KerQ, lambda, VarRemain,
 
   #print('davies')
   re<-try(integrate(SKAT_Optimal_Integrate_Func_Davies, lower=0, upper=40, subdivisions=1000, pmin.q=pmin.q, MuQ=MuQ, VarQ=VarQ, KerQ=KerQ, lambda = lambda,  VarRemain= VarRemain,  Df= Df, tau = tau_rho, r_all=r_all, abs.tol = 10^-25), silent = TRUE)
-  #print(re)
+  print(re)
   # Might want to add this back in
   if(class(re) == "try-error"){
-    #print('reverting liu')
+    print('reverting liu')
     re<-SKAT_Optimal_PValue_Liu(pmin.q, MuQ, VarQ, KerQ, lambda, VarRemain,  Df, tau_rho, r_all, pmin)
     #print(re)
     return(re)
@@ -86,6 +86,7 @@ SKAT_Optimal_PValue_Liu<-function(pmin.q, MuQ, VarQ, KerQ, lambda, VarRemain, Df
   re<-integrate(SKAT_Optimal_Integrate_Func_Liu, lower=0, upper=40, subdivisions=2000, pmin.q=pmin.q, MuQ=MuQ, VarQ=VarQ, KerQ=KerQ, lambda = lambda,  VarRemain= VarRemain,  Df= Df, tau = tau, r_all=r_all,abs.tol = 10^-25)
   
   pvalue<-1-re[[1]]
+  print(pvalue)
   
   if(!is.null(pmin)){
     if(pmin *length(r_all) < pvalue){

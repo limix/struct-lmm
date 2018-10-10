@@ -7,8 +7,7 @@ import scipy.linalg as la
 import scipy.stats as st
 from limix_core.covar import FreeFormCov
 from limix_core.gp import GP2KronSumLR
-
-from struct_lmm.utils.pvmixchi2 import *
+from chiscore import davies_pvalue, mod_liu, optimal_davies_pvalue
 
 
 def P(gp, M):
@@ -136,9 +135,6 @@ class StructLMM(object):
         # F is a fixed effect covariate matrix with dim = N by D
         # F itself cannot have any cols of 0's and it won't work if it is None
         self.F = F
-        self.qweliumod = CompQuadFormLiuMod()
-        self.qwedavies = CompQuadFormDavies()
-        self.qwedaviesskat = CompQuadFormDaviesSkat()
         if self.K is not None:
             # Decompose K into low rank version
             S_K, U_K = la.eigh(self.K)
@@ -210,7 +206,7 @@ class StructLMM(object):
             xoL = X * L
             PxoL = P(self.gp, xoL)
             LToxPxoL = 0.5 * sp.dot(xoL.T, PxoL)
-            pval = self.qwedaviesskat.getPv(Q_rho[0], LToxPxoL)
+            pval = davies_pvalue(Q_rho[0], LToxPxoL)
             # Script ends here for interaction test
             return pval
         #or if we consider multiple values of rho i.e. equivalent to SKAT-O and used for association test
@@ -224,7 +220,7 @@ class StructLMM(object):
                 PxoL = P(self.gp, xoL)
                 LToxPxoL = 0.5 * sp.dot(xoL.T, PxoL)
                 eighQ, UQ = la.eigh(LToxPxoL)
-                pliumod[i, ] = self.qweliumod.getPv(Q_rho[i], eighQ)
+                pliumod[i, ] = mod_liu(Q_rho[i], eighQ)
             T = pliumod[:, 0].min()
             rho_opt = pliumod[:, 0].argmin()
             optimal_rho = self.rho_list[rho_opt]
@@ -267,8 +263,7 @@ class StructLMM(object):
             Df = 12 / KerQ
 
             #4. Integration
-            pvalue = self.qwedavies.getPv(qmin, MuQ, VarQ, KerQ, eigh, vareta,
-                                          Df, tau_rho, self.rho_list, T)
+            pvalue = optimal_davies_pvalue(qmin, MuQ, VarQ, KerQ, eigh, vareta, Df, tau_rho, self.rho_list, T)
 
             # Final correction to make sure that the p-value returned is sensible
             multi = 3
