@@ -56,7 +56,7 @@ class PredictGenEffect:
         >>> persistent_effect = effect.train_model()
         >>> gxe_effect = effect.predict_gxe_effect()
         >>> total_gen_effect = effect.predict_total_gen_effect()
-        >>> print('%.4f' % persistent_effect, '%.4f' % gxe_effect[0], '%.4f' % total_gen_effect[0])
+        >>> print("%.4f %.4f %.4f" % (persistent_effect, gxe_effect[0], total_gen_effect[0]))
         1.3814 0.0000 1.3814
     """
 

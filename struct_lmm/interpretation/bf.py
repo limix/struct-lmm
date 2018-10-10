@@ -47,7 +47,7 @@ class BF:
         >>> persistent_model = bf.calc_persistent_model()
         >>> full_model = bf.calc_full_model()
         >>> marginal_model = bf.calc_marginal_model()
-        >>> print('%.4f' % persistent_model, '%.4f' % full_model, '%.4f' % marginal_model)
+        >>> print("%.4f %.4f %.4f" % (persistent_model, full_model, marginal_model))
         -16.1504 -16.1504 -16.1504
     """
 
