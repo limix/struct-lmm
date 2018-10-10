@@ -46,6 +46,8 @@ def setup_package():
         "limix-core",
         "statsmodels",
         "chiscore>=0.0.15",
+        "limix",
+        "matplotlib"
     ]
     tests_require = ["pytest"]
 

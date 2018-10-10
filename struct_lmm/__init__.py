@@ -12,7 +12,8 @@ from __future__ import absolute_import as _
 from . import interpretation, lmm, runner, utils
 from .lmm import LMM, LMMCore, StructLMM
 from .runner import run_lmm, run_lmm_int, run_struct_lmm
+from ._testit import test
 
 __version__ = "0.0.23"
 
-__all__ = ["lmm", "runner", "interpretation", "utils", "__version__"]
+__all__ = ["lmm", "runner", "interpretation", "utils", "__version__", "test"]
