@@ -51,7 +51,7 @@ class BF:
         >>>
         >>> bf = BF(y, x, F = covs, Env1 = E1, Env2 = E2, W=E1)
         >>> log_bf = bf.calc_bf()
-        >>> print('%.4f' % log_bf)
+        >>> print("%.4f" % log_bf)
         -16.1504
     """
 

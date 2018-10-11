@@ -1,11 +1,10 @@
 r"""
 - :class:`.StructLMM`
-- :class:`.LMMCore`
-- :class:`.LMM`
+- :func:`.run_structlmm`
 """
 
-from .lmm import LMM
-from .lmm_core import LMMCore
 from .structlmm import StructLMM
+from .run_structlmm import run_structlmm
 
-__all__ = ["StructLMM", "LMMCore", "LMM"]
+__all__ = ['StructLMM', 'run_structlmm']
+

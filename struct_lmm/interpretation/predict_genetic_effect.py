@@ -57,7 +57,7 @@ class PredictGenEffect:
         >>> aggregate_environment = effect.predict_aggregate_environment()
         >>> gxe_effect = effect.predict_gxe_effect()
         >>> total_gen_effect = effect.predict_total_gen_effect()
-        >>> print('%.4f' % persistent_effect, '%.4f' % ggregate_environment[0], '%.4f' % gxe_effect[0], '%.4f' % total_gen_effect[0])
+        >>> print("%.4f %.4f %.4f %.4f" % (persistent_effect, aggregate_environment[0], gxe_effect[0], total_gen_effect[0]))
         1.3814 0.0000 0.0000 1.3814
     """
 
@@ -135,3 +135,4 @@ class PredictGenEffect:
 
     def predict_total_gen_effect(self):
         return self.persistent_effect + self.effect
+

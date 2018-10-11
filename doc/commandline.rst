@@ -1,7 +1,7 @@
 .. _commandline:
 
 **********************
-Command Line Interface 
+Command Line Interface
 **********************
 
 StructLMM can also be run from command line as shown below.
@@ -38,33 +38,8 @@ Quick example
     --batch_size 100 \
     --unique_variants
 
-* Run analysis with interaction fixed-effect test::
 
-    lmm_int_analyze \
-    --bfile $BFILE \
-    --pfile $PFILE \
-    --pheno_id gene10 \
-    --efile $EFILE \
-    --ofile out/results.res \
-    --idx_start 0 \
-    --idx_end 1000 \
-    --batch_size 100 \
-    --unique_variants
-
-* Run analysis with standard LMM::
-
-    lmm_analyze \
-    --bfile $BFILE \
-    --pfile $PFILE \
-    --pheno_id gene10 \
-    --wfile $EFILE \
-    --ofile out/results.res \
-    --idx_start 0 \
-    --idx_end 1000 \
-    --batch_size 100 \
-    --unique_variants
-
-Commands 
+Commands
 ~~~~~~~~
 
 **struct_lmm_analyze**
@@ -85,14 +60,15 @@ Commands
     --pos_end pos_end \
     --chrom pos_chrom \
     --batch_size bathc_size \
-    --unique_variants \
     --no_interaction_test \
+    --no_association_test \
+    --unique_variants \
 
 
 * **bfile** is the base name of of the binary bed file
-* **pfile** phenotype file name (see :ref:`formats_ref`) 
-* **pheno_id** phenotype identifier as in the phenotype file 
-* **efile** environment file name (see :ref:`formats_ref`) 
+* **pfile** phenotype file name (see :ref:`formats_ref`)
+* **pheno_id** phenotype identifier as in the phenotype file
+* **efile** environment file name (see :ref:`formats_ref`)
 * **ffile** covariate file name (see :ref:`formats_ref`).
   If not set, only an intercept is considered
 * **ofile** output file. It contains pvalues for both the joint
@@ -109,32 +85,8 @@ Commands
 * **batch_size**. To minimize memory usage the analysis is run in batches.
   The number of variants loaded in a batch (in memory at the same time).
 * **no_interaction_test**. If active the interaction test is not consdered.
+* **no_association_test**. If active the association test is not consdered.
 * **unique_variants**. If activated, only non-repeated genotypes are considered.
-
-**lmm_lr**
-^^^^^^^^^^
-
-.. code-block:: bash
-
-    struct_lmm_analyze \
-    --bfile bfile \
-    --pfile pfile \
-    --pheno_id pheno_id \
-    --wfile wfile \
-    --ffile ffile \
-    --ofile ofile \
-    --idx_start idx_start \
-    --idx_end idx_end \
-    --pos_start pos_start \
-    --pos_end pos_end \
-    --chrom pos_chrom \
-    --batch_size bathc_size \
-    --unique_variants \
-
-
-* **wfile** file that defines the low rank random effect (see :ref:`formats_ref`).
-
-See above for other parameters.
 
 **norm_env**
 ^^^^^^^^^^^^
@@ -145,14 +97,14 @@ See above for other parameters.
     --in ifile \
     --out ofile \
     --norm_type norm_type
-    
-* **norm_type**. by default, the norm_type is 'linear_covariance' and the 
-  environment matrix is normalized in such a way that the outer product 
+
+* **norm_type**. by default, the norm_type is 'linear_covariance' and the
+  environment matrix is normalized in such a way that the outer product
   EE^T has mean of diagonal of ones.
-  If 'weighted_covariance', the environment matrix is normalized in such 
+  If 'weighted_covariance', the environment matrix is normalized in such
   a way that the outer product EE^T has diagonal of ones.
   If 'correlation', the environment matrix is normalized in such
-  a way that the outer product EE^T is a correlation matrix (with a 
+  a way that the outer product EE^T is a correlation matrix (with a
   diagonal of ones).
 
 .. _formats_ref:
@@ -173,4 +125,3 @@ Formats
 * **ffile** (covariates file) is a tsv file with dimensions #inds by #covariates.
   Should contain a column of ones to include an intercept in the model.
 * **wfile** (random eff design file) is a tsv file with dimensions #inds by #random effects that defines the random effect.
-
