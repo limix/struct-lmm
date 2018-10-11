@@ -8,7 +8,7 @@ from limix_core.gp import GP2KronSumLR
 
 class PredictGenEffect:
     r"""
-    Predicts genetic and GxE effects for environmental states
+    Predicts allelic effects for each environmental profile by accounting for GxE effects. Can also predict aggregate environment driving the GxE effect
 
     Parameters
     ----------
@@ -54,10 +54,11 @@ class PredictGenEffect:
         >>>
         >>> effect = PredictGenEffect(y, x, F = covs, TrainingEnv = E, W=E)
         >>> persistent_effect = effect.train_model()
+        >>> aggregate_environment = effect.predict_aggregate_environment()
         >>> gxe_effect = effect.predict_gxe_effect()
         >>> total_gen_effect = effect.predict_total_gen_effect()
-        >>> print('%.4f' % persistent_effect, '%.4f' % gxe_effect[0], '%.4f' % total_gen_effect[0])
-        1.3814 0.0000 1.3814
+        >>> print('%.4f' % persistent_effect, '%.4f' % ggregate_environment[0], '%.4f' % gxe_effect[0], '%.4f' % total_gen_effect[0])
+        1.3814 0.0000 0.0000 1.3814
     """
 
     def __init__(
@@ -107,6 +108,13 @@ class PredictGenEffect:
 
         return self.persistent_effect
 
+    def predict_aggregate_environment(self):
+        E_star = self.PredictEnv
+        cent = 1 / self.sigma_2 * sp.dot(self.xoE.T, self.xoE) + 1 / self.sigma_1 * sp.eye(self.TrainingEnv.shape[1])
+        z_star = 1/ self.sigma_2 * sp.dot(E_star, sp.dot(la.inv(cent), sp.dot(self.xoE.T, self.y_adjust)))
+        return z_star
+
+
     def predict_gxe_effect(self):
         ref = [0] * self.PredictEnv.shape[0]
         ref -= self.snp_mean
@@ -116,18 +124,8 @@ class PredictGenEffect:
         alt /= self.snp_std
         x_star = sp.vstack((ref[:, sp.newaxis], alt[:, sp.newaxis]))
         E_star = sp.vstack((self.PredictEnv, self.PredictEnv))
-        cent = 1 / self.sigma_2 * sp.dot(
-            self.xoE.T, self.xoE
-        ) + 1 / self.sigma_1 * sp.eye(self.TrainingEnv.shape[1])
-        z_star = (
-            1
-            / self.sigma_2
-            * sp.dot(
-                (x_star * E_star),
-                sp.dot(la.inv(cent), sp.dot(self.xoE.T, self.y_adjust)),
-            )
-        )
-
+        cent = 1 / self.sigma_2 * sp.dot(self.xoE.T, self.xoE) + 1 / self.sigma_1 * sp.eye(self.TrainingEnv.shape[1])
+        z_star = 1/ self.sigma_2 * sp.dot((x_star * E_star), sp.dot(la.inv(cent), sp.dot(self.xoE.T, self.y_adjust)))
         ref_pred = z_star[: self.PredictEnv.shape[0]]
         alt_pred = z_star[self.PredictEnv.shape[0] :]
         #  effect is alt allele over and above ref allele
