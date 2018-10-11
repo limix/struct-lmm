@@ -47,7 +47,7 @@ def setup_package():
         "statsmodels",
         "chiscore>=0.0.15",
         "limix",
-        "matplotlib"
+        "matplotlib",
     ]
     tests_require = ["pytest"]
 

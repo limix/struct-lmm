@@ -21,20 +21,9 @@ Now we are ready to go.
 
 The following script can be downloader :download:`here <example.py>`.
 
-The core functions to run the different lmms are
+The core function to run structlmm is 
 
 - :func:`.struct_lmm.runner.run_struct_lmm`
-- :func:`.struct_lmm.runner.run_lmm_int`
-- :func:`.struct_lmm.runner.run_lmm`
 
 and are described in :ref:`public`.
-
-Other important functions and classes used here are:
-
-- :func:`.struct_lmm.utils.import_one_pheno_from_csv`
-- :func:`.struct_lmm.utils.make_out_dir`
-- :class:`limix.data.BedReader`
-- :func:`limix.data.build_geno_query`
-- :func:`limix.data.util.unique_variants`
-
 

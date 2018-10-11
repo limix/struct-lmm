@@ -137,3 +137,4 @@ class PredictGenEffect:
 
     def predict_total_gen_effect(self):
         return self.persistent_effect + self.effect
+
