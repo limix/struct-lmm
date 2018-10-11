@@ -126,8 +126,8 @@ fi
 conda activate struct-lmm
 
 echo "[3/4] Installing dependencies into the struct-lmm environment..."
-conda install -c conda-forge limix r r-base r-essentials rpy2 \
-                 r-compquadform sphinx sphinx_rtd_theme pip setuptools --yes
+conda install sphinx sphinx_rtd_theme pip setuptools --yes
+conda install -c conda-forge limix --yes
 
 echo "[4/4] Installing struct-lmm itself..."
 pip install git+https://github.com/limix/struct-lmm.git
