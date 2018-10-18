@@ -70,7 +70,7 @@ class BF:
 
     def calc_lml(self, Env):
         _covs = sp.concatenate([self.F, self.W, self.x], 1)
-        if Env == None:
+        if Env is None:
             xoE = sp.ones(self.x.shape)
         else:
             xoE = self.x * Env
@@ -83,8 +83,8 @@ class BF:
         return lml
 
     def calc_bf(self):
-        lml_model_1 = calc_lml(self.Env1)
-        lml_model_2 = calc_lml(self.Env2)
+        lml_model_1 = self.calc_lml(self.Env1)
+        lml_model_2 = self.calc_lml(self.Env2)
         bf = lml_model_1-lml_model_2
         return bf
 
