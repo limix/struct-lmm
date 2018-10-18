@@ -48,6 +48,7 @@ def setup_package():
         "chiscore>=0.0.15",
         "limix",
         "matplotlib",
+        "geno-sugar"
     ]
     tests_require = ["pytest"]
 
