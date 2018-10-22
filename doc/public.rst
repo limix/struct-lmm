@@ -17,10 +17,6 @@ Public Interface
   - :func:`.import_one_pheno_from_csv`
   - :func:`.norm_env_matrix`
   - :func:`.make_out_dir`
-  - :class:`.CompQuadFormLiu`
-  - :class:`.CompQuadFormDavies`
-  - :class:`.CompQuadFormLiuMod`
-  - :class:`.CompQuadFormDaviesSkat`
 
 .. _lmm_class_ref:
 
