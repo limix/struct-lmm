@@ -39,9 +39,9 @@ class BF:
         >>> random = RandomState(1)
         >>>
         >>> # generate data
-        >>> n = 20 # number samples
-        >>> k1 = 4 # number environments for model 1
-        >>> k2 = 3 # number environments for model 2
+        >>> n = 50 # number samples
+        >>> k1 = 10 # number environments for model 1
+        >>> k2 = 0 # number environments for model 2
         >>>
         >>> y = random.randn(n, 1) # phenotype
         >>> x = 1. * (random.rand(n, 1) < 0.2) # genotype
@@ -52,7 +52,7 @@ class BF:
         >>> bf = BF(y, x, F = covs, Env1 = E1, Env2 = E2, W=E1)
         >>> log_bf = bf.calc_bf()
         >>> print("%.4f" % log_bf)
-        -0.0000
+        0.0301
     """
 
     def __init__(self, y, x, F, Env1, Env2, W=None):
@@ -70,7 +70,7 @@ class BF:
 
     def calc_lml(self, Env):
         _covs = sp.concatenate([self.F, self.W, self.x], 1)
-        if Env is None:
+        if Env.shape[1]==0:
             xoE = sp.ones(self.x.shape)
         else:
             xoE = self.x * Env

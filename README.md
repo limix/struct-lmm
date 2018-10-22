@@ -15,14 +15,11 @@ pip install struct-lmm
 
 ## Getting Started
 
-Interaction with StructLMM happens in the terminal via the following command
+StructLMM can be used via the following command
 line tools installed with the package, and described at the [Command Line Interface](http://struct-lmm.readthedocs.io/en/latest/commandline.html)
 section of the [documentation](http://struct-lmm.readthedocs.io/):
 
 - norm_env
-- struct_lmm_analyze
-- lmm_int_analyze
-- lmm_analyze
 - struct_lmm_analyze
 
 ## Usage example

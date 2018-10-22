@@ -35,8 +35,8 @@ class OptimalRho:
         >>> random = RandomState(1)
         >>>
         >>> # generate data
-        >>> n = 20 # number samples
-        >>> k = 4 # number environments
+        >>> n = 50 # number samples
+        >>> k = 20 # number environments
         >>>
         >>> y = random.randn(n, 1) # phenotype
         >>> x = 1. * (random.rand(n, 1) < 0.2) # genotype
@@ -46,7 +46,7 @@ class OptimalRho:
         >>> rho = OptimalRho(y, x, F = covs, Env = E, W=E)
         >>> opt_rho = rho.calc_opt_rho()
         >>> print('%.4f' % opt_rho)
-        0.0000
+        0.6238
     """
 
     def __init__(self, y, x, F, Env, W=None):
