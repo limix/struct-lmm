@@ -57,21 +57,25 @@ class PredictGenEffect:
         >>> aggregate_environment = effect.predict_aggregate_environment()
         >>> gxe_effect = effect.predict_gxe_effect()
         >>> total_gen_effect = effect.predict_total_gen_effect()
-        >>> print(persistent_effect) # print persistent allelic effect which is the same for all individuals
+        >>> # print persistent allelic effect which is the same for all individuals
+        >>> print(persistent_effect)  # doctest: +FLOAT_CMP
         [-0.22835776]
-        >>> print(aggregate_environment[0:5]) # print aggregate environment for first 5 individuals
+        >>> # print aggregate environment for first 5 individuals
+        >>> print(aggregate_environment[0:5])  # doctest: +FLOAT_CMP
         [[-0.00778234]
          [-0.04681788]
          [-0.02912152]
          [ 0.03897581]
          [ 0.1037293 ]]
-        >>> print(gxe_effect[0:5]) # print GxE allelic effect for first 5 individuals
+        >>> # print GxE allelic effect for first 5 individuals
+        >>> print(gxe_effect[0:5])  # doctest: +FLOAT_CMP
         [[-0.0177422 ]
          [-0.10673557]
          [-0.06639135]
          [ 0.08885721]
          [ 0.23648244]]
-        >>> print(total_gen_effect[0:5]) # print total allelic effect for first 5 individuals
+        >>> # print total allelic effect for first 5 individuals
+        >>> print(total_gen_effect[0:5])  # doctest: +FLOAT_CMP
         [[-0.24609996]
          [-0.33509333]
          [-0.29474911]

@@ -44,9 +44,8 @@ class OptimalRho:
         >>> covs = sp.ones((n, 1)) # intercept
         >>>
         >>> rho = OptimalRho(y, x, F = covs, Env = E, W=E)
-        >>> opt_rho = rho.calc_opt_rho()
-        >>> print('%.4f' % opt_rho)
-        0.6238
+        >>> rho.calc_opt_rho()  # doctest: +FLOAT_CMP
+        0.6237930672356277
     """
 
     def __init__(self, y, x, F, Env, W=None):

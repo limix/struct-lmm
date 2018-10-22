@@ -50,9 +50,8 @@ class BF:
         >>> covs = sp.ones((n, 1)) # intercept
         >>>
         >>> bf = BF(y, x, F = covs, Env1 = E1, Env2 = E2, W=E1)
-        >>> log_bf = bf.calc_bf()
-        >>> print("%.4f" % log_bf)
-        0.0301
+        >>> bf.calc_bf()  # doctest: +FLOAT_CMP
+        0.03013960889843048
     """
 
     def __init__(self, y, x, F, Env1, Env2, W=None):
