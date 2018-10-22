@@ -52,9 +52,6 @@ def setup_package():
     tests_require = ["pytest"]
 
     console_scripts = [
-        "struct_lmm_analyze=struct_lmm.scripts.struct_lmm_analyze:entry_point",
-        "lmm_analyze=struct_lmm.scripts.lmm_analyze:entry_point",
-        "lmm_int_analyze=struct_lmm.scripts.lmm_int_analyze:entry_point",
         "norm_env=struct_lmm.scripts.norm_env:entry_point",
     ]
 
