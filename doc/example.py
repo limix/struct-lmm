@@ -3,7 +3,6 @@ import sys
 import time
 from optparse import OptionParser
 import dask.dataframe as dd
-import h5py
 import numpy as np
 import pandas as pd
 import scipy as sp
@@ -39,10 +38,17 @@ if __name__ == "__main__":
     covs = sp.ones((E.shape[0], 1))
 
     # run analysis with struct lmm
-    res = run_structlmm(G, bim, pheno, E, covs=covs, batch_size=100, unique_variants=True)
-
+    snp_preproc = {'max_miss': 0.01, 'min_maf': 0.02}
+    res = run_structlmm(G,
+                        bim,
+                        pheno,
+                        E,
+                        covs=covs,
+                        batch_size=100,
+                        snp_preproc=snp_preproc,
+                        )
+                        
     # export
     print('Export')
     if not os.path.exists('out'): os.makedirs('out')
     res.to_csv('out/res_structlmm.csv', index=False)
-
