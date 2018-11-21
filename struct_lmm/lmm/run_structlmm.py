@@ -1,24 +1,21 @@
 import time
-import pandas as pd
 import scipy as sp
 from . import StructLMM
-import geno_sugar as gs
-import geno_sugar.preprocess as prep
-from sklearn.impute import SimpleImputer
-import pdb
 
-TESTS = ['interaction', 'association']
+TESTS = ["interaction", "association"]
 
 
-def run_structlmm(snps,
-                   bim,
-                   pheno,
-                   env,
-                   covs=None,
-                   rhos=None,
-                   batch_size=1000,
-                   tests=None,
-                   snp_preproc=None):
+def run_structlmm(
+    snps,
+    bim,
+    pheno,
+    env,
+    covs=None,
+    rhos=None,
+    batch_size=1000,
+    tests=None,
+    snp_preproc=None,
+):
     """
     Utility function to run StructLMM
 
@@ -58,6 +55,10 @@ def run_structlmm(snps,
         contains pv of joint test, pv of interaction test
         (if no_interaction_test is False) and snp info.
     """
+    import pandas as pd
+    import geno_sugar as gs
+    import geno_sugar.preprocess as prep
+    from sklearn.impute import SimpleImputer
 
     if covs is None:
         covs = sp.ones((env.shape[0], 1))
@@ -80,22 +81,22 @@ def run_structlmm(snps,
 
     # define geno preprocessing function
     prep_steps = []
-    #1. missing values
-    if 'max_miss' in snp_preproc:
-        max_miss = snp_preproc['max_miss']
-        assert type(max_miss)==float, 'max_miss should be a float'
-        assert (max_miss>=0 and max_miss<=1), 'max_miss should be in [0, 1]'
+    # 1. missing values
+    if "max_miss" in snp_preproc:
+        max_miss = snp_preproc["max_miss"]
+        assert type(max_miss) == float, "max_miss should be a float"
+        assert max_miss >= 0 and max_miss <= 1, "max_miss should be in [0, 1]"
         prep_steps.append(prep.filter_by_missing(max_miss=max_miss))
-    #2. impute
+    # 2. impute
     imputer = SimpleImputer(missing_values=sp.nan, strategy="mean")
     prep_steps.append(prep.impute(imputer))
-    #3. minimum maf
-    if 'min_maf' in snp_preproc:
-        min_maf = snp_preproc['min_maf']
-        assert type(min_maf)==float, 'min_maf should be a float'
-        assert (min_maf>=0 and min_maf<=1), 'min_maf should be in [0, 1]'
+    # 3. minimum maf
+    if "min_maf" in snp_preproc:
+        min_maf = snp_preproc["min_maf"]
+        assert type(min_maf) == float, "min_maf should be a float"
+        assert min_maf >= 0 and min_maf <= 1, "min_maf should be in [0, 1]"
         prep_steps.append(prep.filter_by_maf(min_maf=min_maf))
-    #2. standardize
+    # 2. standardize
     prep_steps.append(prep.standardize())
     preprocess = gs.preprocess.compose(prep_steps)
 
@@ -137,6 +138,6 @@ def run_structlmm(snps,
     res.reset_index(inplace=True, drop=True)
 
     t = time.time() - t0
-    print('%.2f s elapsed' % t)
+    print("%.2f s elapsed" % t)
 
     return res

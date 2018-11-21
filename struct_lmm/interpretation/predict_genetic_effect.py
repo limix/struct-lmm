@@ -2,8 +2,6 @@
 import scipy as sp
 import scipy.linalg as la
 
-from limix_core.covar import FreeFormCov
-from limix_core.gp import GP2KronSumLR
 
 
 class PredictGenEffect:
@@ -112,6 +110,9 @@ class PredictGenEffect:
             self.W = self.W[random_idx, :]
 
     def train_model(self):
+        from limix_core.covar import FreeFormCov
+        from limix_core.gp import GP2KronSumLR
+
         _covs = sp.concatenate([self.F, self.W, self.x], 1)
         self.snp_mean = self.x.mean(0)
         self.x_std = self.x - self.snp_mean

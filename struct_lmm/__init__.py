@@ -15,4 +15,4 @@ from ._testit import test
 
 __version__ = "0.1.1"
 
-__all__ = ['lmm', 'interpretation', 'utils', '__version__', "test"]
+__all__ = ["lmm", "StructLMM", "interpretation", "utils", "run_structlmm", "__version__", "test"]

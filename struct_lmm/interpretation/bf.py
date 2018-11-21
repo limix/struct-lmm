@@ -2,10 +2,6 @@
 
 import scipy as sp
 
-from limix_core.covar import FreeFormCov
-from limix_core.gp import GP2KronSumLR
-
-
 class BF:
     r"""
     Calculates log Bayes factor between two models with different sets of environments included returning evidence for model 2 relative to model 1
@@ -68,6 +64,9 @@ class BF:
                 self.W = self.Env1
 
     def calc_lml(self, Env):
+        from limix_core.covar import FreeFormCov
+        from limix_core.gp import GP2KronSumLR
+
         _covs = sp.concatenate([self.F, self.W, self.x], 1)
         if Env.shape[1]==0:
             xoE = sp.ones(self.x.shape)

@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # Adapted SKAT-O script including covariates but is generalised for cases when no covariates exist
 # Does not include centering options
 
@@ -7,9 +6,6 @@ import scipy.linalg as la
 import scipy.stats as st
 
 from chiscore import davies_pvalue, mod_liu, optimal_davies_pvalue
-from limix_core.covar import FreeFormCov
-from limix_core.gp import GP2KronSumLR
-
 
 def P(gp, M):
     RV = gp.covar.solve(M)
@@ -142,6 +138,9 @@ class StructLMM(object):
         RV : dict
              Dictionary with null model info (TODO add details)
         """
+        from limix_core.covar import FreeFormCov
+        from limix_core.gp import GP2KronSumLR
+
         #  F is a fixed effect covariate matrix with dim = N by D
         #  F itself cannot have any cols of 0's and it won't work if it is None
         self.F = F
@@ -273,9 +272,12 @@ class StructLMM(object):
             Df = 12 / KerQ
 
             # 4. Integration
+            # from time import time
+            # start = time()
             pvalue = optimal_davies_pvalue(
                 qmin, MuQ, VarQ, KerQ, eigh, vareta, Df, tau_rho, self.rho_list, T
             )
+            # print("Elapsed: {} seconds".format(time() - start))
 
             # Final correction to make sure that the p-value returned is sensible
             multi = 3

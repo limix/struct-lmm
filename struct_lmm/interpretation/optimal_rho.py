@@ -1,9 +1,5 @@
-# -*- coding: utf-8 -*-
-
 import scipy as sp
 
-from limix_core.covar import FreeFormCov
-from limix_core.gp import GP2KronSumLR
 
 
 class OptimalRho:
@@ -58,6 +54,9 @@ class OptimalRho:
             self.W = self.Env
 
     def calc_opt_rho(self):
+        from limix_core.covar import FreeFormCov
+        from limix_core.gp import GP2KronSumLR
+
         _covs = sp.concatenate([self.F, self.W, self.x], 1)
         xoE = self.x * self.Env
         gp = GP2KronSumLR(Y=self.y, F=_covs, A=sp.eye(1), Cn=FreeFormCov(1), G=xoE)

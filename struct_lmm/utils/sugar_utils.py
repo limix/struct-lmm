@@ -1,6 +1,5 @@
 import os
 
-import dask.dataframe as dd
 import scipy as sp
 
 
@@ -25,6 +24,7 @@ def import_one_pheno_from_csv(pfile, pheno_id, standardize=False):
     y : (`N`, `1`) array
         phenotype vactor
     """
+    import dask.dataframe as dd
     # read and extract
     df2 = dd.read_csv(pfile)
     key = df2.columns[0]
@@ -54,7 +54,7 @@ def norm_env_matrix(E, norm_type="linear_covariance"):
         a way that the outer product EE^T has mean of diagonal of ones.
         if 'weighted_covariance', the environment matrix is normalized in such
         a way that the outer product EE^T has diagonal of ones.
-        if 'correlation', the environment is normalized in such a way that the 
+        if 'correlation', the environment is normalized in such a way that the
         outer product EE^T is a correlation matrix (with a diagonal of ones).
     Returns
     -------
