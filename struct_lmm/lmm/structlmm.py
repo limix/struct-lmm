@@ -5,6 +5,7 @@
 import scipy as sp
 import scipy.linalg as la
 import scipy.stats as st
+import time
 
 from chiscore import davies_pvalue, mod_liu, optimal_davies_pvalue
 from limix_core.covar import FreeFormCov
@@ -200,6 +201,8 @@ class StructLMM(object):
         pvalue : float
             P value
         """
+        print('calculate Qs and pvs')
+        t0 = time.time()
         # 1. calculate Qs and pvs
         Q_rho = sp.zeros(len(self.rho_list))
         Py = P(self.gp, self.y)
@@ -208,6 +211,8 @@ class StructLMM(object):
             LT = sp.vstack((rho ** 0.5 * self.vec_ones, (1 - rho) ** 0.5 * self.Env.T))
             LTxoPy = sp.dot(LT, X * Py)
             Q_rho[i] = 0.5 * sp.dot(LTxoPy.T, LTxoPy)
+        t1 = time.time()
+        print('Elapsed:', t1-t0)
 
         # Calculating pvs is split into 2 steps
         # If we only consider one value of rho i.e. equivalent to SKAT and used for interaction test
@@ -222,6 +227,8 @@ class StructLMM(object):
             return pval
         # or if we consider multiple values of rho i.e. equivalent to SKAT-O and used for association test
         else:
+            print('pliumod')
+            t0 = time.time()
             pliumod = sp.zeros((len(self.rho_list), 4))
             for i in range(len(self.rho_list)):
                 rho = self.rho_list[i]
@@ -236,7 +243,11 @@ class StructLMM(object):
             T = pliumod[:, 0].min()
             # if optimal_rho == 0.999:
             #    optimal_rho = 1
+            t1 = time.time()
+            print('Elapsed:', t1-t0)
 
+            print('qmin')
+            t0 = time.time()
             # 2. Calculate qmin
             qmin = sp.zeros(len(self.rho_list))
             percentile = 1 - T
@@ -246,7 +257,11 @@ class StructLMM(object):
                 qmin[i] = (q - pliumod[i, 3]) / (2 * pliumod[i, 3]) ** 0.5 * pliumod[
                     i, 2
                 ] + pliumod[i, 1]
+            t1 = time.time()
+            print('Elapsed:', t1-t0)
 
+            print('null stuff')
+            t0 = time.time()
             # 3. Calculate quantites that occur in null distribution
             Px1 = P(self.gp, X)
             m = 0.5 * sp.dot(X.T, Px1)
@@ -271,12 +286,20 @@ class StructLMM(object):
             VarQ = sp.sum(eigh ** 2) * 2 + vareta
             KerQ = sp.sum(eigh ** 4) / (sp.sum(eigh ** 2) ** 2) * 12
             Df = 12 / KerQ
+            t1 = time.time()
+            print('Elapsed:', t1-t0)
 
+            print('integration step')
+            t0 = time.time()
             # 4. Integration
             pvalue = optimal_davies_pvalue(
                 qmin, MuQ, VarQ, KerQ, eigh, vareta, Df, tau_rho, self.rho_list, T
             )
+            t1 = time.time()
+            print('Elapsed:', t1-t0)
 
+            print('last step stuff')
+            t0 = time.time()
             # Final correction to make sure that the p-value returned is sensible
             multi = 3
             if len(self.rho_list) < 3:
@@ -288,6 +311,8 @@ class StructLMM(object):
             if pvalue == 0:
                 if len(idx) > 0:
                     pvalue = pliumod[:, 0][idx].min()
+            t1 = time.time()
+            print('Elapsed:', t1-t0)
 
             if debug:
                 info = {
