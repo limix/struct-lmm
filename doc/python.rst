@@ -6,7 +6,7 @@ Quick Start
 
 .. Attention::
 
-    We here show how to run the stand alone version of StructLMM in Python.
+    We here show how to run the standalone version of StructLMM in Python.
     However, we recommend using StructLMM whithin `LIMIX2` as it additionally implements:
 
     - multiple `methods for GWAS`_;
