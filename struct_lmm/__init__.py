@@ -9,7 +9,7 @@ Write me
 
 from __future__ import absolute_import as _
 
-from . import interpretation, lmm, utils
+from . import lmm, utils
 from .lmm import StructLMM, run_structlmm
 from ._testit import test
 
