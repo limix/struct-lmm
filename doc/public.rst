@@ -6,10 +6,8 @@ Public Interface
 
 - :ref:`lmm_class_ref`
 
-  - :func:`.run_struct_lmm`
+  - :func:`.run_structlmm`
   - :class:`.StructLMM`
-
-- :ref:`interpretation_ref`
 
 - :ref:`utils_ref`
 
@@ -23,13 +21,6 @@ Public Interface
 StructLMM class
 ^^^^^^^^^^^^^^^
 .. automodule:: struct_lmm.lmm
-  :members:
-
-.. _interpretation_ref:
-
-Tools for interpretation
-^^^^^^^^^^^^^^^^^^^^^^^^
-.. automodule:: struct_lmm.interpretation
   :members:
 
 .. _utils_ref:
