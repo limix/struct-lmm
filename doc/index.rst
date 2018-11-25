@@ -9,7 +9,6 @@ StructLMM's documentation
 
    install
    python
-   commandline
    public
 
 *****************
