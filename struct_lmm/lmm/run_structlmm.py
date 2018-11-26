@@ -74,7 +74,7 @@ def run_structlmm(
 
     if TESTS[1] in tests:
         slmm = StructLMM(pheno, env, W=env, rho_list=rhos)
-        null = slmm.fit_null(F=covs, verbose=False)
+        slmm.fit_null(F=covs, verbose=False)
 
     if snp_preproc is None:
         snp_preproc = {}
