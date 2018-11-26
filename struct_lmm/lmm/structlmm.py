@@ -7,6 +7,7 @@ import scipy.stats as st
 
 from chiscore import davies_pvalue, mod_liu, optimal_davies_pvalue
 
+
 def P(gp, M):
     RV = gp.covar.solve(M)
     if gp.mean.F is not None:
