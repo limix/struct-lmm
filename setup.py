@@ -48,13 +48,11 @@ def setup_package():
         "chiscore>=0.0.15",
         "matplotlib",
         "geno-sugar",
-        "pytest-doctestplus>=0.1.3"
+        "pytest-doctestplus>=0.1.3",
     ]
     tests_require = ["pytest"]
 
-    console_scripts = [
-        "norm_env=struct_lmm.scripts.norm_env:entry_point",
-    ]
+    console_scripts = ["norm_env=struct_lmm.scripts.norm_env:entry_point"]
 
     metadata = dict(
         name="struct-lmm",
