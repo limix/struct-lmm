@@ -13,6 +13,6 @@ from . import lmm, utils
 from .lmm import StructLMM, run_structlmm
 from ._testit import test
 
-__version__ = "0.1.2"
+__version__ = "0.2.1"
 
 __all__ = ["lmm", "StructLMM", "interpretation", "utils", "run_structlmm", "__version__", "test"]
