@@ -1,8 +1,8 @@
-# struct-lmm
+# Struct-lmm
 
 [![Travis](https://img.shields.io/travis/com/limix/struct-lmm.svg?style=flat-square&label=linux%20%2F%20macos%20build)](https://travis-ci.com/limix/struct-lmm) [![Documentation](https://img.shields.io/readthedocs/struct-lmm.svg?style=flat-square&version=stable)](https://struct-lmm.readthedocs.io/)
 
-Structured Linear Mixed Model (StructLMM) is a computationally efficient method to test for and characterize loci that interact with multiple environments.
+Structured Linear Mixed Model (StructLMM) is a computationally efficient method to test for and characterize loci that interact with multiple environments [1].
 
 This a standalone module that implements the basic functionalities of StructLMM.
 However, we recommend using StructLMM using [LIMIX2](https://limix.readthedocs.io/en/2.0.0/index.html) as this additionally implements:
@@ -10,6 +10,8 @@ However, we recommend using StructLMM using [LIMIX2](https://limix.readthedocs.i
 - multiple methods for GWAS;
 - methods to characterize GxE at specific variants;
 - command line interface.
+
+[1] Moore R, Casale FP, Bonder MJ, Horta D, Franke L, Barroso I, Stegle O, BIOS Consortium. A linear mixed model approach to study multivariate gene-environment interactions. bioRxiv. 2018 Jan 1:270611.
 
 ## Install
 
