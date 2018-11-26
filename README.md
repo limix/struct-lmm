@@ -2,8 +2,14 @@
 
 [![Travis](https://img.shields.io/travis/com/limix/struct-lmm.svg?style=flat-square&label=linux%20%2F%20macos%20build)](https://travis-ci.com/limix/struct-lmm) [![Documentation](https://img.shields.io/readthedocs/struct-lmm.svg?style=flat-square&version=stable)](https://struct-lmm.readthedocs.io/)
 
-Structured Linear Mixed Model (StructLMM) is a computationally efficient method
-to test for and characterize loci that interact with multiple environments.
+Structured Linear Mixed Model (StructLMM) is a computationally efficient method to test for and characterize loci that interact with multiple environments.
+
+This a standalone module that implements the basic functionalities of StructLMM.
+However, we recommend using StructLMM using [LIMIX2](https://limix.readthedocs.io/en/2.0.0/index.html) as this additionally implements:
+
+- multiple methods for GWAS;
+- methods to characterize GxE at specific variants;
+- command line interface.
 
 ## Install
 
