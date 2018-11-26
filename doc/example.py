@@ -1,7 +1,6 @@
 import os
 import pandas as pd
 import scipy as sp
-from optparse import OptionParser
 from limix_core.util.preprocess import gaussianize
 from struct_lmm import run_structlmm
 from struct_lmm.utils.sugar_utils import norm_env_matrix
