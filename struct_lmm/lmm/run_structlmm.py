@@ -1,5 +1,5 @@
 import time
-import scipy as sp
+
 from . import StructLMM
 
 TESTS = ["interaction", "association"]
@@ -59,6 +59,7 @@ def run_structlmm(
     import geno_sugar as gs
     import geno_sugar.preprocess as prep
     from sklearn.impute import SimpleImputer
+    import scipy as sp
 
     if covs is None:
         covs = sp.ones((env.shape[0], 1))
