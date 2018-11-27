@@ -146,7 +146,7 @@ class StructLMM(object):
         from limix_core.gp import GP2KronSumLR
 
         #  F is a fixed effect covariate matrix with dim = N by D
-        #  F itself cannot have any cols of 0's and it won't work if it is None
+        #  F itself cannot have any col of 0's and it won't work if it is None
         self.F = F
         if self.K is not None:
             # Decompose K into low rank version
