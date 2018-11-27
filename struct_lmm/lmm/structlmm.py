@@ -1,14 +1,13 @@
 # Adapted SKAT-O script including covariates but is generalised for cases when no covariates exist
 # Does not include centering options
 
-import scipy as sp
-import scipy.linalg as la
-import scipy.stats as st
 
 from chiscore import davies_pvalue, mod_liu, optimal_davies_pvalue
 
 
 def P(gp, M):
+    import scipy as sp
+
     RV = gp.covar.solve(M)
     if gp.mean.F is not None:
         WKiM = sp.dot(gp.mean.W.T, RV)
@@ -102,6 +101,8 @@ class StructLMM(object):
     """
 
     def __init__(self, y, Env, K=None, W=None, rho_list=None):
+        import scipy as sp
+
         self.y = y
         self.Env = Env
         if W is None:
@@ -139,6 +140,8 @@ class StructLMM(object):
         RV : dict
              Dictionary with null model info (TODO add details)
         """
+        import scipy as sp
+        import scipy.linalg as la
         from limix_core.covar import FreeFormCov
         from limix_core.gp import GP2KronSumLR
 
@@ -200,6 +203,10 @@ class StructLMM(object):
         pvalue : float
             P value
         """
+        import scipy as sp
+        import scipy.linalg as la
+        import scipy.stats as st
+
         # 1. calculate Qs and pvs
         Q_rho = sp.zeros(len(self.rho_list))
         Py = P(self.gp, self.y)
