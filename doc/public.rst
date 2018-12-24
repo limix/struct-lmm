@@ -1,5 +1,3 @@
-.. _public:
-
 ****************
 Public Interface
 ****************
@@ -16,14 +14,10 @@ Public Interface
   - :func:`.norm_env_matrix`
   - :func:`.make_out_dir`
 
-.. _lmm_class_ref:
-
 StructLMM class
 ^^^^^^^^^^^^^^^
 .. automodule:: struct_lmm.lmm
   :members:
-
-.. _utils_ref:
 
 Utils
 ^^^^^
