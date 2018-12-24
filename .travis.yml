@@ -1,0 +1,12 @@
+language: python
+python: 3.6
+env:
+- PKG_NAME=struct_lmm
+script:
+- bash <(curl -fsSL https://raw.githubusercontent.com/horta/ci/master/travis.sh)
+notifications:
+  email:
+    recipients:
+    - rm18@sanger.ac.uk
+    on_success: never
+    on_failure: always
