@@ -6,14 +6,11 @@ StructLMM
 Write me
 
 """
-
-from __future__ import absolute_import as _
-
 from . import lmm, utils
 from .lmm import StructLMM, run_structlmm
 from ._testit import test
 
-__version__ = "0.2.2"
+__version__ = "0.2.3"
 
 __all__ = [
     "lmm",
