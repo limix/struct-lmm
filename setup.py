@@ -43,7 +43,7 @@ def setup_package():
     install_requires = [
         "numpy>=1.14",
         "scipy",
-        "limix-core",
+        "glimix-core>=3.0.0",
         "statsmodels",
         "chiscore>=0.0.15",
         "matplotlib",

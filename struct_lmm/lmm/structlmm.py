@@ -6,13 +6,14 @@ from chiscore import davies_pvalue, mod_liu, optimal_davies_pvalue
 
 
 def P(gp, M):
-    import scipy as sp
+    from scipy.linalg import cho_solve
 
-    RV = gp.covar.solve(M)
+    RV = gp.cov.solve(M)
     if gp.mean.F is not None:
-        WKiM = sp.dot(gp.mean.W.T, RV)
-        WAiWKiM = sp.dot(gp.mean.W, gp.Areml.solve(WKiM))
-        KiWAiWKiM = gp.covar.solve(WAiWKiM)
+        WKiM = gp.mean.AF.T @ RV
+        terms = gp._terms
+        WAiWKiM = gp.mean.AF @ cho_solve(terms["Lh"], WKiM)
+        KiWAiWKiM = gp.cov.solve(WAiWKiM)
         RV -= KiWAiWKiM
     return RV
 
@@ -142,8 +143,7 @@ class StructLMM(object):
         """
         import scipy as sp
         import scipy.linalg as la
-        from limix_core.covar import FreeFormCov
-        from limix_core.gp import GP2KronSumLR
+        from glimix_core.lmm import RKron2Sum
 
         #  F is a fixed effect covariate matrix with dim = N by D
         #  F itself cannot have any col of 0's and it won't work if it is None
@@ -156,26 +156,18 @@ class StructLMM(object):
             # In most cases W = E but have left it as seperate parameter for
             # flexibility
             self.W = U * S ** 0.5
-            self.gp = GP2KronSumLR(
-                Y=self.y, F=self.F, A=sp.eye(1), Cn=FreeFormCov(1), G=self.W
-            )
-            self.gp.covar.Cr.setCovariance(0.5 * sp.ones((1, 1)))
-            self.gp.covar.Cn.setCovariance(0.5 * sp.ones((1, 1)))
-            RV = self.gp.optimize(verbose=verbose)
+            self.gp = RKron2Sum(self.y, sp.eye(1), self.F, self.W, rank=1)
+            self.gp.fit(verbose=verbose)
             #  Get optimal kernel parameters
-            self.covarparam0 = self.gp.covar.Cr.K()[0, 0]
-            self.covarparam1 = self.gp.covar.Cn.K()[0, 0]
-            self.Kiy = self.gp.Kiy()
+            self.covarparam0 = self.gp.cov.C0.value()[0, 0]
+            self.covarparam1 = self.gp.cov.C1.value()[0, 0]
+            RV = None
         elif self.W is not None:
-            self.gp = GP2KronSumLR(
-                Y=self.y, F=self.F, A=sp.eye(1), Cn=FreeFormCov(1), G=self.W
-            )
-            self.gp.covar.Cr.setCovariance(0.5 * sp.ones((1, 1)))
-            self.gp.covar.Cn.setCovariance(0.5 * sp.ones((1, 1)))
-            RV = self.gp.optimize(verbose=verbose)
-            self.covarparam0 = self.gp.covar.Cr.K()[0, 0]  # getParams()[0]
-            self.covarparam1 = self.gp.covar.Cn.K()[0, 0]
-            self.Kiy = self.gp.Kiy()
+            self.gp = RKron2Sum(self.y, sp.eye(1), self.F, self.W, rank=1)
+            self.gp.fit(verbose=verbose)
+            self.covarparam0 = self.gp.cov.C0.value()[0, 0]
+            self.covarparam1 = self.gp.cov.C1.value()[0, 0]
+            RV = None
         else:
             # If there is no kernel then solve analytically
             self.alpha_hat = sp.dot(
@@ -186,7 +178,6 @@ class StructLMM(object):
                 0
             ]
             self.covarparam0 = 0
-            self.Kiy = (1 / float(self.covarparam1)) * self.y
             self.W = sp.zeros(self.y.shape)
             RV = self.covarparam0
         return RV

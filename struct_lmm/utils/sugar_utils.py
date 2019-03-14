@@ -1,7 +1,5 @@
 import os
 
-import scipy as sp
-
 
 def import_one_pheno_from_csv(pfile, pheno_id, standardize=False):
     """
@@ -24,6 +22,7 @@ def import_one_pheno_from_csv(pfile, pheno_id, standardize=False):
     y : (`N`, `1`) array
         phenotype vactor
     """
+    import numpy as np
     import dask.dataframe as dd
 
     # read and extract
@@ -33,7 +32,7 @@ def import_one_pheno_from_csv(pfile, pheno_id, standardize=False):
     del df2[key]
     y = df2[Ip].values.compute().T
 
-    assert not sp.isnan(y).any(), "Contains missing data!"
+    assert not np.isnan(y).any(), "Contains missing data!"
 
     if standardize:
         y -= y.mean(0)
@@ -62,17 +61,19 @@ def norm_env_matrix(E, norm_type="linear_covariance"):
     E : array
         normalised environments.
     """
+    import numpy as np
+
     std = E.std(0)
     E = E[:, std > 0]
     E -= E.mean(0)
     E /= E.std(0)
     if norm_type == "linear_covariance":
-        E *= sp.sqrt(E.shape[0] / sp.sum(E ** 2))
+        E *= np.sqrt(E.shape[0] / np.sum(E ** 2))
     elif norm_type == "weighted_covariance":
-        E /= ((E ** 2).sum(1) ** 0.5)[:, sp.newaxis]
+        E /= ((E ** 2).sum(1) ** 0.5)[:, np.newaxis]
     elif norm_type == "correlation":
-        E -= E.mean(1)[:, sp.newaxis]
-        E /= ((E ** 2).sum(1) ** 0.5)[:, sp.newaxis]
+        E -= E.mean(1)[:, np.newaxis]
+        E /= ((E ** 2).sum(1) ** 0.5)[:, np.newaxis]
     return E
 
 
@@ -85,6 +86,8 @@ def make_out_dir(outfile):
     outfile : str
         output file
     """
-    resdir = "/".join(sp.array(outfile.split("/"))[:-1])
+    import numpy as np
+
+    resdir = "/".join(np.array(outfile.split("/"))[:-1])
     if not os.path.exists(resdir):
         os.makedirs(resdir)
