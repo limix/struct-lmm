@@ -6,14 +6,15 @@ from chiscore import davies_pvalue, mod_liu, optimal_davies_pvalue
 
 
 def P(gp, M):
+    from numpy.linalg import solve
     from scipy.linalg import cho_solve
 
-    RV = gp.cov.solve(M)
-    if gp.mean.F is not None:
-        WKiM = gp.mean.AF.T @ RV
+    RV = solve(gp.covariance(), M)
+    if gp.X is not None:
+        WKiM = gp._mean.AX.T @ RV
         terms = gp._terms
-        WAiWKiM = gp.mean.AF @ cho_solve(terms["Lh"], WKiM)
-        KiWAiWKiM = gp.cov.solve(WAiWKiM)
+        WAiWKiM = gp._mean.AX @ cho_solve(terms["Lh"], WKiM)
+        KiWAiWKiM = solve(gp.covariance(), WAiWKiM)
         RV -= KiWAiWKiM
     return RV
 
@@ -143,7 +144,7 @@ class StructLMM(object):
         """
         import scipy as sp
         import scipy.linalg as la
-        from glimix_core.lmm import RKron2Sum
+        from glimix_core.lmm import Kron2Sum
 
         #  F is a fixed effect covariate matrix with dim = N by D
         #  F itself cannot have any col of 0's and it won't work if it is None
@@ -156,17 +157,21 @@ class StructLMM(object):
             # In most cases W = E but have left it as seperate parameter for
             # flexibility
             self.W = U * S ** 0.5
-            self.gp = RKron2Sum(self.y, sp.eye(1), self.F, self.W, rank=1)
+            self.gp = Kron2Sum(
+                self.y, sp.eye(1), self.F, self.W, rank=1, restricted=True
+            )
             self.gp.fit(verbose=verbose)
             #  Get optimal kernel parameters
-            self.covarparam0 = self.gp.cov.C0.value()[0, 0]
-            self.covarparam1 = self.gp.cov.C1.value()[0, 0]
+            self.covarparam0 = self.gp.C0[0, 0]
+            self.covarparam1 = self.gp.C1[0, 0]
             RV = None
         elif self.W is not None:
-            self.gp = RKron2Sum(self.y, sp.eye(1), self.F, self.W, rank=1)
+            self.gp = Kron2Sum(
+                self.y, sp.eye(1), self.F, self.W, rank=1, restricted=True
+            )
             self.gp.fit(verbose=verbose)
-            self.covarparam0 = self.gp.cov.C0.value()[0, 0]
-            self.covarparam1 = self.gp.cov.C1.value()[0, 0]
+            self.covarparam0 = self.gp.C0[0, 0]
+            self.covarparam1 = self.gp.C1[0, 0]
             RV = None
         else:
             # If there is no kernel then solve analytically
