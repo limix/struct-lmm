@@ -235,7 +235,7 @@ class StructLMM(object):
                 PxoL = P(self.gp, xoL)
                 LToxPxoL = 0.5 * sp.dot(xoL.T, PxoL)
                 eighQ, UQ = la.eigh(LToxPxoL)
-                pliumod[i,] = mod_liu(Q_rho[i], eighQ)
+                pliumod[i] = mod_liu(Q_rho[i], eighQ)
             T = pliumod[:, 0].min()
             # if optimal_rho == 0.999:
             #    optimal_rho = 1
