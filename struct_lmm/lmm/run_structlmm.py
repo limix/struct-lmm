@@ -1,7 +1,5 @@
 import time
 
-from . import StructLMM
-
 TESTS = ["interaction", "association"]
 
 

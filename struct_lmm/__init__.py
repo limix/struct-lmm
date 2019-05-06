@@ -6,7 +6,6 @@ StructLMM
 Write me
 
 """
-from . import lmm, utils
 from ._testit import test
 from .lmm import StructLMM, run_structlmm
 
