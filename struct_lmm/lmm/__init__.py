@@ -3,7 +3,7 @@ r"""
 - :func:`.run_structlmm`
 """
 
-from .structlmm import StructLMM
 from .run_structlmm import run_structlmm
+from .structlmm import StructLMM
 
 __all__ = ["StructLMM", "run_structlmm"]

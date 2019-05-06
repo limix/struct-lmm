@@ -7,8 +7,8 @@ Write me
 
 """
 from . import lmm, utils
-from .lmm import StructLMM, run_structlmm
 from ._testit import test
+from .lmm import StructLMM, run_structlmm
 
 __version__ = "0.2.4"
 
