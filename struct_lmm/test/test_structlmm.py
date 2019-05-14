@@ -2,7 +2,7 @@ import scipy as sp
 from numpy.random import RandomState
 from numpy.testing import assert_allclose
 
-from struct_lmm.lmm import StructLMM
+from struct_lmm import StructLMM
 
 
 def test_structlmm():
@@ -24,8 +24,4 @@ def test_structlmm():
     pv = slmm.score_2_dof(x)
 
     # 4. assert close
-    assert_allclose([pv], [0.8470040855489341])
-
-
-if __name__ == "__main__":
-    __import__("pytest").main([__file__, "-s"])
+    assert_allclose([pv], [0.8470039737417635], rtol=1e-6)
