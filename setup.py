@@ -47,7 +47,6 @@ def setup_package():
         "statsmodels",
         "chiscore>=0.0.15",
         "matplotlib",
-        "geno-sugar",
         "pytest-doctestplus>=0.1.3",
     ]
     tests_require = ["pytest"]
