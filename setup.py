@@ -42,6 +42,7 @@ def setup_package():
     setup_requires = [] + pytest_runner
     install_requires = [
         "numpy>=1.14",
+        "numpy-sugar>=1.5.0",
         "scipy",
         "glimix-core>=3.0.0",
         "statsmodels",

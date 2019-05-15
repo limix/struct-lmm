@@ -4,7 +4,7 @@ StructLMM
 
 """
 # from . import lmm, utils
-from ._lmm import StructLMM
+from ._lmm import StructLMM, StructLMM2
 
 # from .lmm import run_structlmm
 from ._testit import test
@@ -18,5 +18,6 @@ __all__ = [
     # "utils",
     # "run_structlmm",
     "__version__",
+    "StructLMM2",
     "test",
 ]

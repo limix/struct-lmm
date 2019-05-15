@@ -19,6 +19,217 @@ def P(gp, M):
     return RV
 
 
+class StructLMM2:
+    r"""
+    Structured linear mixed model that accounts for genotype-environment interactions.
+
+    StructLMM [MC18]_ extends the conventional linear mixed model by including an
+    additional per-individual effect term that accounts for genotype-environment
+    interaction, which can be represented as an n×1 vector, 𝛃.
+    The model can be cast as
+
+        𝐲 = 𝙼𝛂 + 𝐠⊙𝛃 + 𝐞 + 𝛆,
+
+    where
+
+        𝛃∼𝓝(𝟎, 𝓋₀(ρ𝟏 + (1-ρ)𝙴𝙴ᵀ)), 𝐞∼𝓝(𝟎, 𝓋₁𝚆𝚆ᵀ), and 𝛆∼𝓝(𝟎, 𝓋₂𝙸).
+
+    The parameters of the model are ρ, 𝓋₀, 𝓋₁, and 𝓋₂.
+
+    References
+    ----------
+    .. [MC18] Moore, R., Casale, F. P., Bonder, M. J., Horta, D., Franke, L., Barroso, I., & Stegle, O. (2018). A linear mixed-model approach to study multivariate gene–environment interactions (p. 1). Nature Publishing Group.
+    """
+
+    def __init__(self, y, M, E, W=None):
+        from numpy import sqrt, asarray, atleast_2d
+        from numpy_sugar import ddot
+
+        self._y = atleast_2d(asarray(y, float).ravel()).T
+        self._E = atleast_2d(asarray(E, float).T).T
+
+        if W is None:
+            self._W = self._E
+        elif isinstance(W, tuple):
+            # W must be an eigen-decomposition of 𝚆𝚆ᵀ
+            self._W = ddot(W[0], sqrt(W[1]))
+        else:
+            self._W = atleast_2d(asarray(W, float).T).T
+
+        self._M = atleast_2d(asarray(M, float).T).T
+
+        nsamples = len(self._y)
+        if nsamples != self._M.shape[0]:
+            raise ValueError("Number of samples mismatch between y and M.")
+
+        if nsamples != self._E.shape[0]:
+            raise ValueError("Number of samples mismatch between y and E.")
+
+        if nsamples != self._W.shape[0]:
+            raise ValueError("Number of samples mismatch between y and W.")
+
+        self._lmm = None
+
+        self._rhos = [0.0, 0.1 ** 2, 0.2 ** 2, 0.3 ** 2, 0.4 ** 2, 0.5 ** 2, 0.5, 1.0]
+
+    def fit(self, verbose=True):
+        from glimix_core.lmm import Kron2Sum
+
+        self._lmm = Kron2Sum(self._y, [[1]], self._M, self._W, restricted=True)
+        self._lmm.fit(verbose=verbose)
+        self._covarparam0 = self._lmm.C0[0, 0]
+        self._covarparam1 = self._lmm.C1[0, 0]
+
+    def _xBy(self, rho, y, x):
+        """
+        Let 𝙱 = ρ𝟏 + (1-ρ)𝙴𝙴ᵀ.
+        It computes 𝐲ᵀ𝙱𝐱.
+        """
+        l = rho * (y.sum() * x.sum())
+        r = (1 - rho) * (y.T @ self._E) @ (self._E.T @ x)
+        return l + r
+
+    def _Q_rho(self, X):
+        from numpy import zeros
+
+        # 1. calculate Qs and pvs
+        # Py*X (ρ𝙴𝙴ᵀ + (1-ρ)𝟏) X*Py / 2
+        Q_rho = zeros(len(self._rhos))
+        Py = self._P(self._y)
+        XPy = X * Py
+        for i in range(len(self._rhos)):
+            rho = self._rhos[i]
+            Q_rho[i] = self._xBy(rho, XPy, XPy) / 2
+
+        return Q_rho
+
+    def _pliumod(self, X, Q_rho):
+        import scipy.linalg as la
+        from numpy import zeros, block, ones
+        from math import sqrt
+        from numpy_sugar import ddot
+
+        vec_ones = ones((1, self._y.shape[0]))
+
+        pliumod = zeros((len(self._rhos), 4))
+        for i in range(len(self._rhos)):
+            rho = self._rhos[i]
+
+            ones = sqrt(rho) * vec_ones.T
+            E = sqrt(1 - rho) * self._E
+            dX = X.ravel()
+            RR = [
+                [
+                    ddot(ones.T, dX) @ self._P(ddot(ones.T, dX).T),
+                    ddot(ones.T, dX) @ self._P(ddot(E.T, dX).T),
+                ],
+                [
+                    ddot(E.T, dX) @ self._P(ddot(ones.T, dX).T),
+                    ddot(E.T, dX) @ self._P(ddot(E.T, dX).T),
+                ],
+            ]
+            LToxPxoL = block(RR) / 2
+
+            eighQ, _ = la.eigh(LToxPxoL)
+            pliumod[i, :] = mod_liu(Q_rho[i], eighQ)
+
+        return pliumod
+
+    def _qmin(self, pliumod):
+        from numpy import zeros
+        import scipy.stats as st
+
+        # 2. Calculate qmin
+        qmin = zeros(len(self._rhos))
+        percentile = 1 - pliumod[:, 0].min()
+        for i in range(len(self._rhos)):
+            q = st.chi2.ppf(percentile, pliumod[i, 3])
+            # Recalculate p-value for each Q rho of seeing values at least as
+            # extreme as q again using the modified matching moments method
+            qmin[i] = (q - pliumod[i, 3]) / (2 * pliumod[i, 3]) ** 0.5 * pliumod[
+                i, 2
+            ] + pliumod[i, 1]
+
+        return qmin
+
+    def _P(self, M):
+        from numpy_sugar.linalg import rsolve
+        from scipy.linalg import cho_solve
+
+        RV = rsolve(self._lmm.covariance(), M)
+        if self._lmm.X is not None:
+            WKiM = self._lmm.M.T @ RV
+            terms = self._lmm._terms
+            WAiWKiM = self._lmm.X @ cho_solve(terms["Lh"], WKiM)
+            KiWAiWKiM = rsolve(self._lmm.covariance(), WAiWKiM)
+            RV -= KiWAiWKiM
+
+        return RV
+
+    def score_2_dof(self, X):
+        from numpy import trace, sum
+        import scipy as sp
+        import scipy.linalg as la
+
+        # 1. calculate Qs and pvs
+        Q_rho = self._Q_rho(X)
+
+        # Calculating pvs is split into 2 steps
+        # If we only consider one value of rho i.e. equivalent to SKAT and used for
+        # interaction test
+        if len(self._rhos) == 1:
+            raise NotImplementedError("We have not tested it yet.")
+        # or if we consider multiple values of rho i.e. equivalent to SKAT-O and used
+        # for association test
+        pliumod = self._pliumod(X, Q_rho)
+        qmin = self._qmin(pliumod)
+
+        # 3. Calculate quantites that occur in null distribution
+        Px1 = self._P(X)
+        m = 0.5 * (X.T @ Px1)
+        xoE = X * self._E
+        PxoE = self._P(xoE)
+        ETxPxE = 0.5 * (xoE.T @ PxoE)
+        ETxPx1 = xoE.T @ Px1
+        ETxPx11xPxE = 0.25 / m * (ETxPx1 @ ETxPx1.T)
+        ZTIminusMZ = ETxPxE - ETxPx11xPxE
+        eigh, _ = la.eigh(ZTIminusMZ)
+
+        eta = ETxPx11xPxE @ ZTIminusMZ
+        vareta = 4 * trace(eta)
+
+        OneZTZE = 0.5 * (X.T @ PxoE)
+        tau_top = OneZTZE @ OneZTZE.T
+        tau_rho = sp.zeros(len(self._rhos))
+        for i in range(len(self._rhos)):
+            tau_rho[i] = self._rhos[i] * m + (1 - self._rhos[i]) / m * tau_top
+
+        MuQ = sum(eigh)
+        VarQ = sum(eigh ** 2) * 2 + vareta
+        KerQ = sum(eigh ** 4) / (sum(eigh ** 2) ** 2) * 12
+        Df = 12 / KerQ
+
+        # 4. Integration
+        T = pliumod[:, 0].min()
+        pvalue = optimal_davies_pvalue(
+            qmin, MuQ, VarQ, KerQ, eigh, vareta, Df, tau_rho, self._rhos, T
+        )
+
+        # Final correction to make sure that the p-value returned is sensible
+        multi = 3
+        if len(self._rhos) < 3:
+            multi = 2
+        idx = sp.where(pliumod[:, 0] > 0)[0]
+        pval = pliumod[:, 0].min() * multi
+        if pvalue <= 0 or len(idx) < len(self._rhos):
+            pvalue = pval
+        if pvalue == 0:
+            if len(idx) > 0:
+                pvalue = pliumod[:, 0][idx].min()
+
+        return pvalue
+
+
 class StructLMM(object):
     r"""Mixed-model with genetic effect heterogeneity.
 
@@ -126,8 +337,8 @@ class StructLMM(object):
                 0.5,
                 1.0,
             ]
-        if len(sp.where(sp.array(self.rho_list) == 1)[0]) > 0:
-            self.rho_list[sp.where(sp.array(self.rho_list) == 1)[0][0]] = 0.999
+        # if len(sp.where(sp.array(self.rho_list) == 1)[0]) > 0:
+        #     self.rho_list[sp.where(sp.array(self.rho_list) == 1)[0][0]] = 0.999
         self.vec_ones = sp.ones((1, self.y.shape[0]))
 
     def fit_null(self, F=None, verbose=True):

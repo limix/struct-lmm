@@ -2,7 +2,7 @@ import scipy as sp
 from numpy.random import RandomState
 from numpy.testing import assert_allclose
 
-from struct_lmm import StructLMM
+from struct_lmm import StructLMM, StructLMM2
 
 
 def test_structlmm():
@@ -24,4 +24,25 @@ def test_structlmm():
     pv = slmm.score_2_dof(x)
 
     # 4. assert close
-    assert_allclose([pv], [0.8470039737417635], rtol=1e-6)
+    assert_allclose([pv], [0.7574338998834085], rtol=1e-6)
+
+
+def test_structlmm2():
+    # 1. generate data
+    random = RandomState(1)
+    n = 20
+    k = 4
+    y = random.randn(n, 1)
+    E = random.randn(n, k)
+    covs = sp.ones((n, 1))
+    x = 1.0 * (random.rand(n, 1) < 0.2)
+
+    # 2. fit null model
+    slmm = StructLMM2(y, covs, E, W=E)
+    slmm.fit(verbose=False)
+
+    # 3. score test
+    pv = slmm.score_2_dof(x)
+
+    # 4. assert close
+    assert_allclose([pv], [0.7066731767165308], rtol=1e-6)
