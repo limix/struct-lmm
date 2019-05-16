@@ -42,12 +42,12 @@ def setup_package():
     setup_requires = [] + pytest_runner
     install_requires = [
         "numpy>=1.14",
+        "numpy-sugar>=1.5.0",
         "scipy",
         "glimix-core>=3.0.0",
         "statsmodels",
-        "chiscore>=0.0.15",
+        "chiscore>=0.2.0",
         "matplotlib",
-        "geno-sugar",
         "pytest-doctestplus>=0.1.3",
     ]
     tests_require = ["pytest"]

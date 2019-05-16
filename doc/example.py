@@ -1,7 +1,7 @@
 import os
 import pandas as pd
 import scipy as sp
-from limix_core.util.preprocess import gaussianize
+from scipy_sugar import quantile_gaussianize
 from struct_lmm import run_structlmm
 from struct_lmm.utils.sugar_utils import norm_env_matrix
 from pandas_plink import read_plink
@@ -21,7 +21,7 @@ if __name__ == "__main__":
     # load phenotype file
     phenofile = "data_structlmm/expr.csv"
     dfp = pd.read_csv(phenofile, index_col=0)
-    pheno = gaussianize(dfp.loc["gene1"].values[:, None])
+    pheno = quantile_gaussianize(dfp.loc["gene1"].values[:, None])
 
     # load environment file and normalize
     envfile = "data_structlmm/env.txt"
