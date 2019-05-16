@@ -12,10 +12,6 @@ def test(verbose=True):
     int
         Exit code: ``0`` for success.
     """
-    from .conftest import pandas_format
-
-    pandas_format()
-
     args = [
         "--doctest-plus",
         "--doctest-plus-rtol=1e-02",
