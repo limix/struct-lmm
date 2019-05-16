@@ -1,5 +1,6 @@
 def test(verbose=True):
-    r"""Run tests to verify this package's integrity.
+    """
+    Run tests to verify this package's integrity.
 
     Parameters
     ----------
@@ -11,8 +12,16 @@ def test(verbose=True):
     int
         Exit code: ``0`` for success.
     """
+    from .conftest import pandas_format
 
-    args = ["--doctest-modules"]
+    pandas_format()
+
+    args = [
+        "--doctest-plus",
+        "--doctest-plus-rtol=1e-02",
+        "--doctest-plus-atol=1e-02",
+        "--doctest-modules",
+    ]
     if not verbose:
         args += ["--quiet"]
 
