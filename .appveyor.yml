@@ -4,7 +4,7 @@ platform: x64
 configuration: Release
 
 environment:
-  PKG_NAME: struct-lmm
+  PKG_NAME: struct_lmm
   PYTHON: "C:\\Python36-x64"
   ARCH: x64
 
