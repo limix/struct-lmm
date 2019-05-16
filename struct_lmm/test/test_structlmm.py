@@ -24,7 +24,7 @@ def test_structlmm():
     pv = slmm.score_2_dof(x)
 
     # 4. assert close
-    assert_allclose([pv], [0.7574338998834085], rtol=1e-6)
+    assert_allclose([pv], [0.7570449103322491], rtol=1e-6)
 
 
 def test_structlmm2():
@@ -45,4 +45,4 @@ def test_structlmm2():
     pv = slmm.score_2_dof(x)
 
     # 4. assert close
-    assert_allclose([pv], [0.7066731767165308], rtol=1e-6)
+    assert_allclose([pv], [0.7062450575368566], rtol=1e-6)

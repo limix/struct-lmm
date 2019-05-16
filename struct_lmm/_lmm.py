@@ -2,7 +2,14 @@
 # Does not include centering options
 
 
-from chiscore import davies_pvalue, mod_liu, optimal_davies_pvalue
+from chiscore import davies_pvalue, optimal_davies_pvalue
+
+
+def mod_liu(q, w):
+    from chiscore import liu_sf
+
+    (q, dof_x, delta_x, info) = liu_sf(q, w, [1] * len(w), [0] * len(w))
+    return (q, info["mu_q"], info["sigma_q"], dof_x)
 
 
 def P(gp, M):
@@ -172,7 +179,7 @@ class StructLMM2:
 
         return RV
 
-    def _Q_rho(self, X):
+    def _score_stats(self, g):
         """
         Let 𝙺₀ be the optimal covariance matrix under the null hypothesis.
         The score-based test statistic is given by
@@ -188,18 +195,15 @@ class StructLMM2:
         from numpy_sugar import ddot
         from numpy import zeros
 
-        # 1. calculate Qs and pvs
-        # Py*X (ρ𝙴𝙴ᵀ + (1-ρ)𝟏) X*Py / 2
-        Q_rho = zeros(len(self._rhos))
-        Py = self._P(self._y)
-        XPy = ddot(X.ravel(), Py)
+        Q = zeros(len(self._rhos))
+        DPy = ddot(g, self._P(self._y))
         for i in range(len(self._rhos)):
             rho = self._rhos[i]
-            Q_rho[i] = self._xBy(rho, XPy, XPy) / 2
+            Q[i] = self._xBy(rho, DPy, DPy) / 2
 
-        return Q_rho
+        return Q
 
-    def _pliumod(self, X, Q_rho):
+    def _score_stats_null_dist(self, g):
         """
         Under the null hypothesis, the score-based test statistic follows a weighted sum
         of random variables:
@@ -220,12 +224,11 @@ class StructLMM2:
             ½[√ρ𝐠 √(1-ρ)𝙴̃]𝙿₀[√ρ𝐠 √(1-ρ)𝙴̃]ᵀ.
 
         """
-        from numpy import zeros, empty
+        from numpy import empty
         from numpy.linalg import eigvalsh
         from math import sqrt
         from numpy_sugar import ddot
 
-        g = X.ravel()
         Et = ddot(g, self._E)
         Pg = self._P(g)
         PEt = self._P(Et)
@@ -237,7 +240,7 @@ class StructLMM2:
         n = Et.shape[1] + 1
         F = empty((n, n))
 
-        pliumod = zeros((len(self._rhos), 4))
+        lambdas = []
         for i in range(len(self._rhos)):
             rho = self._rhos[i]
 
@@ -246,17 +249,42 @@ class StructLMM2:
             F[1:, 0] = F[0, 1:]
             F[1:, 1:] = (1 - rho) * EtPEt
 
-            pliumod[i, :] = mod_liu(Q_rho[i], eigvalsh(F) / 2)
+            lambdas.append(eigvalsh(F) / 2)
 
-        return pliumod
+        return lambdas
+
+    def _score_stats_pvalue(self, Qs, lambdas):
+        """
+        Computes Pr(𝑄 > q) for 𝑄 ∼ ∑ᵢ𝜆ᵢχ²(1).
+
+        Pr(𝑄 > q) is the p-value for the score statistic.
+
+        Parameters
+        ----------
+        Qs : array_like
+            𝑄 from the null distribution.
+        lambdas : array_like
+            𝜆ᵢ from the null distribution.
+        """
+        from numpy import stack
+
+        pvals = []
+        # (0.6233801056114407, 7.005027119971313, 7.3080774538622615, 1.1850711242177778)
+        for Q, lam in zip(Qs, lambdas):
+            pvals.append(mod_liu(Q, lam))
+
+        return stack(pvals, axis=0)
 
     def _qmin(self, pliumod):
         from numpy import zeros
         import scipy.stats as st
 
+        # T statistic
+        T = pliumod[:, 0].min()
+
         # 2. Calculate qmin
         qmin = zeros(len(self._rhos))
-        percentile = 1 - pliumod[:, 0].min()
+        percentile = 1 - T
         for i in range(len(self._rhos)):
             q = st.chi2.ppf(percentile, pliumod[i, 3])
             # Recalculate p-value for each Q rho of seeing values at least as
@@ -273,7 +301,7 @@ class StructLMM2:
         import scipy.linalg as la
 
         # 1. calculate Qs and pvs
-        Q_rho = self._Q_rho(X)
+        Q_rho = self._score_stats(X.ravel())
 
         # Calculating pvs is split into 2 steps
         # If we only consider one value of rho i.e. equivalent to SKAT and used for
@@ -282,7 +310,8 @@ class StructLMM2:
             raise NotImplementedError("We have not tested it yet.")
         # or if we consider multiple values of rho i.e. equivalent to SKAT-O and used
         # for association test
-        pliumod = self._pliumod(X, Q_rho)
+        null_lambdas = self._score_stats_null_dist(X.ravel())
+        pliumod = self._score_stats_pvalue(Q_rho, null_lambdas)
         qmin = self._qmin(pliumod)
 
         # 3. Calculate quantites that occur in null distribution
