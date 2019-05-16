@@ -7,6 +7,6 @@ script:
 notifications:
   email:
     recipients:
-    - rm18@sanger.ac.uk
+    - danilo.horta@pm.me
     on_success: never
     on_failure: always
