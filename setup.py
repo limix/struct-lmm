@@ -46,7 +46,7 @@ def setup_package():
         "scipy",
         "glimix-core>=3.0.0",
         "statsmodels",
-        "chiscore>=0.1.0",
+        "chiscore>=0.2.0",
         "matplotlib",
         "pytest-doctestplus>=0.1.3",
     ]
