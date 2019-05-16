@@ -4,7 +4,7 @@ platform: x64
 configuration: Release
 
 environment:
-  PKG_NAME: limix
+  PKG_NAME: struct-lmm
   PYTHON: "C:\\Python36-x64"
   ARCH: x64
 
