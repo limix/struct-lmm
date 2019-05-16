@@ -39,5 +39,4 @@ If you encounter any problem, please, consider submitting a [new issue](https://
 
 ## License
 
-This project is licensed under the Apache License (Version 2.0, January 2004) -
-see the [LICENSE](LICENSE) file for details
+This project is licensed under the [MIT License](https://raw.githubusercontent.com/limix/struct-lmm/master/LICENSE.md).
