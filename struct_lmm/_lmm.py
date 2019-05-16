@@ -26,19 +26,82 @@ class StructLMM2:
     StructLMM [MC18]_ extends the conventional linear mixed model by including an
     additional per-individual effect term that accounts for genotype-environment
     interaction, which can be represented as an n×1 vector, 𝛃.
-    The model can be cast as
+    The model is given by
+
+        𝐲 = 𝙼𝛂 + 𝐠𝛽 + 𝐠⊙𝛃 + 𝐞 + 𝛆,
+
+    where
+
+        𝛃 ∼ 𝓝(𝟎, 𝓋₀(1-ρ)𝙴𝙴ᵀ), 𝐞 ∼ 𝓝(𝟎, 𝓋₁𝚆𝚆ᵀ), and 𝛆 ∼ 𝓝(𝟎, 𝓋₂𝙸).
+
+    The arrays 𝐲, 𝙼, 𝐠, 𝙴, and 𝚆 are given by the user.
+
+    The 𝛽 term is considered a fixed or random effect depending on the test being
+    employed.
+    For the iteraction test, 𝛽 is considered a fixed-effect term, while
+
+        𝛽 ∼ 𝓝(0, 𝓋₀⋅ρ)
+
+    for the association test.
+    Since the model for interaction test can be defined from the model for associaton
+    test by setting 𝙼←[𝙼 𝐠] and ρ=0, we will show the mathematical derivations for the
+    latter.
+    Therefore, consider the general model
+
+        𝐲 = 𝙼𝛂 + 𝐠⊙𝛃 + 𝐞 + 𝛆,
+
+    where 𝛃 ∼ 𝓝(𝟎, 𝓋₀(ρ𝟏𝟏ᵀ + (1-ρ)𝙴𝙴ᵀ)).
+    Equivalently, we have
+
+        𝐲 ∼ 𝓝(𝙼𝛂, 𝓋₀𝙳(ρ𝟏𝟏ᵀ + (1-ρ)𝙴𝙴ᵀ)𝙳 + 𝓋₁𝚆𝚆ᵀ + 𝓋₂𝙸),
+
+    where 𝙳 = diag(𝐠).
+
+    The null hypothesis emerges when we set 𝓋₀=0.
+    Let
+
+        𝙺₀ = 𝓋₁𝚆𝚆ᵀ + 𝓋₂𝙸
+
+    for optimal 𝓋₁, 𝓋₂, and 𝛂 under the null hypothesis.
+    The score-based test statistic is given by
+
+        𝑄 = ½𝐲ᵀ𝙿₀(∂𝙺)𝙿₀𝐲,
+
+    where
+
+        𝙿₀ = 𝙺₀⁻¹ - 𝙺₀⁻¹𝙼(𝙼ᵀ𝙺₀⁻¹𝙼)⁻¹𝙼ᵀ𝙺₀⁻¹.
+
+
+    000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+    while the association model is given by
 
         𝐲 = 𝙼𝛂 + 𝐠⊙𝛃 + 𝐞 + 𝛆,
 
     where
 
-        𝛃∼𝓝(𝟎, 𝓋₀(ρ𝟏 + (1-ρ)𝙴𝙴ᵀ)), 𝐞∼𝓝(𝟎, 𝓋₁𝚆𝚆ᵀ), and 𝛆∼𝓝(𝟎, 𝓋₂𝙸).
+        𝛃∼𝓝(𝟎, 𝓋₀(ρ𝟏𝟏ᵀ + (1-ρ)𝙴𝙴ᵀ)), 𝐞∼𝓝(𝟎, 𝓋₁𝚆𝚆ᵀ), and 𝛆∼𝓝(𝟎, 𝓋₂𝙸).
 
     The parameters of the model are ρ, 𝓋₀, 𝓋₁, and 𝓋₂.
 
+    The null model is given by
+
+        𝐲 ∼ 𝓝(𝙼𝛂, 𝓋₁𝚆𝚆ᵀ + 𝓋₂𝙸).
+
+    Let 𝙺₀ = 𝓋₁𝚆𝚆ᵀ + 𝓋₂𝙸 be the covariance matrix for the null model.
+
+    Let P
+
+    The above equation can be simplified by noticing that 𝙳𝟏𝟏ᵀ𝙳 = 𝐠𝐠ᵀ.
+
     References
     ----------
-    .. [MC18] Moore, R., Casale, F. P., Bonder, M. J., Horta, D., Franke, L., Barroso, I., & Stegle, O. (2018). A linear mixed-model approach to study multivariate gene–environment interactions (p. 1). Nature Publishing Group.
+    .. [MC18] Moore, R., Casale, F. P., Bonder, M. J., Horta, D., Franke, L., Barroso,
+       I., & Stegle, O. (2018). A linear mixed-model approach to study multivariate
+       gene–environment interactions (p. 1). Nature Publishing Group.
+    .. [LI14] Lippert, C., Xiang, J., Horta, D., Widmer, C., Kadie, C., Heckerman, D.,
+       & Listgarten, J. (2014). Greater power and computational efficiency for
+       kernel-based association testing of sets of genetic variants. Bioinformatics,
+       30(22), 3206-3214.
     """
 
     def __init__(self, y, M, E, W=None):
@@ -89,14 +152,47 @@ class StructLMM2:
         r = (1 - rho) * (y.T @ self._E) @ (self._E.T @ x)
         return l + r
 
+    def _P(self, M):
+        """
+        Let 𝙺₀ be the optimal covariance matrix under the null hypothesis.
+        Given 𝙼, this method computes
+
+            𝙿₀ = 𝙺₀⁻¹ - 𝙺₀⁻¹𝙼(𝙼ᵀ𝙺₀⁻¹𝙼)⁻¹𝙼ᵀ𝙺₀⁻¹.
+        """
+        from numpy_sugar.linalg import rsolve
+        from scipy.linalg import cho_solve
+
+        RV = rsolve(self._lmm.covariance(), M)
+        if self._lmm.X is not None:
+            WKiM = self._lmm.M.T @ RV
+            terms = self._lmm._terms
+            WAiWKiM = self._lmm.X @ cho_solve(terms["Lh"], WKiM)
+            KiWAiWKiM = rsolve(self._lmm.covariance(), WAiWKiM)
+            RV -= KiWAiWKiM
+
+        return RV
+
     def _Q_rho(self, X):
+        """
+        Let 𝙺₀ be the optimal covariance matrix under the null hypothesis.
+        The score-based test statistic is given by
+
+            𝑄 = ½𝐲ᵀ𝙿₀(∂𝙺)𝙿₀𝐲,
+
+        where
+
+            ∂𝙺 = 𝙳(ρ𝟏𝟏ᵀ + (1-ρ)𝙴𝙴ᵀ)𝙳
+
+        and 𝙳 = diag(𝐠).
+        """
+        from numpy_sugar import ddot
         from numpy import zeros
 
         # 1. calculate Qs and pvs
         # Py*X (ρ𝙴𝙴ᵀ + (1-ρ)𝟏) X*Py / 2
         Q_rho = zeros(len(self._rhos))
         Py = self._P(self._y)
-        XPy = X * Py
+        XPy = ddot(X.ravel(), Py)
         for i in range(len(self._rhos)):
             rho = self._rhos[i]
             Q_rho[i] = self._xBy(rho, XPy, XPy) / 2
@@ -104,34 +200,53 @@ class StructLMM2:
         return Q_rho
 
     def _pliumod(self, X, Q_rho):
-        import scipy.linalg as la
-        from numpy import zeros, block, ones
+        """
+        Under the null hypothesis, the score-based test statistic follows a weighted sum
+        of random variables:
+
+            𝑄 ∼ ∑ᵢ𝜆ᵢχ²(1),
+
+        where 𝜆ᵢ are the non-zero eigenvalues of ½√𝙿₀(∂𝙺)√𝙿₀.
+
+        Note that
+
+            ∂𝙺 = 𝙳(ρ𝟏𝟏ᵀ + (1-ρ)𝙴𝙴ᵀ)𝙳 = (ρ𝐠𝐠ᵀ + (1-ρ)𝙴̃𝙴̃ᵀ)
+
+        for 𝙴̃ = 𝙳𝙴.
+        By using SVD decomposition, one can show that the non-zero eigenvalues of 𝚇𝚇ᵀ
+        are equal to the non-zero eigenvalues of 𝚇ᵀ𝚇.
+        Therefore, 𝜆ᵢ are the non-zero eigenvalues of
+
+            ½[√ρ𝐠 √(1-ρ)𝙴̃]𝙿₀[√ρ𝐠 √(1-ρ)𝙴̃]ᵀ.
+
+        """
+        from numpy import zeros, empty
+        from numpy.linalg import eigvalsh
         from math import sqrt
         from numpy_sugar import ddot
 
-        vec_ones = ones((1, self._y.shape[0]))
+        g = X.ravel()
+        Et = ddot(g, self._E)
+        Pg = self._P(g)
+        PEt = self._P(Et)
+
+        gPg = g.T @ Pg
+        EtPEt = Et.T @ PEt
+        gPEt = g.T @ PEt
+
+        n = Et.shape[1] + 1
+        F = empty((n, n))
 
         pliumod = zeros((len(self._rhos), 4))
         for i in range(len(self._rhos)):
             rho = self._rhos[i]
 
-            ones = sqrt(rho) * vec_ones.T
-            E = sqrt(1 - rho) * self._E
-            dX = X.ravel()
-            RR = [
-                [
-                    ddot(ones.T, dX) @ self._P(ddot(ones.T, dX).T),
-                    ddot(ones.T, dX) @ self._P(ddot(E.T, dX).T),
-                ],
-                [
-                    ddot(E.T, dX) @ self._P(ddot(ones.T, dX).T),
-                    ddot(E.T, dX) @ self._P(ddot(E.T, dX).T),
-                ],
-            ]
-            LToxPxoL = block(RR) / 2
+            F[0, 0] = rho * gPg
+            F[0, 1:] = sqrt(rho) * sqrt(1 - rho) * gPEt
+            F[1:, 0] = F[0, 1:]
+            F[1:, 1:] = (1 - rho) * EtPEt
 
-            eighQ, _ = la.eigh(LToxPxoL)
-            pliumod[i, :] = mod_liu(Q_rho[i], eighQ)
+            pliumod[i, :] = mod_liu(Q_rho[i], eigvalsh(F) / 2)
 
         return pliumod
 
@@ -151,20 +266,6 @@ class StructLMM2:
             ] + pliumod[i, 1]
 
         return qmin
-
-    def _P(self, M):
-        from numpy_sugar.linalg import rsolve
-        from scipy.linalg import cho_solve
-
-        RV = rsolve(self._lmm.covariance(), M)
-        if self._lmm.X is not None:
-            WKiM = self._lmm.M.T @ RV
-            terms = self._lmm._terms
-            WAiWKiM = self._lmm.X @ cho_solve(terms["Lh"], WKiM)
-            KiWAiWKiM = rsolve(self._lmm.covariance(), WAiWKiM)
-            RV -= KiWAiWKiM
-
-        return RV
 
     def score_2_dof(self, X):
         from numpy import trace, sum
