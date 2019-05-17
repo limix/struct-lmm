@@ -12,6 +12,7 @@ class StructLMM:
     r"""
     Structured linear mixed model that accounts for genotype-environment interactions.
 
+    Let n be the number of samples.
     StructLMM [MC18]_ extends the conventional linear mixed model by including an
     additional per-individual effect term that accounts for genotype-environment
     interaction, which can be represented as an n×1 vector, 𝛃.
@@ -21,66 +22,85 @@ class StructLMM:
 
     where
 
-        𝛃 ∼ 𝓝(𝟎, 𝓋₀(1-ρ)𝙴𝙴ᵀ), 𝐞 ∼ 𝓝(𝟎, 𝓋₁𝚆𝚆ᵀ), and 𝛆 ∼ 𝓝(𝟎, 𝓋₂𝙸).
+        𝛽 ∼ 𝓝(0, 𝓋₀⋅ρ), 𝛃 ∼ 𝓝(𝟎, 𝓋₀(1-ρ)𝙴𝙴ᵀ), 𝐞 ∼ 𝓝(𝟎, 𝓋₁𝚆𝚆ᵀ), and 𝛆 ∼ 𝓝(𝟎, 𝓋₂𝙸).
 
-    The arrays 𝐲, 𝙼, 𝐠, 𝙴, and 𝚆 are given by the user.
+    The vector 𝐲 is the outcome, matrix 𝙼 contains the covariates, and vector 𝐠 is the
+    genetic variant.
+    The matrices 𝙴 and 𝚆 are generally the same, and represent the environment
+    configuration for each sample.
+    The parameters 𝓋₀, 𝓋₁, and 𝓋₂ are the overall variances.
+    The parameter ρ ∈ [𝟶, 𝟷] dictates the relevance of genotype-environment interaction
+    versus the genotype effect alone.
+    The term 𝐞 accounts for additive environment-only effects while 𝛆 accounts for
+    noise effects.
 
-    The 𝛽 term is considered a fixed or random effect depending on the test being
-    employed.
-    For the iteraction test, 𝛽 is considered a fixed-effect term, while
-
-        𝛽 ∼ 𝓝(0, 𝓋₀⋅ρ)
-
-    for the association test.
-    Since the model for interaction test can be defined from the model for associaton
-    test by setting 𝙼←[𝙼 𝐠] and ρ=0, we will show the mathematical derivations for the
-    latter.
-    Therefore, consider the general model
+    The above model is equivalent to
 
         𝐲 = 𝙼𝛂 + 𝐠⊙𝛃 + 𝐞 + 𝛆,
 
-    where 𝛃 ∼ 𝓝(𝟎, 𝓋₀(ρ𝟏𝟏ᵀ + (1-ρ)𝙴𝙴ᵀ)).
-    Equivalently, we have
+    where
+
+        𝛃 ∼ 𝓝(𝟎, 𝓋₀(ρ𝟏𝟏ᵀ + (1-ρ)𝙴𝙴ᵀ)), 𝐞 ∼ 𝓝(𝟎, 𝓋₁𝚆𝚆ᵀ), and 𝛆 ∼ 𝓝(𝟎, 𝓋₂𝙸).
+
+    Its marginalised form is given by
 
         𝐲 ∼ 𝓝(𝙼𝛂, 𝓋₀𝙳(ρ𝟏𝟏ᵀ + (1-ρ)𝙴𝙴ᵀ)𝙳 + 𝓋₁𝚆𝚆ᵀ + 𝓋₂𝙸),
 
     where 𝙳 = diag(𝐠).
 
-    The null hypothesis emerges when we set 𝓋₀=0.
-    Let
+    StructLMM method is used to perform two types of statistical tests.
+    The association one compares the following hypothesis:
 
-        𝙺₀ = 𝓋₁𝚆𝚆ᵀ + 𝓋₂𝙸
+        𝓗₀: 𝓋₀ = 0
+        𝓗₁: 𝓋₀ > 0
 
-    for optimal 𝓋₁, 𝓋₂, and 𝛂 under the null hypothesis.
-    The score-based test statistic is given by
+    𝓗₀ denotes no genetic association, while 𝓗₁ models any genetic association.
+    In particular, 𝓗₁ includes genotype-environment interaction as part of genetic
+    association.
+    The interaction test is slightly more complicated as the term 𝐠𝛽 is now considered
+    a fixed one. In pratice, we include 𝐠 in the covariates matrix 𝙼 and set ρ = 0.
+    We refer to this modified model as the interaction model.
+    The compared hypothesis are:
 
-        𝑄 = ½𝐲ᵀ𝙿₀(∂𝙺)𝙿₀𝐲,
+        𝓗₀: 𝓋₀ = 0 (given the interaction model)
+        𝓗₁: 𝓋₀ > 0 (given the interaction model)
+
+    Implementation
+    --------------
+
+    We employ the score-test statistic [LI14]_ for both tests::
+
+        𝑄 = ½𝐲ᵀ𝙿(∂𝙺)𝙿𝐲,
 
     where
 
-        𝙿₀ = 𝙺₀⁻¹ - 𝙺₀⁻¹𝙼(𝙼ᵀ𝙺₀⁻¹𝙼)⁻¹𝙼ᵀ𝙺₀⁻¹.
+        𝙿 = 𝙺⁻¹ - 𝙺⁻¹𝙼(𝙼ᵀ𝙺⁻¹𝙼)⁻¹𝙼ᵀ𝙺⁻¹ and cov(𝐲) = 𝙺
 
+    for the REML-estimated parameters under the null hypothesis.
+    The derivative is taken over the parameter being tested.
 
-    000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-    while the association model is given by
+    Lets for now assume that ρ is given.
+    In practice, we have ::
 
-        𝐲 = 𝙼𝛂 + 𝐠⊙𝛃 + 𝐞 + 𝛆,
+        𝙺ᵨ  = 𝓋₀𝙳(ρ𝟏𝟏ᵀ + (1-ρ)𝙴𝙴ᵀ)𝙳 + 𝓋₁𝚆𝚆ᵀ + 𝓋₂𝙸
+        ∂𝙺ᵨ = 𝙳(ρ𝟏𝟏ᵀ + (1-ρ)𝙴𝙴ᵀ)𝙳
 
-    where
+    for association test and ::
 
-        𝛃∼𝓝(𝟎, 𝓋₀(ρ𝟏𝟏ᵀ + (1-ρ)𝙴𝙴ᵀ)), 𝐞∼𝓝(𝟎, 𝓋₁𝚆𝚆ᵀ), and 𝛆∼𝓝(𝟎, 𝓋₂𝙸).
+        𝙺₀  = 𝓋₀𝙳𝙴𝙴ᵀ𝙳 + 𝓋₁𝚆𝚆ᵀ + 𝓋₂𝙸
+        ∂𝙺₀ = 𝙳𝙴𝙴ᵀ𝙳
 
-    The parameters of the model are ρ, 𝓋₀, 𝓋₁, and 𝓋₂.
-
-    The null model is given by
+    for interaction test, for parameters estimated via REML.
+    The outcome distribution under null is
 
         𝐲 ∼ 𝓝(𝙼𝛂, 𝓋₁𝚆𝚆ᵀ + 𝓋₂𝙸).
 
-    Let 𝙺₀ = 𝓋₁𝚆𝚆ᵀ + 𝓋₂𝙸 be the covariance matrix for the null model.
+    It can be shown [LI14]_ that
 
-    Let P
+        𝑄 ∼ ∑ᵢ𝜆ᵢ𝜒²(1),
 
-    The above equation can be simplified by noticing that 𝙳𝟏𝟏ᵀ𝙳 = 𝐠𝐠ᵀ.
+    where the weights 𝜆ᵢ are the non-zero eigenvalues of ½√𝙿(∂𝙺)√𝙿.
+    We employ modified Liu approximation to 𝑄 proposed [LI02]_ and modified in [LE12]_.
 
     References
     ----------
@@ -91,6 +111,12 @@ class StructLMM:
        & Listgarten, J. (2014). Greater power and computational efficiency for
        kernel-based association testing of sets of genetic variants. Bioinformatics,
        30(22), 3206-3214.
+    .. [LI02] Liu, H., Tang, Y., & Zhang, H. H. (2009). A new chi-square approximation
+       to the distribution of non-negative definite quadratic forms in non-central
+       normal variables. Computational Statistics & Data Analysis, 53(4), 853-856.
+    .. [LE12] Lee, Seunggeun, Michael C. Wu, and Xihong Lin. "Optimal tests for rare
+       variant effects in sequencing association studies." Biostatistics 13.4 (2012):
+       762-775.
     """
 
     def __init__(self, y, M, E, W=None):
