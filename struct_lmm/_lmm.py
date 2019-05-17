@@ -158,45 +158,34 @@ class StructLMM:
         self._covarparam0 = self._lmm.C0[0, 0]
         self._covarparam1 = self._lmm.C1[0, 0]
 
-    def _xBy(self, rho, y, x):
+    def _P(self, v):
         """
-        Let 𝙱 = ρ𝟏 + (1-ρ)𝙴𝙴ᵀ.
-        It computes 𝐲ᵀ𝙱𝐱.
-        """
-        l = rho * (y.sum() * x.sum())
-        r = (1 - rho) * (y.T @ self._E) @ (self._E.T @ x)
-        return l + r
+        Let 𝙺 be the optimal covariance matrix under the null hypothesis.
+        Given 𝐯, this method computes
 
-    def _P(self, M):
-        """
-        Let 𝙺₀ be the optimal covariance matrix under the null hypothesis.
-        Given 𝙼, this method computes
-
-            𝙿₀ = 𝙺₀⁻¹ - 𝙺₀⁻¹𝙼(𝙼ᵀ𝙺₀⁻¹𝙼)⁻¹𝙼ᵀ𝙺₀⁻¹.
+            𝙿𝐯 = 𝙺⁻¹𝐯 - 𝙺⁻¹𝙼(𝙼ᵀ𝙺⁻¹𝙼)⁻¹𝙼ᵀ𝙺⁻¹𝐯.
         """
         from numpy_sugar.linalg import rsolve
         from scipy.linalg import cho_solve
 
-        RV = rsolve(self._lmm.covariance(), M)
+        x = rsolve(self._lmm.covariance(), v)
         if self._lmm.X is not None:
-            WKiM = self._lmm.M.T @ RV
-            terms = self._lmm._terms
-            WAiWKiM = self._lmm.X @ cho_solve(terms["Lh"], WKiM)
-            KiWAiWKiM = rsolve(self._lmm.covariance(), WAiWKiM)
-            RV -= KiWAiWKiM
+            Lh = self._lmm._terms["Lh"]
+            t = self._lmm.X @ cho_solve(Lh, self._lmm.M.T @ x)
+            x -= rsolve(self._lmm.covariance(), t)
 
-        return RV
+        return x
 
     def _score_stats(self, g):
         """
-        Let 𝙺₀ be the optimal covariance matrix under the null hypothesis.
-        The score-based test statistic is given by
+        Let 𝙺 be the optimal covariance matrix under the null hypothesis.
+        For a given ρ, the score-based test statistic is given by
 
-            𝑄 = ½𝐲ᵀ𝙿₀(∂𝙺)𝙿₀𝐲,
+            𝑄ᵨ = ½𝐲ᵀ𝙿ᵨ(∂𝙺ᵨ)𝙿ᵨ𝐲,
 
         where
 
-            ∂𝙺 = 𝙳(ρ𝟏𝟏ᵀ + (1-ρ)𝙴𝙴ᵀ)𝙳
+            ∂𝙺ᵨ = 𝙳(ρ𝟏𝟏ᵀ + (1-ρ)𝙴𝙴ᵀ)𝙳
 
         and 𝙳 = diag(𝐠).
         """
@@ -205,9 +194,13 @@ class StructLMM:
 
         Q = zeros(len(self._rhos))
         DPy = ddot(g, self._P(self._y))
+        s = DPy.sum()
+        l = s * s
+        DPyE = DPy.T @ self._E
+        r = DPyE @ DPyE.T
         for i in range(len(self._rhos)):
             rho = self._rhos[i]
-            Q[i] = self._xBy(rho, DPy, DPy) / 2
+            Q[i] = (rho * l + (1 - rho) * r) / 2
 
         return Q
 
@@ -218,18 +211,18 @@ class StructLMM:
 
             𝑄 ∼ ∑ᵢ𝜆ᵢχ²(1),
 
-        where 𝜆ᵢ are the non-zero eigenvalues of ½√𝙿₀(∂𝙺)√𝙿₀.
+        where 𝜆ᵢ are the non-zero eigenvalues of ½√𝙿(∂𝙺)√𝙿.
 
         Note that
 
-            ∂𝙺 = 𝙳(ρ𝟏𝟏ᵀ + (1-ρ)𝙴𝙴ᵀ)𝙳 = (ρ𝐠𝐠ᵀ + (1-ρ)𝙴̃𝙴̃ᵀ)
+            ∂𝙺ᵨ = 𝙳(ρ𝟏𝟏ᵀ + (1-ρ)𝙴𝙴ᵀ)𝙳 = (ρ𝐠𝐠ᵀ + (1-ρ)𝙴̃𝙴̃ᵀ)
 
         for 𝙴̃ = 𝙳𝙴.
         By using SVD decomposition, one can show that the non-zero eigenvalues of 𝚇𝚇ᵀ
         are equal to the non-zero eigenvalues of 𝚇ᵀ𝚇.
         Therefore, 𝜆ᵢ are the non-zero eigenvalues of
 
-            ½[√ρ𝐠 √(1-ρ)𝙴̃]𝙿₀[√ρ𝐠 √(1-ρ)𝙴̃]ᵀ.
+            ½[√ρ𝐠 √(1-ρ)𝙴̃]𝙿[√ρ𝐠 √(1-ρ)𝙴̃]ᵀ.
 
         """
         from numpy import empty
@@ -270,17 +263,13 @@ class StructLMM:
         Parameters
         ----------
         Qs : array_like
-            𝑄 from the null distribution.
+            𝑄ᵨ statistic.
         lambdas : array_like
-            𝜆ᵢ from the null distribution.
+            𝜆ᵢ from the null distribution for each ρ.
         """
         from numpy import stack
 
-        pvals = []
-        for Q, lam in zip(Qs, lambdas):
-            pvals.append(_mod_liu(Q, lam))
-
-        return stack(pvals, axis=0)
+        return stack([_mod_liu(Q, lam) for Q, lam in zip(Qs, lambdas)], axis=0)
 
     def _qmin(self, pliumod):
         from numpy import zeros
@@ -289,24 +278,20 @@ class StructLMM:
         # T statistic
         T = pliumod[:, 0].min()
 
-        # 2. Calculate qmin
         qmin = zeros(len(self._rhos))
         percentile = 1 - T
         for i in range(len(self._rhos)):
             q = st.chi2.ppf(percentile, pliumod[i, 3])
-            # Recalculate p-value for each Q rho of seeing values at least as
-            # extreme as q again using the modified matching moments method
-            qmin[i] = (q - pliumod[i, 3]) / (2 * pliumod[i, 3]) ** 0.5 * pliumod[
-                i, 2
-            ] + pliumod[i, 1]
-            pass
+            mu_q = pliumod[i, 1]
+            sigma_q = pliumod[i, 2]
+            dof = pliumod[i, 3]
+            qmin[i] = (q - dof) / (2 * dof) ** 0.5 * sigma_q + mu_q
 
         return qmin
 
     def score_2_dof(self, X):
-        from numpy import trace, sum
-        import scipy as sp
-        import scipy.linalg as la
+        from numpy import trace, sum, where, empty
+        from numpy.linalg import eigvalsh
 
         Q_rho = self._score_stats(X.ravel())
 
@@ -326,14 +311,14 @@ class StructLMM:
         ETxPx1 = xoE.T @ Px1
         ETxPx11xPxE = 0.25 / m * (ETxPx1 @ ETxPx1.T)
         ZTIminusMZ = ETxPxE - ETxPx11xPxE
-        eigh, _ = la.eigh(ZTIminusMZ)
+        eigh = eigvalsh(ZTIminusMZ)
 
         eta = ETxPx11xPxE @ ZTIminusMZ
         vareta = 4 * trace(eta)
 
         OneZTZE = 0.5 * (X.T @ PxoE)
         tau_top = OneZTZE @ OneZTZE.T
-        tau_rho = sp.zeros(len(self._rhos))
+        tau_rho = empty(len(self._rhos))
         for i in range(len(self._rhos)):
             tau_rho[i] = self._rhos[i] * m + (1 - self._rhos[i]) / m * tau_top
 
@@ -352,7 +337,7 @@ class StructLMM:
         multi = 3
         if len(self._rhos) < 3:
             multi = 2
-        idx = sp.where(pliumod[:, 0] > 0)[0]
+        idx = where(pliumod[:, 0] > 0)[0]
         pval = pliumod[:, 0].min() * multi
         if pvalue <= 0 or len(idx) < len(self._rhos):
             pvalue = pval
