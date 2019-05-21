@@ -1,4 +1,3 @@
-include LICENSE
+include LICENSE.md
 include README.md
-include setup.cfg
-recursive-include struct_lmm *.py
+include version.py
