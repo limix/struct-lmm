@@ -22,6 +22,35 @@ From terminal, it can be installed using [pip](https://pypi.python.org/pypi/pip)
 pip install struct-lmm
 ```
 
+## Usage
+
+```python
+>>> from numpy import ones, concatenate
+>>> from numpy.random import RandomState
+>>>
+>>> from struct_lmm import StructLMM
+>>>
+>>> random = RandomState(1)
+>>> n = 20
+>>> k = 4
+>>> y = random.randn(n, 1)
+>>> E = random.randn(n, k)
+>>> M = ones((n, 1))
+>>> x = 1.0 * (random.rand(n, 1) < 0.2)
+>>>
+>>> lmm = StructLMM(y, M, E)
+>>> lmm.fit(verbose=False)
+>>> pv = lmm.score_2_dof_assoc(x)
+>>> print(pv)
+0.8470017194859742
+>>> M = concatenate([M, x], axis=1)
+>>> lmm = StructLMM(y, M, E)
+>>> lmm.fit(verbose=False)
+>>> pv = lmm.score_2_dof_inter(x)
+>>> print(pv)
+0.6781100453132024
+```
+
 ## Problems
 
 If you encounter any problem, please, consider submitting a [new issue](https://github.com/limix/struct-lmm/issues/new).
