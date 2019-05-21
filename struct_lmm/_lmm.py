@@ -1,13 +1,6 @@
 from chiscore import optimal_davies_pvalue, davies_pvalue
 
 
-def _mod_liu(q, w):
-    from chiscore import liu_sf
-
-    (pv, dof_x, _, info) = liu_sf(q, w, [1] * len(w), [0] * len(w), True)
-    return (pv, info["mu_q"], info["sigma_q"], dof_x)
-
-
 class StructLMM:
     r"""
     Structured linear mixed model that accounts for genotype-environment interactions.
@@ -312,6 +305,7 @@ class StructLMM:
 
         return davies_pvalue(Q_rho[0], F)
 
+    # SKAT-O
     def score_2dof_assoc(self, X):
         from numpy import trace, sum, where, empty
         from numpy.linalg import eigvalsh
@@ -365,3 +359,10 @@ class StructLMM:
                 pvalue = pliumod[:, 0][idx].min()
 
         return pvalue
+
+
+def _mod_liu(q, w):
+    from chiscore import liu_sf
+
+    (pv, dof_x, _, info) = liu_sf(q, w, [1] * len(w), [0] * len(w), True)
+    return (pv, info["mu_q"], info["sigma_q"], dof_x)
