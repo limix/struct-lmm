@@ -1,4 +1,4 @@
-from chiscore import optimal_davies_pvalue
+from chiscore import optimal_davies_pvalue, davies_pvalue
 
 
 def _mod_liu(q, w):
@@ -13,7 +13,7 @@ class StructLMM:
     Structured linear mixed model that accounts for genotype-environment interactions.
 
     Let n be the number of samples.
-    StructLMM [MC18]_ extends the conventional linear mixed model by including an
+    StructLMM [1] extends the conventional linear mixed model by including an
     additional per-individual effect term that accounts for genotype-environment
     interaction, which can be represented as an n×1 vector, 𝛃.
     The model is given by
@@ -68,7 +68,7 @@ class StructLMM:
     Implementation
     --------------
 
-    We employ the score-test statistic [LI14]_ for both tests::
+    We employ the score-test statistic [2] for both tests
 
         𝑄 = ½𝐲ᵀ𝙿(∂𝙺)𝙿𝐲,
 
@@ -80,12 +80,12 @@ class StructLMM:
     The derivative is taken over the parameter being tested.
 
     Lets for now assume that ρ is given.
-    In practice, we have ::
+    In practice, we have
 
         𝙺ᵨ  = 𝓋₀𝙳(ρ𝟏𝟏ᵀ + (1-ρ)𝙴𝙴ᵀ)𝙳 + 𝓋₁𝚆𝚆ᵀ + 𝓋₂𝙸
         ∂𝙺ᵨ = 𝙳(ρ𝟏𝟏ᵀ + (1-ρ)𝙴𝙴ᵀ)𝙳
 
-    for association test and ::
+    for association test and
 
         𝙺₀  = 𝓋₀𝙳𝙴𝙴ᵀ𝙳 + 𝓋₁𝚆𝚆ᵀ + 𝓋₂𝙸
         ∂𝙺₀ = 𝙳𝙴𝙴ᵀ𝙳
@@ -95,26 +95,26 @@ class StructLMM:
 
         𝐲 ∼ 𝓝(𝙼𝛂, 𝓋₁𝚆𝚆ᵀ + 𝓋₂𝙸).
 
-    It can be shown [LI14]_ that
+    It can be shown [2]_ that
 
         𝑄 ∼ ∑ᵢ𝜆ᵢ𝜒²(1),
 
     where the weights 𝜆ᵢ are the non-zero eigenvalues of ½√𝙿(∂𝙺)√𝙿.
-    We employ modified Liu approximation to 𝑄 proposed [LI02]_ and modified in [LE12]_.
+    We employ modified Liu approximation to 𝑄 proposed [3] and modified in [4].
 
     References
     ----------
-    .. [MC18] Moore, R., Casale, F. P., Bonder, M. J., Horta, D., Franke, L., Barroso,
+    .. [1] Moore, R., Casale, F. P., Bonder, M. J., Horta, D., Franke, L., Barroso,
        I., & Stegle, O. (2018). A linear mixed-model approach to study multivariate
        gene–environment interactions (p. 1). Nature Publishing Group.
-    .. [LI14] Lippert, C., Xiang, J., Horta, D., Widmer, C., Kadie, C., Heckerman, D.,
+    .. [2] Lippert, C., Xiang, J., Horta, D., Widmer, C., Kadie, C., Heckerman, D.,
        & Listgarten, J. (2014). Greater power and computational efficiency for
        kernel-based association testing of sets of genetic variants. Bioinformatics,
        30(22), 3206-3214.
-    .. [LI02] Liu, H., Tang, Y., & Zhang, H. H. (2009). A new chi-square approximation
+    .. [3] Liu, H., Tang, Y., & Zhang, H. H. (2009). A new chi-square approximation
        to the distribution of non-negative definite quadratic forms in non-central
        normal variables. Computational Statistics & Data Analysis, 53(4), 853-856.
-    .. [LE12] Lee, Seunggeun, Michael C. Wu, and Xihong Lin. "Optimal tests for rare
+    .. [4] Lee, Seunggeun, Michael C. Wu, and Xihong Lin. "Optimal tests for rare
        variant effects in sequencing association studies." Biostatistics 13.4 (2012):
        762-775.
     """
@@ -147,8 +147,7 @@ class StructLMM:
             raise ValueError("Number of samples mismatch between y and W.")
 
         self._lmm = None
-
-        self._rhos = [0.0, 0.1 ** 2, 0.2 ** 2, 0.3 ** 2, 0.4 ** 2, 0.5 ** 2, 0.5, 1.0]
+        self._rhos = [0.0, 0.1 ** 2, 0.2 ** 2, 0.3 ** 2, 0.4 ** 2, 0.5 ** 2, 0.5, 0.999]
 
     def fit(self, verbose=True):
         from glimix_core.lmm import Kron2Sum
@@ -176,7 +175,7 @@ class StructLMM:
 
         return x
 
-    def _score_stats(self, g):
+    def _score_stats(self, g, rhos):
         """
         Let 𝙺 be the optimal covariance matrix under the null hypothesis.
         For a given ρ, the score-based test statistic is given by
@@ -192,14 +191,13 @@ class StructLMM:
         from numpy_sugar import ddot
         from numpy import zeros
 
-        Q = zeros(len(self._rhos))
+        Q = zeros(len(rhos))
         DPy = ddot(g, self._P(self._y))
         s = DPy.sum()
         l = s * s
         DPyE = DPy.T @ self._E
         r = DPyE @ DPyE.T
-        for i in range(len(self._rhos)):
-            rho = self._rhos[i]
+        for i, rho in enumerate(rhos):
             Q[i] = (rho * l + (1 - rho) * r) / 2
 
         return Q
@@ -289,15 +287,36 @@ class StructLMM:
 
         return qmin
 
-    def score_2_dof(self, X):
+    # SKAT
+    def score_2_dof_inter(self, X):
+        from numpy import empty
+        from numpy_sugar import ddot
+
+        Q_rho = self._score_stats(X.ravel(), [0])
+
+        g = X.ravel()
+        Et = ddot(g, self._E)
+        PEt = self._P(Et)
+
+        EtPEt = Et.T @ PEt
+        gPEt = g.T @ PEt
+
+        n = Et.shape[1] + 1
+        F = empty((n, n))
+
+        F[0, 0] = 0
+        F[0, 1:] = gPEt
+        F[1:, 0] = F[0, 1:]
+        F[1:, 1:] = EtPEt
+        F /= 2
+
+        return davies_pvalue(Q_rho[0], F)
+
+    def score_2_dof_assoc(self, X):
         from numpy import trace, sum, where, empty
         from numpy.linalg import eigvalsh
 
-        Q_rho = self._score_stats(X.ravel())
-
-        if len(self._rhos) == 1:
-            raise NotImplementedError("We have not tested it yet.")
-
+        Q_rho = self._score_stats(X.ravel(), self._rhos)
         null_lambdas = self._score_stats_null_dist(X.ravel())
         pliumod = self._score_stats_pvalue(Q_rho, null_lambdas)
         qmin = self._qmin(pliumod)
