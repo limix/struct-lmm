@@ -1,5 +1,5 @@
-from setuptools import setup_package
+from setuptools import setup
 
 
 if __name__ == "__main__":
-    setup_package()
+    setup()
