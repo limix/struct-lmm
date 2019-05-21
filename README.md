@@ -7,7 +7,7 @@ test for and characterize loci that interact with multiple environments [1].
 
 This a standalone module that implements the basic functionalities of StructLMM.
 However, we recommend using StructLMM via
-[LIMIX2](https://limix.readthedocs.io/en/2.0.0/index.html) as this additionally
+[LIMIX2](https://limix.readthedocs.io/en/2.0.x/index.html) as this additionally
 implements:
 
 - Multiple methods for GWAS;
@@ -57,10 +57,10 @@ If you encounter any problem, please, consider submitting a [new issue](https://
 
 ## Authors
 
-- **Danilo Horta** - [https://github.com/horta](https://github.com/horta)
-- **Francesco Paolo Casale** - [https://github.com/fpcasale](https://github.com/fpcasale)
-- **Oliver Stegle** - [https://github.com/ostegle](https://github.com/ostegle)
-- **Rachel Moore** - [https://github.com/rm18](https://github.com/rm18)
+- [Danilo Horta](https://github.com/horta)
+- [Francesco Paolo Casale](https://github.com/fpcasale)
+- [Oliver Stegle](https://github.com/ostegle)
+- [Rachel Moore](https://github.com/rm18)
 
 ## License
 
