@@ -40,13 +40,13 @@ pip install struct-lmm
 >>>
 >>> lmm = StructLMM(y, M, E)
 >>> lmm.fit(verbose=False)
->>> pv = lmm.score_2_dof_assoc(x)
+>>> pv = lmm.score_2dof_assoc(x)
 >>> print(pv)
 0.8470017194859742
 >>> M = concatenate([M, x], axis=1)
 >>> lmm = StructLMM(y, M, E)
 >>> lmm.fit(verbose=False)
->>> pv = lmm.score_2_dof_inter(x)
+>>> pv = lmm.score_2dof_inter(x)
 >>> print(pv)
 0.6781100453132024
 ```

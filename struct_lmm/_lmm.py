@@ -288,7 +288,7 @@ class StructLMM:
         return qmin
 
     # SKAT
-    def score_2_dof_inter(self, X):
+    def score_2dof_inter(self, X):
         from numpy import empty
         from numpy_sugar import ddot
 
@@ -312,7 +312,7 @@ class StructLMM:
 
         return davies_pvalue(Q_rho[0], F)
 
-    def score_2_dof_assoc(self, X):
+    def score_2dof_assoc(self, X):
         from numpy import trace, sum, where, empty
         from numpy.linalg import eigvalsh
 

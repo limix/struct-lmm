@@ -17,7 +17,7 @@ def test_structlmm_assoc():
     slmm = StructLMM(y, M, E, W=E)
     slmm.fit(verbose=False)
 
-    pv = slmm.score_2_dof_assoc(x)
+    pv = slmm.score_2dof_assoc(x)
     assert_allclose([pv], [0.8470039620073695], rtol=1e-5)
 
 
@@ -34,5 +34,5 @@ def test_structlmm_inter():
     slmm = StructLMM(y, M, E, W=E)
     slmm.fit(verbose=False)
 
-    pv = slmm.score_2_dof_inter(x)
+    pv = slmm.score_2dof_inter(x)
     assert_allclose([pv], [0.6781070640353783], rtol=1e-5)
