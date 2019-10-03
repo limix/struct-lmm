@@ -1,4 +1,4 @@
-from chiscore import optimal_davies_pvalue, davies_pvalue
+from chiscore import davies_pvalue, optimal_davies_pvalue
 
 
 class StructLMM:
@@ -42,7 +42,7 @@ class StructLMM:
     where 𝙳 = diag(𝐠).
 
     StructLMM method is used to perform two types of statistical tests.
-    The association one compares the following hypothesis:
+    The association one compares the following hypotheses:
 
         𝓗₀: 𝓋₀ = 0
         𝓗₁: 𝓋₀ > 0
@@ -53,7 +53,7 @@ class StructLMM:
     The interaction test is slightly more complicated as the term 𝐠𝛽 is now considered
     a fixed one. In pratice, we include 𝐠 in the covariates matrix 𝙼 and set ρ = 0.
     We refer to this modified model as the interaction model.
-    The compared hypothesis are:
+    The compared hypotheses are:
 
         𝓗₀: 𝓋₀ = 0 (given the interaction model)
         𝓗₁: 𝓋₀ > 0 (given the interaction model)
