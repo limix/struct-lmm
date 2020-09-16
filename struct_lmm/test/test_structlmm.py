@@ -20,6 +20,10 @@ def test_structlmm_assoc():
     pv = slmm.score_2dof_assoc(x)
     assert_allclose([pv], [0.8470039620073695], rtol=1e-5)
 
+    x = random.rand(n, 1)
+    pv, rho = slmm.score_2dof_assoc(x, True)
+    assert_allclose([pv, rho], [0.15803897226190278, 7], rtol=1e-5)
+
 
 def test_structlmm_inter():
     random = RandomState(1)

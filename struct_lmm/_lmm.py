@@ -283,6 +283,19 @@ class StructLMM:
 
     # SKAT
     def score_2dof_inter(self, X):
+        """
+        Interaction test.
+
+        Parameters
+        ----------
+        X : 1d-array
+            Genetic variant.
+
+        Returns
+        -------
+        float
+            P-value.
+        """
         from numpy import empty
         from numpy_sugar import ddot
 
@@ -307,13 +320,31 @@ class StructLMM:
         return davies_pvalue(Q_rho[0], F)
 
     # SKAT-O
-    def score_2dof_assoc(self, X):
+    def score_2dof_assoc(self, X, return_rho=False):
+        """
+        Association test.
+
+        Parameters
+        ----------
+        X : 1d-array
+            Genetic variant.
+        return_rho : bool (optional)
+            ``True`` to return the optimal ρ; ``False`` otherwise (Default).
+
+        Returns
+        -------
+        float
+            P-value.
+        float
+            Optimal ρ. Returned only if ``return_rho == True``.
+        """
         from numpy import empty, sum, trace, where
         from numpy.linalg import eigvalsh
 
         Q_rho = self._score_stats(X.ravel(), self._rhos)
         null_lambdas = self._score_stats_null_dist(X.ravel())
         pliumod = self._score_stats_pvalue(Q_rho, null_lambdas)
+        optimal_rho = pliumod[:, 0].argmin()
         qmin = self._qmin(pliumod)
 
         # 3. Calculate quantites that occur in null distribution
@@ -359,6 +390,8 @@ class StructLMM:
             if len(idx) > 0:
                 pvalue = pliumod[:, 0][idx].min()
 
+        if return_rho:
+            return pvalue, optimal_rho
         return pvalue
 
 

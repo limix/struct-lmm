@@ -40,12 +40,20 @@ pip install struct-lmm
 >>>
 >>> lmm = StructLMM(y, M, E)
 >>> lmm.fit(verbose=False)
+>>> # Association test
 >>> pv = lmm.score_2dof_assoc(x)
 >>> print(pv)
-0.8470017194859742
+0.8470017313426488
+>>> # Association test
+>>> pv, rho = lmm.score_2dof_assoc(x, return_rho=True)
+>>> print(pv)
+0.8470017313426488
+>>> print(rho)
+0
 >>> M = concatenate([M, x], axis=1)
 >>> lmm = StructLMM(y, M, E)
 >>> lmm.fit(verbose=False)
+>>> # Interaction test
 >>> pv = lmm.score_2dof_inter(x)
 >>> print(pv)
 0.6781100453132024
