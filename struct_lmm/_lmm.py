@@ -1,4 +1,4 @@
-from chiscore import optimal_davies_pvalue, davies_pvalue
+from chiscore import davies_pvalue, optimal_davies_pvalue
 
 
 class StructLMM:
@@ -113,7 +113,7 @@ class StructLMM:
     """
 
     def __init__(self, y, M, E, W=None):
-        from numpy import sqrt, asarray, atleast_2d
+        from numpy import asarray, atleast_2d, sqrt
         from numpy_sugar import ddot
 
         self._y = atleast_2d(asarray(y, float).ravel()).T
@@ -181,8 +181,8 @@ class StructLMM:
 
         and 𝙳 = diag(𝐠).
         """
-        from numpy_sugar import ddot
         from numpy import zeros
+        from numpy_sugar import ddot
 
         Q = zeros(len(rhos))
         DPy = ddot(g, self._P(self._y))
@@ -216,9 +216,10 @@ class StructLMM:
             ½[√ρ𝐠 √(1-ρ)𝙴̃]𝙿[√ρ𝐠 √(1-ρ)𝙴̃]ᵀ.
 
         """
+        from math import sqrt
+
         from numpy import empty
         from numpy.linalg import eigvalsh
-        from math import sqrt
         from numpy_sugar import ddot
 
         Et = ddot(g, self._E)
@@ -263,8 +264,8 @@ class StructLMM:
         return stack([_mod_liu(Q, lam) for Q, lam in zip(Qs, lambdas)], axis=0)
 
     def _qmin(self, pliumod):
-        from numpy import zeros
         import scipy.stats as st
+        from numpy import zeros
 
         # T statistic
         T = pliumod[:, 0].min()
@@ -307,7 +308,7 @@ class StructLMM:
 
     # SKAT-O
     def score_2dof_assoc(self, X):
-        from numpy import trace, sum, where, empty
+        from numpy import empty, sum, trace, where
         from numpy.linalg import eigvalsh
 
         Q_rho = self._score_stats(X.ravel(), self._rhos)
