@@ -1,7 +1,5 @@
 # Struct-LMM
 
-[![Travis](https://img.shields.io/travis/com/limix/struct-lmm.svg?style=flat-square&label=linux%20%2F%20macos%20build)](https://travis-ci.com/limix/struct-lmm) [![AppVeyor](https://img.shields.io/appveyor/ci/Horta/struct-lmm-rxwgm.svg?style=flat-square&label=windows%20build)](https://ci.appveyor.com/project/Horta/struct-lmm-rxwgm)
-
 Structured Linear Mixed Model (StructLMM) is a computationally efficient method to
 test for and characterize loci that interact with multiple environments [1].
 
